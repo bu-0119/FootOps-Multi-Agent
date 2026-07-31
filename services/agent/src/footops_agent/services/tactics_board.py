@@ -61,7 +61,7 @@ class DeterministicTacticsBoardBuilder:
         )
 
         return TacticsBoardArtifact(
-            title=f"{player_name} 五场样本位置变化",
+            title=f"{player_name} {len(rows)}场样本位置变化",
             players=[
                 TacticsPlayerMarker(
                     marker_id="focus:late-touch-position",

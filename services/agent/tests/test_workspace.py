@@ -63,7 +63,7 @@ def test_workspace_api_creates_and_restores_audited_analysis() -> None:
         created = client.post(
             "/api/v1/analyses",
             json={
-                "question": "分析佩德里最近三场的位置变化",
+                "question": "分析佩德里最近三场的角色变化",
                 "competition_id": 11,
                 "season_id": 90,
                 "player": "Pedri",
@@ -147,3 +147,84 @@ def test_workspace_stream_emits_status_before_completed_workspace() -> None:
     assert status["sequence"] == 1
     assert completed["sequence"] == 2
     assert completed["response"]["workspace"]["status"] == "tactics_ready"
+
+
+def test_specific_question_only_returns_relevant_finding() -> None:
+    app = create_app(
+        settings=Settings(_env_file=None, llm_mode="mock"),
+        data_provider=provider(),
+    )
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/analyses",
+            json={
+                "question": "佩德里最近三场的平均触球位置有什么变化？",
+                "competition_id": 11,
+                "season_id": 90,
+                "player": "Pedri",
+                "requested_window": 3,
+            },
+        )
+
+    assert response.status_code == 201
+    body = response.json()
+    assert [item["finding_id"] for item in body["workspace"]["findings"]] == [
+        "finding:average_touch_x"
+    ]
+    assert body["tactics_board_generated"] is True
+
+
+def test_supported_non_position_question_does_not_invent_tactics_board() -> None:
+    app = create_app(
+        settings=Settings(_env_file=None, llm_mode="mock"),
+        data_provider=provider(),
+    )
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/analyses",
+            json={
+                "question": "佩德里最近三场的进攻三区触球占比有什么变化？",
+                "competition_id": 11,
+                "season_id": 90,
+                "player": "Pedri",
+                "requested_window": 3,
+            },
+        )
+
+    assert response.status_code == 201
+    body = response.json()
+    assert body["workspace"]["status"] == "completed"
+    assert body["workspace"]["tactics_board"] is None
+    assert body["tactics_board_generated"] is False
+    assert [item["finding_id"] for item in body["workspace"]["findings"]] == [
+        "finding:attacking_third_touch_ratio"
+    ]
+
+
+def test_unsupported_question_is_rejected_instead_of_reusing_fixed_answer() -> None:
+    app = create_app(
+        settings=Settings(_env_file=None, llm_mode="mock"),
+        data_provider=provider(),
+    )
+    payload = {
+        "question": "你好，你能介绍一下自己吗？",
+        "competition_id": 11,
+        "season_id": 90,
+        "player": "Pedri",
+        "requested_window": 3,
+    }
+    with TestClient(app) as client:
+        direct = client.post("/api/v1/analyses", json=payload)
+        with client.stream(
+            "POST",
+            "/api/v1/analyses/stream",
+            json=payload,
+        ) as streamed:
+            lines = [line for line in streamed.iter_lines() if line]
+
+    assert direct.status_code == 422
+    assert direct.json()["error"]["code"] == "unsupported_analysis_question"
+    assert lines[0] == "event: analysis.status"
+    assert lines[2] == "event: analysis.error"
+    error = json.loads(lines[3].removeprefix("data: "))
+    assert error["error"]["code"] == "unsupported_analysis_question"

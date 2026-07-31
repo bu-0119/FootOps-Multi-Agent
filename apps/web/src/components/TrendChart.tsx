@@ -3,6 +3,7 @@ import type { PlayerRoleMetricArtifact } from "../api/data";
 
 interface TrendChartProps {
   metrics: PlayerRoleMetricArtifact | null;
+  findingIds: string[];
   loading: boolean;
   error: string;
 }
@@ -24,7 +25,7 @@ function percent(value: number | null): string {
   return value === null ? "—" : `${Math.round(value * 100)}%`;
 }
 
-export function TrendChart({ metrics, loading, error }: TrendChartProps) {
+export function TrendChart({ metrics, findingIds, loading, error }: TrendChartProps) {
   const [compact, setCompact] = useState(
     () => typeof window !== "undefined" && window.matchMedia("(max-width: 760px)").matches,
   );
@@ -39,7 +40,12 @@ export function TrendChart({ metrics, loading, error }: TrendChartProps) {
   const rows = metrics?.matches ?? [];
   const averageTouchX = rows.map((row) => row.average_touch_x);
   const attackingThird = rows.map((row) => row.attacking_third_touch_ratio);
-  const penaltyArea = rows.map((row) => row.penalty_area_touch_ratio);
+  const averageReceiptX = rows.map((row) => row.average_receipt_x);
+  const showTouch = findingIds.includes("finding:average_touch_x");
+  const showAttackingThird = findingIds.includes(
+    "finding:attacking_third_touch_ratio",
+  );
+  const showReceipt = findingIds.includes("finding:average_receipt_x");
   const last = rows.at(-1);
   const chartWidth = compact ? 360 : 620;
   const xPositions = compact
@@ -59,9 +65,11 @@ export function TrendChart({ metrics, loading, error }: TrendChartProps) {
       {!loading && !error && rows.length > 0 && (
         <>
           <div className="chart-legend" aria-hidden="true">
-            <span className="green">平均触球纵向坐标</span>
-            <span className="blue">进攻三区触球占比</span>
-            <span className="gray">禁区触球占比</span>
+            {showTouch && <span className="green">平均触球纵向坐标</span>}
+            {showAttackingThird && (
+              <span className="blue">进攻三区触球占比</span>
+            )}
+            {showReceipt && <span className="gray">平均接球纵向坐标</span>}
           </div>
           <svg
             viewBox={`0 0 ${chartWidth} 190`}
@@ -85,45 +93,27 @@ export function TrendChart({ metrics, loading, error }: TrendChartProps) {
             </text>
           ))}
         </g>
-        <polyline
-          className="series green"
-          points={pointsFor(averageTouchX, 120, xPositions)}
-        />
-        <polyline
-          className="series blue"
-          points={pointsFor(attackingThird, 1, xPositions)}
-        />
-        <polyline
-          className="series gray"
-          points={pointsFor(penaltyArea, 1, xPositions)}
-        />
-        <circle
-          className="point green"
-          cx={xPositions[4]}
-          cy={165 - ((last?.average_touch_x ?? 0) / 120) * 135}
-          r="5"
-        />
-        <circle
-          className="point blue"
-          cx={xPositions[4]}
-          cy={165 - (last?.attacking_third_touch_ratio ?? 0) * 135}
-          r="5"
-        />
-        <circle
-          className="point gray"
-          cx={xPositions[4]}
-          cy={165 - (last?.penalty_area_touch_ratio ?? 0) * 135}
-          r="5"
-        />
-        <text className="chart-value green" x={valueX} y="48">
-          {last?.average_touch_x?.toFixed(1) ?? "—"}x
-        </text>
-        <text className="chart-value blue" x={valueX} y="62">
-          {percent(last?.attacking_third_touch_ratio ?? null)}
-        </text>
-        <text className="chart-value gray" x={valueX} y="76">
-          {percent(last?.penalty_area_touch_ratio ?? null)}
-        </text>
+        {showTouch && (
+          <>
+            <polyline className="series green" points={pointsFor(averageTouchX, 120, xPositions)} />
+            <circle className="point green" cx={xPositions[4]} cy={165 - ((last?.average_touch_x ?? 0) / 120) * 135} r="5" />
+            <text className="chart-value green" x={valueX} y="48">{last?.average_touch_x?.toFixed(1) ?? "—"}x</text>
+          </>
+        )}
+        {showAttackingThird && (
+          <>
+            <polyline className="series blue" points={pointsFor(attackingThird, 1, xPositions)} />
+            <circle className="point blue" cx={xPositions[4]} cy={165 - (last?.attacking_third_touch_ratio ?? 0) * 135} r="5" />
+            <text className="chart-value blue" x={valueX} y="62">{percent(last?.attacking_third_touch_ratio ?? null)}</text>
+          </>
+        )}
+        {showReceipt && (
+          <>
+            <polyline className="series gray" points={pointsFor(averageReceiptX, 120, xPositions)} />
+            <circle className="point gray" cx={xPositions[4]} cy={165 - ((last?.average_receipt_x ?? 0) / 120) * 135} r="5" />
+            <text className="chart-value gray" x={valueX} y="76">{last?.average_receipt_x?.toFixed(1) ?? "—"}x</text>
+          </>
+        )}
           </svg>
         </>
       )}

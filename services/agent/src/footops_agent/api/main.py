@@ -29,6 +29,7 @@ from footops_agent.services import (
     InsufficientDataError,
     PlayerRoleAnalysisService,
     PlayerRoleFindingReviewService,
+    UnsupportedAnalysisQuestionError,
 )
 
 from .schemas import (
@@ -141,6 +142,19 @@ def create_app(
         )
         return JSONResponse(status_code=404, content=body.model_dump())
 
+    @app.exception_handler(UnsupportedAnalysisQuestionError)
+    async def handle_unsupported_question(
+        _request: Request,
+        _exc: UnsupportedAnalysisQuestionError,
+    ) -> JSONResponse:
+        body = ErrorResponse(
+            error=ErrorBody(
+                code="unsupported_analysis_question",
+                message=UnsupportedAnalysisQuestionError.public_message,
+            ),
+        )
+        return JSONResponse(status_code=422, content=body.model_dump())
+
     @app.get("/health", response_model=HealthResponse)
     async def health() -> HealthResponse:
         return HealthResponse()
@@ -188,7 +202,10 @@ def create_app(
             payload.player,
             payload.requested_window,
         )
-        return AnalysisWorkspaceResponse(workspace=workspace)
+        return AnalysisWorkspaceResponse(
+            workspace=workspace,
+            tactics_board_generated=workspace.tactics_board is not None,
+        )
 
     @app.post(
         "/api/v1/analyses/stream",
@@ -212,7 +229,7 @@ def create_app(
                     event="analysis.status",
                     request_id=request_id,
                     sequence=1,
-                    message="正在检索公开比赛数据并执行确定性分析。",
+                    message="正在校验问题范围并准备确定性分析。",
                 )
             )
             try:
@@ -252,8 +269,25 @@ def create_app(
                     )
                 )
                 return
+            except UnsupportedAnalysisQuestionError:
+                yield _sse(
+                    AnalysisStreamEvent(
+                        event="analysis.error",
+                        request_id=request_id,
+                        sequence=2,
+                        message="当前问题不在可执行范围内。",
+                        error=ErrorBody(
+                            code="unsupported_analysis_question",
+                            message=UnsupportedAnalysisQuestionError.public_message,
+                        ),
+                    )
+                )
+                return
 
-            response = AnalysisWorkspaceResponse(workspace=workspace)
+            response = AnalysisWorkspaceResponse(
+                workspace=workspace,
+                tactics_board_generated=workspace.tactics_board is not None,
+            )
             yield _sse(
                 AnalysisStreamEvent(
                     event="analysis.completed",
@@ -279,7 +313,11 @@ def create_app(
         responses={404: {"model": ErrorResponse}},
     )
     def get_analysis_workspace(workspace_id: str) -> AnalysisWorkspaceResponse:
-        return AnalysisWorkspaceResponse(workspace=workspace_service.get(workspace_id))
+        workspace = workspace_service.get(workspace_id)
+        return AnalysisWorkspaceResponse(
+            workspace=workspace,
+            tactics_board_generated=workspace.tactics_board is not None,
+        )
 
     @app.post(
         "/api/v1/analyses/plan",

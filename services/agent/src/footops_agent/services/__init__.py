@@ -6,6 +6,10 @@ from .finding_builder import DeterministicFindingBuilder
 from .finding_review import PlayerRoleFindingReviewService
 from .metric_engine import PlayerRoleMetricEngine
 from .player_role import PlayerRoleAnalysisService
+from .question_scope import (
+    PlayerRoleQuestionRouter,
+    UnsupportedAnalysisQuestionError,
+)
 from .tactics_board import DeterministicTacticsBoardBuilder
 from .workspace import (
     AnalysisWorkspaceService,
@@ -24,5 +28,7 @@ __all__ = [
     "PlayerRoleAnalysisService",
     "PlayerRoleFindingReviewService",
     "PlayerRoleMetricEngine",
+    "PlayerRoleQuestionRouter",
+    "UnsupportedAnalysisQuestionError",
     "WorkspaceStateMachine",
 ]

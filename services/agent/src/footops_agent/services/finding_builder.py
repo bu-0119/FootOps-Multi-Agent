@@ -113,7 +113,7 @@ class DeterministicFindingBuilder:
         finding = FindingArtifact(
             finding_id=f"finding:{spec.field}",
             statement=(
-                f"在所选五场样本中，{spec.label}由前{comparison_size}场均值"
+                f"在所选{len(rows)}场样本中，{spec.label}由前{comparison_size}场均值"
                 f" {spec.formatter(early_mean)} {direction_text}"
                 f"后{comparison_size}场均值"
                 f" {spec.formatter(late_mean)}。"

@@ -10,6 +10,7 @@ from footops_agent.artifacts import (
     EvidenceReviewArtifact,
     EvidenceSetArtifact,
     FindingArtifact,
+    FindingSetArtifact,
     PlayerRoleMetricArtifact,
     TacticsBoardArtifact,
     WorkspaceStatus,
@@ -22,6 +23,7 @@ from footops_agent.repositories import (
 )
 
 from .finding_review import PlayerRoleFindingReviewService
+from .question_scope import PlayerRoleQuestionRouter
 from .tactics_board import DeterministicTacticsBoardBuilder
 
 
@@ -37,7 +39,7 @@ class WorkspaceStateMachine:
         "data_ready": frozenset({"metrics_ready", "failed"}),
         "metrics_ready": frozenset({"findings_ready", "failed"}),
         "findings_ready": frozenset({"evidence_reviewed", "failed"}),
-        "evidence_reviewed": frozenset({"tactics_ready", "failed"}),
+        "evidence_reviewed": frozenset({"tactics_ready", "completed", "failed"}),
         "tactics_ready": frozenset({"completed", "failed"}),
         "completed": frozenset(),
         "insufficient_data": frozenset(),
@@ -104,7 +106,7 @@ class WorkspaceStateMachine:
             raise InvalidWorkspaceTransitionError(
                 "evidence_reviewed requires evidence and review"
             )
-        if position >= 5 and workspace.tactics_board is None:
+        if workspace.status == "tactics_ready" and workspace.tactics_board is None:
             raise InvalidWorkspaceTransitionError(
                 "tactics_ready requires a tactics board"
             )
@@ -119,11 +121,13 @@ class AnalysisWorkspaceService:
         repository: AnalysisWorkspaceRepository,
         state_machine: WorkspaceStateMachine | None = None,
         tactics_builder: DeterministicTacticsBoardBuilder | None = None,
+        question_router: PlayerRoleQuestionRouter | None = None,
     ) -> None:
         self.review_service = PlayerRoleFindingReviewService(provider)
         self.repository = repository
         self.state_machine = state_machine or WorkspaceStateMachine()
         self.tactics_builder = tactics_builder or DeterministicTacticsBoardBuilder()
+        self.question_router = question_router or PlayerRoleQuestionRouter()
 
     def create(
         self,
@@ -133,11 +137,18 @@ class AnalysisWorkspaceService:
         player_query: str,
         requested_window: int = 5,
     ) -> AnalysisWorkspace:
+        selection = self.question_router.select(question, player_query)
         audit, metrics, finding_set, evidence, review = self.review_service.review(
             competition_id,
             season_id,
             player_query,
             requested_window,
+        )
+        finding_set, evidence, review = self._select_reviewed_findings(
+            finding_set,
+            evidence,
+            review,
+            set(selection.finding_ids),
         )
         selected_ids = set(audit.suggested_match_ids)
         selected_appearance = next(
@@ -169,16 +180,18 @@ class AnalysisWorkspaceService:
             evidence=evidence,
             evidence_review=review,
         )
-        tactics_board = self.tactics_builder.build(
-            metrics,
-            finding_set.findings,
-            review,
-        )
-        return self._save_transition(
-            workspace,
-            "tactics_ready",
-            tactics_board=tactics_board,
-        )
+        if "finding:average_touch_x" in selection.finding_ids:
+            tactics_board = self.tactics_builder.build(
+                metrics,
+                finding_set.findings,
+                review,
+            )
+            return self._save_transition(
+                workspace,
+                "tactics_ready",
+                tactics_board=tactics_board,
+            )
+        return self._save_transition(workspace, "completed")
 
     def get(self, workspace_id: str) -> AnalysisWorkspace:
         workspace = self.repository.get(workspace_id)
@@ -198,3 +211,55 @@ class AnalysisWorkspaceService:
             **artifacts,  # type: ignore[arg-type]
         )
         return self.repository.save(transitioned)
+
+    @staticmethod
+    def _select_reviewed_findings(
+        finding_set: FindingSetArtifact,
+        evidence: EvidenceSetArtifact,
+        review: EvidenceReviewArtifact,
+        selected_ids: set[str],
+    ) -> tuple[FindingSetArtifact, EvidenceSetArtifact, EvidenceReviewArtifact]:
+        findings = [
+            finding
+            for finding in finding_set.findings
+            if finding.finding_id in selected_ids
+        ]
+        reviews = [item for item in review.reviews if item.finding_id in selected_ids]
+        if not findings or not reviews:
+            raise ValueError("selected findings are missing from the review result")
+
+        accepted_refs = {
+            reference
+            for item in reviews
+            for reference in (
+                item.accepted_metric_refs + item.accepted_source_refs
+            )
+        }
+        references = [
+            item for item in evidence.references if item.evidence_id in accepted_refs
+        ]
+        supported = sum(item.status == "supported" for item in reviews)
+        overall_status = (
+            "passed"
+            if supported == len(reviews)
+            else "partial"
+            if supported
+            else "rejected"
+        )
+        return (
+            FindingSetArtifact(
+                generated_at=finding_set.generated_at,
+                findings=findings,
+            ),
+            EvidenceSetArtifact(
+                generated_at=evidence.generated_at,
+                references=references,
+            ),
+            EvidenceReviewArtifact(
+                reviewed_at=review.reviewed_at,
+                overall_status=overall_status,
+                support_rate=supported / len(reviews),
+                reviews=reviews,
+                limitations=review.limitations,
+            ),
+        )

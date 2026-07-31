@@ -207,8 +207,6 @@
           "type": "boolean"
         },
         "tactics_board_generated": {
-          "const": true,
-          "default": true,
           "title": "Tactics Board Generated",
           "type": "boolean"
         },
@@ -223,6 +221,7 @@
         }
       },
       "required": [
+        "tactics_board_generated",
         "workspace"
       ],
       "title": "AnalysisWorkspaceResponse",

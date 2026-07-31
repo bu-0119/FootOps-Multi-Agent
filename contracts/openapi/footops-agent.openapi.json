@@ -801,9 +801,7 @@
           },
           "tactics_board_generated": {
             "type": "boolean",
-            "const": true,
-            "title": "Tactics Board Generated",
-            "default": true
+            "title": "Tactics Board Generated"
           },
           "real_conclusions_generated": {
             "type": "boolean",
@@ -818,6 +816,7 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
+          "tactics_board_generated",
           "workspace"
         ],
         "title": "AnalysisWorkspaceResponse"

@@ -130,7 +130,7 @@ class AnalysisWorkspaceResponse(ApiModel):
     data_retrieved: Literal[True] = True
     findings_generated: Literal[True] = True
     evidence_reviewed: Literal[True] = True
-    tactics_board_generated: Literal[True] = True
+    tactics_board_generated: bool
     real_conclusions_generated: Literal[False] = False
     workspace: AnalysisWorkspace
 

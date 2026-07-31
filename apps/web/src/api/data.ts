@@ -265,7 +265,7 @@ export interface AnalysisWorkspaceResponse {
   data_retrieved: true;
   findings_generated: true;
   evidence_reviewed: true;
-  tactics_board_generated: true;
+  tactics_board_generated: boolean;
   real_conclusions_generated: false;
   workspace: AnalysisWorkspace;
 }

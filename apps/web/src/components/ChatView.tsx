@@ -128,14 +128,14 @@ export function ChatView({
                   {metricsLoading
                     ? "正在读取历史公开比赛数据"
                     : metricError
-                      ? "真实数据暂时不可用"
+                      ? "当前问题未生成分析"
                       : `已审核 ${findings.length} 条描述性观察`}
                 </span>
                 <strong>
                   {metricsLoading
                     ? "审核中"
                     : metricError
-                      ? "未使用演示值替代"
+                      ? "未复用固定结果"
                       : evidenceReview?.overall_status === "passed"
                         ? "证据门禁通过"
                         : "需要补证"}
@@ -148,12 +148,13 @@ export function ChatView({
                   {metricsLoading
                     ? "正在建立可复算的描述性观察。"
                     : metricError
-                      ? "描述性观察暂时不可用。"
+                      ? "当前问题暂时无法执行。"
                       : `${findings.length} 条描述性观察已通过确定性证据门禁。`}
                 </h2>
                 <p className="answer-lead">
-                  当前样例来自西甲 2020/21 历史公开数据。下面只展示可复算的样本内
-                  比较，不把数值变化提前解释为战术角色变化。
+                  {metricError
+                    ? metricError
+                    : "当前样例来自西甲 2020/21 历史公开数据。下面只展示可复算的样本内比较，不把数值变化提前解释为战术角色变化。"}
                 </p>
 
                 <div className="evidence-points">
@@ -165,11 +166,14 @@ export function ChatView({
                   ))}
                 </div>
 
-                <TrendChart
-                  metrics={workspace?.metrics ?? null}
-                  loading={metricsLoading}
-                  error={metricError}
-                />
+                {(metricsLoading || workspace?.metrics) && (
+                  <TrendChart
+                    metrics={workspace?.metrics ?? null}
+                    findingIds={findings.map((finding) => finding.finding_id)}
+                    loading={metricsLoading}
+                    error={metricError}
+                  />
+                )}
 
                 {workspace && (
                   <div className="source-links">

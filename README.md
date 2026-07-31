@@ -35,3 +35,8 @@ npm run dev
 The initial screen is intentionally blank. Submit a question to create a real
 StatsBomb Open Data workspace over SSE. Phase 2A does not require an LLM key;
 DeepSeek is only used by the separate planning spike when `LLM_MODE=deepseek`.
+
+The current golden scope is intentionally narrow: Pedri multi-match average
+touch position, attacking-third touch share, average receipt position, or a
+combined role-change comparison. Unsupported questions return an explicit
+scope error instead of reusing the golden answer.
