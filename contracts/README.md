@@ -1,0 +1,32 @@
+# Contracts
+
+This directory contains generated OpenAPI documents and JSON Schemas shared by
+the React frontend and Python agent service. Source Pydantic models remain the
+authority; regenerate checked-in contracts with:
+
+```bash
+.venv/bin/python scripts/export_contracts.py
+```
+
+The initial endpoints are expected to be:
+
+- `GET /health`
+- `GET /api/v1/llm/status`
+- `POST /api/v1/analyses/plan`
+- `POST /api/v1/analyses`
+- `POST /api/v1/analyses/stream`
+- `GET /api/v1/analyses/{workspace_id}`
+- `POST /api/v1/data/coverage-audit`
+- `POST /api/v1/metrics/player-role`
+- `POST /api/v1/findings/player-role/review`
+
+`contracts/events/analysis-stream-event.schema.json` defines the versioned
+`analysis.status`, `analysis.completed`, and `analysis.error` SSE payload. The
+stream carries business lifecycle events; it is not a token-stream contract.
+
+The authoritative product, architecture, and implementation baselines are:
+
+- [`docs/FOOTOPS_REQUIREMENTS.md`](../docs/FOOTOPS_REQUIREMENTS.md)
+- [`docs/FOOTOPS_MINDBRIDGE_ARCHITECTURE.md`](../docs/FOOTOPS_MINDBRIDGE_ARCHITECTURE.md)
+- [`docs/FOOTOPS_PROJECT_STRUCTURE_STANDARD.md`](../docs/FOOTOPS_PROJECT_STRUCTURE_STANDARD.md)
+- [`docs/FOOTOPS_DEVELOPMENT_ORDER.md`](../docs/FOOTOPS_DEVELOPMENT_ORDER.md)

@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title description">
+  <title id="title">FootOps 目标系统架构</title>
+  <desc id="description">从战术问题、React Web、FastAPI、FootOpsAgentHarness 到路由、AgentScope Runtime、四 Agent 协作、数据与持久化、工具和工程支撑的完整架构图。</desc>
+
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#19324d" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow-dark" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#243447"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#14804a"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#d97706"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#7c3aed"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#dc2626"/>
+    </marker>
+    <style>
+      text { font-family: Inter, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; letter-spacing: 0; fill: #17212b; }
+      .page-title { font-size: 28px; font-weight: 760; }
+      .page-subtitle { font-size: 15px; fill: #607080; }
+      .band-title { font-size: 18px; font-weight: 730; }
+      .cluster-title { font-size: 21px; font-weight: 760; }
+      .cluster-subtitle { font-size: 13px; fill: #687887; }
+      .card-title { font-size: 17px; font-weight: 730; }
+      .small-title { font-size: 15px; font-weight: 720; }
+      .body { font-size: 13px; fill: #364553; }
+      .small { font-size: 12px; fill: #586877; }
+      .micro { font-size: 11px; fill: #6f7e8c; }
+      .mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 11px; fill: #394a59; }
+      .step-number { font-size: 13px; font-weight: 750; fill: #ffffff; text-anchor: middle; dominant-baseline: middle; }
+      .flow-label { font-size: 11px; font-weight: 700; }
+      .planned { font-size: 11px; font-weight: 700; fill: #7c3aed; }
+    </style>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#f7f9fc"/>
+
+  <text x="42" y="45" class="page-title">FootOps 目标架构：从战术问题到可验证分析产物</text>
+  <text x="42" y="75" class="page-subtitle">面向战术爱好者与内容创作者 · 公开比赛数据 · Artifact 驱动 · 有界运行与证据审核</text>
+  <rect x="1595" y="28" width="282" height="42" rx="9" fill="#fff7ed" stroke="#fb923c" stroke-width="1.5"/>
+  <circle cx="1620" cy="49" r="6" fill="#f97316"/>
+  <text x="1637" y="54" font-size="13" font-weight="700" fill="#9a3412">目标架构 · 当前进度 Phase 2A</text>
+
+  <!-- Main request path -->
+  <rect x="28" y="105" width="1864" height="282" rx="14" fill="#edf5ff" stroke="#b9d6ff" stroke-width="1.5"/>
+  <text x="52" y="139" class="band-title" fill="#1d4ed8">主链路：用户问题如何变成可追溯的分析工作区</text>
+  <text x="1505" y="139" class="micro">实线：同步主路径　虚线：持久化 / 追踪 / 异步</text>
+
+  <path d="M259 264 H278" stroke="#243447" stroke-width="2.4" marker-end="url(#arrow-dark)"/>
+  <path d="M488 264 H507" stroke="#243447" stroke-width="2.4" marker-end="url(#arrow-dark)"/>
+  <path d="M717 264 H736" stroke="#243447" stroke-width="2.4" marker-end="url(#arrow-dark)"/>
+  <path d="M981 264 H1000" stroke="#243447" stroke-width="2.4" marker-end="url(#arrow-dark)"/>
+  <path d="M1215 264 H1234" stroke="#243447" stroke-width="2.4" marker-end="url(#arrow-dark)"/>
+  <path d="M1519 264 H1538" stroke="#243447" stroke-width="2.4" marker-end="url(#arrow-dark)"/>
+
+  <!-- Card 1 -->
+  <g filter="url(#shadow)">
+    <rect x="52" y="164" width="207" height="196" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  </g>
+  <circle cx="75" cy="188" r="14" fill="#2563eb"/><text x="75" y="188" class="step-number">1</text>
+  <text x="98" y="194" class="card-title" fill="#1d4ed8">React Web</text>
+  <rect x="75" y="218" width="160" height="38" rx="6" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="155" y="242" text-anchor="middle" class="small-title" fill="#1d4ed8">分析工作区</text>
+  <text x="75" y="282" class="body">战术爱好者 / 内容创作者</text>
+  <text x="75" y="306" class="body">问答 · 证据 · 趋势图</text>
+  <text x="75" y="330" class="body">可编辑战术板 · 报告</text>
+  <text x="75" y="349" class="micro">内部 Agent 对用户不可见</text>
+
+  <!-- Card 2 -->
+  <g filter="url(#shadow)">
+    <rect x="278" y="164" width="210" height="196" rx="10" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+  </g>
+  <circle cx="301" cy="188" r="14" fill="#0f766e"/><text x="301" y="188" class="step-number">2</text>
+  <text x="324" y="194" class="card-title" fill="#0f766e">HTTP + SSE 契约</text>
+  <text x="300" y="231" class="mono">POST /api/v1/analyses</text>
+  <text x="300" y="254" class="mono">GET  /{run_id}</text>
+  <text x="300" y="277" class="mono">GET  /events</text>
+  <text x="300" y="308" class="body">只暴露业务 Schema</text>
+  <text x="300" y="332" class="body">状态 / answer / evidence / board</text>
+  <text x="300" y="351" class="micro">前端不依赖 AgentScope 类型</text>
+
+  <!-- Card 3 -->
+  <g filter="url(#shadow)">
+    <rect x="507" y="164" width="210" height="196" rx="10" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+  </g>
+  <circle cx="530" cy="188" r="14" fill="#0f766e"/><text x="530" y="188" class="step-number">3</text>
+  <text x="553" y="194" class="card-title" fill="#0f766e">FastAPI Service</text>
+  <text x="531" y="231" class="body">请求与 Schema 校验</text>
+  <text x="531" y="256" class="body">创建 / 查询 / 取消 Run</text>
+  <text x="531" y="281" class="body">SSE 流式业务事件</text>
+  <text x="531" y="306" class="body">认证、限流和错误边界</text>
+  <rect x="531" y="323" width="158" height="25" rx="5" fill="#ecfdf5"/>
+  <text x="610" y="340" text-anchor="middle" class="micro" fill="#047857">不负责战术推理</text>
+
+  <!-- Card 4 -->
+  <g filter="url(#shadow)">
+    <rect x="736" y="164" width="245" height="196" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2.2"/>
+  </g>
+  <circle cx="759" cy="188" r="14" fill="#7c3aed"/><text x="759" y="188" class="step-number">4</text>
+  <text x="782" y="194" class="card-title" fill="#6d28d9">FootOpsAgentHarness</text>
+  <text x="760" y="231" class="body">创建 run_id / Workspace</text>
+  <text x="760" y="256" class="body">预算 · 超时 · 重试 · 幂等</text>
+  <text x="760" y="281" class="body">Checkpoint / Resume / Cancel</text>
+  <text x="760" y="306" class="body">Evidence Gate · 持久化</text>
+  <rect x="760" y="323" width="195" height="25" rx="5" fill="#f5f3ff"/>
+  <text x="858" y="340" text-anchor="middle" class="micro" fill="#6d28d9">业务生命周期边界</text>
+
+  <!-- Card 5 -->
+  <g filter="url(#shadow)">
+    <rect x="1000" y="164" width="215" height="196" rx="10" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+  </g>
+  <circle cx="1023" cy="188" r="14" fill="#d97706"/><text x="1023" y="188" class="step-number">5</text>
+  <text x="1046" y="194" class="card-title" fill="#b45309">Execution Router</text>
+  <rect x="1024" y="220" width="167" height="28" rx="5" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="1108" y="239" text-anchor="middle" class="small">Direct Data / Render</text>
+  <rect x="1024" y="258" width="167" height="28" rx="5" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="1108" y="277" text-anchor="middle" class="small">Single Agent</text>
+  <rect x="1024" y="296" width="167" height="28" rx="5" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="1108" y="315" text-anchor="middle" class="small">Multi-Agent</text>
+  <text x="1024" y="345" class="micro">简单查询不启动复杂链路</text>
+
+  <!-- Card 6 -->
+  <g filter="url(#shadow)">
+    <rect x="1234" y="164" width="285" height="196" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+  </g>
+  <circle cx="1257" cy="188" r="14" fill="#7c3aed"/><text x="1257" y="188" class="step-number">6</text>
+  <text x="1280" y="194" class="card-title" fill="#6d28d9">AgentScope Runtime</text>
+  <text x="1258" y="230" class="body">ReAct · Structured Output</text>
+  <text x="1258" y="254" class="body">Toolkit · Skills · MCP</text>
+  <text x="1258" y="278" class="body">State · Steering · Compression</text>
+  <text x="1258" y="302" class="body">DeepSeek via ModelAdapter</text>
+  <rect x="1258" y="321" width="235" height="27" rx="5" fill="#f5f3ff"/>
+  <text x="1376" y="339" text-anchor="middle" class="micro" fill="#6d28d9">框架能力与自研 Harness 解耦</text>
+
+  <!-- Card 7 -->
+  <g filter="url(#shadow)">
+    <rect x="1538" y="164" width="328" height="196" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  </g>
+  <circle cx="1561" cy="188" r="14" fill="#2563eb"/><text x="1561" y="188" class="step-number">7</text>
+  <text x="1584" y="194" class="card-title" fill="#1d4ed8">业务交付与前端渲染</text>
+  <text x="1562" y="231" class="body">answer.delta / analysis.status</text>
+  <text x="1562" y="256" class="body">Finding + Evidence + Citation</text>
+  <text x="1562" y="281" class="body">真实指标驱动趋势图</text>
+  <text x="1562" y="306" class="body">TacticsBoardArtifact</text>
+  <text x="1562" y="331" class="body">ReportArtifact / Export</text>
+  <text x="1562" y="350" class="micro">图表与战术板确定性渲染</text>
+
+  <!-- Lower layer connectors, rendered before cluster cards -->
+  <path d="M858 360 V404" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arrow-purple)"/>
+  <text x="870" y="396" class="flow-label" fill="#7c3aed">复杂分析</text>
+  <path d="M1107 360 V742" stroke="#d97706" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#arrow-orange)"/>
+  <text x="1119" y="748" class="flow-label" fill="#b45309">工具 / Skill</text>
+  <path d="M795 360 C700 390, 400 390, 400 424" fill="none" stroke="#14804a" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#arrow-green)"/>
+  <text x="554" y="397" class="flow-label" fill="#14804a">Workspace / Checkpoint</text>
+  <path d="M1375 360 C1450 390, 1590 390, 1590 424" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#arrow-blue)"/>
+  <text x="1455" y="397" class="flow-label" fill="#2563eb">Trace / Eval</text>
+
+  <!-- Data and persistence cluster -->
+  <g filter="url(#shadow)">
+    <rect x="32" y="420" width="402" height="610" rx="12" fill="#ffffff" stroke="#14804a" stroke-width="2"/>
+  </g>
+  <text x="57" y="455" class="cluster-title" fill="#08783f">数据与持久化</text>
+  <text x="57" y="477" class="cluster-subtitle">公开、合法可用的数据优先；每个数值可回到快照与口径</text>
+
+  <rect x="56" y="500" width="354" height="105" rx="8" fill="#f3fbf6" stroke="#65a978" stroke-width="1.5"/>
+  <text x="76" y="528" class="small-title" fill="#08783f">公开比赛数据源</text>
+  <text x="76" y="554" class="body">StatsBomb Open Data · football-data.org</text>
+  <text x="76" y="578" class="body">赛程 / 阵容 / 事件 / 基础统计</text>
+  <text x="76" y="595" class="micro">记录来源、获取时间、覆盖范围与许可限制</text>
+
+  <rect x="56" y="622" width="354" height="105" rx="8" fill="#f3fbf6" stroke="#65a978" stroke-width="1.5"/>
+  <text x="76" y="650" class="small-title" fill="#08783f">Data Adapters + Snapshot</text>
+  <text x="76" y="676" class="body">覆盖审计 · 下载 · 缓存 · 字段标准化</text>
+  <text x="76" y="700" class="body">Fixture 与数据缺失降级状态</text>
+  <text x="76" y="718" class="micro">Phase 2A 当前唯一优先事项</text>
+
+  <rect x="56" y="744" width="354" height="120" rx="8" fill="#f3fbf6" stroke="#65a978" stroke-width="1.5"/>
+  <text x="76" y="772" class="small-title" fill="#08783f">Artifact Store / 关系数据库</text>
+  <text x="76" y="798" class="body">Workspace · Dataset · Metric · Finding</text>
+  <text x="76" y="822" class="body">EvidenceReview · Board · Report · Version</text>
+  <text x="76" y="846" class="body">消息、引用、用户修订与分析索引</text>
+
+  <rect x="56" y="881" width="354" height="124" rx="8" fill="#f3fbf6" stroke="#65a978" stroke-width="1.5"/>
+  <text x="76" y="909" class="small-title" fill="#08783f">运行状态与分层记忆</text>
+  <text x="76" y="935" class="body">Harness State · Redis 短期会话</text>
+  <text x="76" y="959" class="body">Checkpoint · memoryBrief · Preference</text>
+  <text x="76" y="983" class="body">不保存隐式推理、密钥或未确认事实</text>
+
+  <!-- Agent collaboration cluster -->
+  <g filter="url(#shadow)">
+    <rect x="460" y="420" width="840" height="310" rx="12" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+  </g>
+  <text x="484" y="455" class="cluster-title" fill="#b45309">目标 Agent 协作层：AnalysisBlackboard + Artifacts</text>
+  <text x="484" y="477" class="cluster-subtitle">4 个逻辑 Agent 按需调用；Phase 3 才实现，多 Agent 必须通过单 Agent 对照实验</text>
+
+  <rect x="485" y="505" width="222" height="92" rx="8" fill="#fff8ef" stroke="#d97706" stroke-width="1.7"/>
+  <text x="506" y="533" class="small-title" fill="#b45309">CoordinatorAgent</text>
+  <text x="506" y="558" class="small">范围 / 任务 / 验收标准</text>
+  <text x="506" y="580" class="small">采纳 · 补证 · 降级 · 停止</text>
+
+  <rect x="485" y="615" width="222" height="88" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.7"/>
+  <text x="506" y="643" class="small-title" fill="#1d4ed8">DataAgent</text>
+  <text x="506" y="668" class="small">快照标准化 + 确定性计算</text>
+  <text x="506" y="690" class="small">DatasetArtifact / MetricArtifact</text>
+
+  <rect x="755" y="510" width="250" height="178" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+  <text x="880" y="541" text-anchor="middle" class="card-title">AnalysisBlackboard</text>
+  <rect x="777" y="558" width="206" height="35" rx="6" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="880" y="581" text-anchor="middle" class="small">Open Tasks + Dependencies</text>
+  <rect x="777" y="603" width="206" height="35" rx="6" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="880" y="626" text-anchor="middle" class="small">Event Stream + Budgets</text>
+  <rect x="777" y="648" width="206" height="25" rx="5" fill="#f5f3ff"/>
+  <text x="880" y="665" text-anchor="middle" class="micro" fill="#6d28d9">append-only Artifact versions</text>
+
+  <rect x="1053" y="505" width="222" height="92" rx="8" fill="#f3fbf6" stroke="#14804a" stroke-width="1.7"/>
+  <text x="1074" y="533" class="small-title" fill="#08783f">TacticalAgent</text>
+  <text x="1074" y="558" class="small">战术解释 + 限制说明</text>
+  <text x="1074" y="580" class="small">Finding / TacticsBoard</text>
+
+  <rect x="1053" y="615" width="222" height="88" rx="8" fill="#fff5f5" stroke="#dc2626" stroke-width="1.7"/>
+  <text x="1074" y="643" class="small-title" fill="#b91c1c">EvidenceAgent</text>
+  <text x="1074" y="668" class="small">数值 / 来源 / 范围 / 冲突</text>
+  <text x="1074" y="690" class="small">通过 · 补证 · 降级 · 拒绝</text>
+
+  <path d="M707 551 H747" stroke="#d97706" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow-orange)"/>
+  <path d="M707 659 H747" stroke="#2563eb" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow-blue)"/>
+  <path d="M1005 551 H1043" stroke="#14804a" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow-green)"/>
+  <path d="M1005 659 H1043" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow-red)"/>
+
+  <!-- Capability cluster -->
+  <g filter="url(#shadow)">
+    <rect x="460" y="755" width="840" height="275" rx="12" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+  </g>
+  <text x="484" y="790" class="cluster-title" fill="#6d28d9">数据能力、分析方法与交付闭环</text>
+  <text x="484" y="812" class="cluster-subtitle">确定性计算优先；RAG 只解释稳定知识；外部工具默认只读</text>
+
+  <rect x="485" y="835" width="250" height="168" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="506" y="864" class="small-title" fill="#1d4ed8">Deterministic Tools</text>
+  <text x="506" y="890" class="body">audit_data_coverage</text>
+  <text x="506" y="913" class="body">normalize_event_data</text>
+  <text x="506" y="936" class="body">calculate_player_metrics</text>
+  <text x="506" y="959" class="body">build_touch_heatmap</text>
+  <text x="506" y="982" class="body">validate_metric_consistency</text>
+
+  <rect x="755" y="835" width="250" height="168" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="776" y="864" class="small-title" fill="#6d28d9">Versioned Skills + RAG</text>
+  <text x="776" y="890" class="body">player-role-analysis</text>
+  <text x="776" y="913" class="body">build-up / pressing / board</text>
+  <text x="776" y="936" class="body">指标定义与战术知识</text>
+  <text x="776" y="959" class="body">Skill 版本、白名单与测试样例</text>
+  <text x="776" y="982" class="micro">不存实时比分和未审核事实</text>
+
+  <rect x="1025" y="835" width="250" height="168" rx="8" fill="#fff5f5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="1046" y="864" class="small-title" fill="#b91c1c">Evidence + Async</text>
+  <text x="1046" y="890" class="body">Evidence Gate / 引用关联</text>
+  <text x="1046" y="913" class="body">football / StatsBomb MCP</text>
+  <text x="1046" y="936" class="body">报告、PNG / PDF 异步导出</text>
+  <text x="1046" y="959" class="body">幂等 · 重试 · 限流 · Dead Letter</text>
+  <text x="1046" y="982" class="micro">外部副作用必须用户确认</text>
+
+  <!-- Engineering support cluster -->
+  <g filter="url(#shadow)">
+    <rect x="1326" y="420" width="560" height="610" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+  </g>
+  <text x="1350" y="455" class="cluster-title" fill="#1d4ed8">工程、评测与部署支撑</text>
+  <text x="1350" y="477" class="cluster-subtitle">把“能回答”变成可测试、可恢复、可解释的服务</text>
+
+  <rect x="1350" y="500" width="512" height="108" rx="8" fill="#f6f9ff" stroke="#7aa7f8" stroke-width="1.5"/>
+  <text x="1372" y="529" class="small-title" fill="#1d4ed8">Contract &amp; Schema</text>
+  <text x="1372" y="555" class="body">AnalysisRequest / AnalysisWorkspace / SSE Events</text>
+  <text x="1372" y="579" class="body">Pydantic + OpenAPI + 前后端统一业务类型</text>
+  <text x="1372" y="598" class="micro">当前 Phase 2A 首先固化</text>
+
+  <rect x="1350" y="626" width="512" height="108" rx="8" fill="#f6f9ff" stroke="#7aa7f8" stroke-width="1.5"/>
+  <text x="1372" y="655" class="small-title" fill="#1d4ed8">Observability</text>
+  <text x="1372" y="681" class="body">OpenTelemetry Trace · Agent / Tool / Artifact 版本</text>
+  <text x="1372" y="705" class="body">路由、审核、耗时、Token、费用、重试和取消</text>
+
+  <rect x="1350" y="752" width="512" height="122" rx="8" fill="#f6f9ff" stroke="#7aa7f8" stroke-width="1.5"/>
+  <text x="1372" y="781" class="small-title" fill="#1d4ed8">Engineering Harness</text>
+  <text x="1372" y="807" class="body">固定 Fixture · 黄金任务 · 故障注入 · 回归评测</text>
+  <text x="1372" y="831" class="body">人工 vs 直接 LLM vs 单 Agent vs 多 Agent</text>
+  <text x="1372" y="855" class="body">Claim Support · Citation · Resume · Board Validity</text>
+
+  <rect x="1350" y="892" width="512" height="113" rx="8" fill="#f6f9ff" stroke="#7aa7f8" stroke-width="1.5"/>
+  <text x="1372" y="921" class="small-title" fill="#1d4ed8">Deployment Boundary</text>
+  <text x="1372" y="947" class="body">Python Agent Service 可独立运行 · Docker 部署</text>
+  <text x="1372" y="971" class="body">未来 Java 平台仅通过稳定 HTTP / SSE 接入</text>
+  <text x="1372" y="992" class="micro">不把登录、组织和订阅耦合进 Agent Runtime</text>
+
+  <!-- Cross-layer links -->
+  <path d="M485 659 C452 659, 452 675, 410 675" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <text x="418" y="663" class="flow-label" fill="#1d4ed8">数据快照 / 指标</text>
+  <path d="M1164 703 V826" stroke="#dc2626" stroke-width="2" marker-end="url(#arrow-red)"/>
+  <text x="1175" y="762" class="flow-label" fill="#b91c1c">审核 / 异步</text>
+  <path d="M880 688 V826" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-purple)"/>
+  <text x="892" y="752" class="flow-label" fill="#6d28d9">Artifact 依赖</text>
+  <path d="M1300 590 H1340" stroke="#2563eb" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#arrow-blue)"/>
+  <text x="1308" y="579" class="micro" fill="#1d4ed8">Trace</text>
+
+  <text x="32" y="1060" class="micro">设计基准：FOOTOPS_REQUIREMENTS.md · FOOTOPS_MINDBRIDGE_ARCHITECTURE.md · FOOTOPS_DEVELOPMENT_ORDER.md</text>
+  <text x="1888" y="1060" text-anchor="end" class="micro">目标图不代表当前已实现状态</text>
+</svg>

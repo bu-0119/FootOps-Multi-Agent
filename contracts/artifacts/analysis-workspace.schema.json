@@ -1,0 +1,1394 @@
+{
+  "$defs": {
+    "AnalysisRequestArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "question": {
+          "minLength": 1,
+          "title": "Question",
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "#/$defs/AnalysisScope"
+        }
+      },
+      "required": [
+        "question",
+        "scope"
+      ],
+      "title": "AnalysisRequestArtifact",
+      "type": "object"
+    },
+    "AnalysisScope": {
+      "additionalProperties": false,
+      "properties": {
+        "competition_id": {
+          "exclusiveMinimum": 0,
+          "title": "Competition Id",
+          "type": "integer"
+        },
+        "season_id": {
+          "exclusiveMinimum": 0,
+          "title": "Season Id",
+          "type": "integer"
+        },
+        "player": {
+          "minLength": 1,
+          "title": "Player",
+          "type": "string"
+        },
+        "team": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Team"
+        },
+        "match_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 10,
+          "minItems": 3,
+          "title": "Match Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "competition_id",
+        "season_id",
+        "player",
+        "match_ids"
+      ],
+      "title": "AnalysisScope",
+      "type": "object"
+    },
+    "BoardPoint": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Y",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "title": "BoardPoint",
+      "type": "object"
+    },
+    "CompetitionSeason": {
+      "additionalProperties": false,
+      "properties": {
+        "competition_id": {
+          "title": "Competition Id",
+          "type": "integer"
+        },
+        "season_id": {
+          "title": "Season Id",
+          "type": "integer"
+        },
+        "country_name": {
+          "title": "Country Name",
+          "type": "string"
+        },
+        "competition_name": {
+          "title": "Competition Name",
+          "type": "string"
+        },
+        "season_name": {
+          "title": "Season Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "competition_id",
+        "season_id",
+        "country_name",
+        "competition_name",
+        "season_name"
+      ],
+      "title": "CompetitionSeason",
+      "type": "object"
+    },
+    "CoverageAuditArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/SourceReference"
+        },
+        "query": {
+          "title": "Query",
+          "type": "string"
+        },
+        "competition": {
+          "$ref": "#/$defs/CompetitionSeason"
+        },
+        "matches_scanned": {
+          "title": "Matches Scanned",
+          "type": "integer"
+        },
+        "appearances": {
+          "items": {
+            "$ref": "#/$defs/PlayerMatchCoverage"
+          },
+          "title": "Appearances",
+          "type": "array"
+        },
+        "requested_window": {
+          "maximum": 10,
+          "minimum": 3,
+          "title": "Requested Window",
+          "type": "integer"
+        },
+        "suggested_match_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 10,
+          "title": "Suggested Match Ids",
+          "type": "array"
+        },
+        "meets_minimum": {
+          "title": "Meets Minimum",
+          "type": "boolean"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "source",
+        "query",
+        "competition",
+        "matches_scanned",
+        "requested_window",
+        "meets_minimum"
+      ],
+      "title": "CoverageAuditArtifact",
+      "type": "object"
+    },
+    "EvidenceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "source",
+            "metric"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        },
+        "match_id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Match Id"
+        },
+        "metric_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Metric Name"
+        },
+        "metric_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Metric Value"
+        },
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "kind",
+        "detail"
+      ],
+      "title": "EvidenceReference",
+      "type": "object"
+    },
+    "EvidenceReviewArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "reviewed_at": {
+          "format": "date-time",
+          "title": "Reviewed At",
+          "type": "string"
+        },
+        "gate_version": {
+          "const": "footops-evidence-gate-v1",
+          "default": "footops-evidence-gate-v1",
+          "title": "Gate Version",
+          "type": "string"
+        },
+        "overall_status": {
+          "enum": [
+            "passed",
+            "partial",
+            "rejected"
+          ],
+          "title": "Overall Status",
+          "type": "string"
+        },
+        "support_rate": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Support Rate",
+          "type": "number"
+        },
+        "reviews": {
+          "items": {
+            "$ref": "#/$defs/FindingEvidenceReview"
+          },
+          "minItems": 1,
+          "title": "Reviews",
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "overall_status",
+        "support_rate",
+        "reviews"
+      ],
+      "title": "EvidenceReviewArtifact",
+      "type": "object"
+    },
+    "EvidenceSetArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "references": {
+          "items": {
+            "$ref": "#/$defs/EvidenceReference"
+          },
+          "minItems": 1,
+          "title": "References",
+          "type": "array"
+        }
+      },
+      "required": [
+        "references"
+      ],
+      "title": "EvidenceSetArtifact",
+      "type": "object"
+    },
+    "FindingArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "finding_id": {
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "statement": {
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        },
+        "claim_type": {
+          "enum": [
+            "descriptive",
+            "inference"
+          ],
+          "title": "Claim Type",
+          "type": "string"
+        },
+        "metric_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Metric Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "time_range": {
+          "$ref": "#/$defs/FindingTimeRange"
+        },
+        "direction": {
+          "enum": [
+            "increase",
+            "decrease",
+            "stable"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "finding_id",
+        "statement",
+        "claim_type",
+        "metric_refs",
+        "source_refs",
+        "time_range",
+        "direction",
+        "confidence"
+      ],
+      "title": "FindingArtifact",
+      "type": "object"
+    },
+    "FindingEvidenceReview": {
+      "additionalProperties": false,
+      "properties": {
+        "finding_id": {
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "supported",
+            "needs_more_evidence",
+            "rejected"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "accepted_metric_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Accepted Metric Refs",
+          "type": "array"
+        },
+        "accepted_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Accepted Source Refs",
+          "type": "array"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "finding_id",
+        "status"
+      ],
+      "title": "FindingEvidenceReview",
+      "type": "object"
+    },
+    "FindingTimeRange": {
+      "additionalProperties": false,
+      "properties": {
+        "start_date": {
+          "format": "date",
+          "title": "Start Date",
+          "type": "string"
+        },
+        "end_date": {
+          "format": "date",
+          "title": "End Date",
+          "type": "string"
+        },
+        "match_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 10,
+          "minItems": 3,
+          "title": "Match Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "start_date",
+        "end_date",
+        "match_ids"
+      ],
+      "title": "FindingTimeRange",
+      "type": "object"
+    },
+    "MatchRef": {
+      "additionalProperties": false,
+      "properties": {
+        "match_id": {
+          "title": "Match Id",
+          "type": "integer"
+        },
+        "match_date": {
+          "format": "date",
+          "title": "Match Date",
+          "type": "string"
+        },
+        "competition": {
+          "$ref": "#/$defs/CompetitionSeason"
+        },
+        "home_team": {
+          "$ref": "#/$defs/TeamRef"
+        },
+        "away_team": {
+          "$ref": "#/$defs/TeamRef"
+        },
+        "home_score": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Home Score"
+        },
+        "away_score": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Away Score"
+        }
+      },
+      "required": [
+        "match_id",
+        "match_date",
+        "competition",
+        "home_team",
+        "away_team"
+      ],
+      "title": "MatchRef",
+      "type": "object"
+    },
+    "MatchRoleMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "match_id": {
+          "title": "Match Id",
+          "type": "integer"
+        },
+        "match_date": {
+          "format": "date",
+          "title": "Match Date",
+          "type": "string"
+        },
+        "event_count": {
+          "minimum": 0,
+          "title": "Event Count",
+          "type": "integer"
+        },
+        "touch_event_count": {
+          "minimum": 0,
+          "title": "Touch Event Count",
+          "type": "integer"
+        },
+        "average_touch_x": {
+          "anyOf": [
+            {
+              "maximum": 120,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Average Touch X"
+        },
+        "average_touch_y": {
+          "anyOf": [
+            {
+              "maximum": 80,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Average Touch Y"
+        },
+        "attacking_third_touch_count": {
+          "minimum": 0,
+          "title": "Attacking Third Touch Count",
+          "type": "integer"
+        },
+        "attacking_third_touch_ratio": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Attacking Third Touch Ratio"
+        },
+        "penalty_area_touch_count": {
+          "minimum": 0,
+          "title": "Penalty Area Touch Count",
+          "type": "integer"
+        },
+        "penalty_area_touch_ratio": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Penalty Area Touch Ratio"
+        },
+        "receipt_count": {
+          "minimum": 0,
+          "title": "Receipt Count",
+          "type": "integer"
+        },
+        "average_receipt_x": {
+          "anyOf": [
+            {
+              "maximum": 120,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Average Receipt X"
+        },
+        "forward_pass_count": {
+          "minimum": 0,
+          "title": "Forward Pass Count",
+          "type": "integer"
+        },
+        "completed_forward_pass_count": {
+          "minimum": 0,
+          "title": "Completed Forward Pass Count",
+          "type": "integer"
+        },
+        "progressive_carry_count": {
+          "minimum": 0,
+          "title": "Progressive Carry Count",
+          "type": "integer"
+        },
+        "key_pass_count": {
+          "minimum": 0,
+          "title": "Key Pass Count",
+          "type": "integer"
+        },
+        "shot_count": {
+          "minimum": 0,
+          "title": "Shot Count",
+          "type": "integer"
+        },
+        "shot_involvement_count": {
+          "minimum": 0,
+          "title": "Shot Involvement Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "match_id",
+        "match_date",
+        "event_count",
+        "touch_event_count",
+        "attacking_third_touch_count",
+        "penalty_area_touch_count",
+        "receipt_count",
+        "forward_pass_count",
+        "completed_forward_pass_count",
+        "progressive_carry_count",
+        "key_pass_count",
+        "shot_count",
+        "shot_involvement_count"
+      ],
+      "title": "MatchRoleMetrics",
+      "type": "object"
+    },
+    "PlayerMatchCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "match": {
+          "$ref": "#/$defs/MatchRef"
+        },
+        "player": {
+          "$ref": "#/$defs/PlayerRef"
+        },
+        "team": {
+          "$ref": "#/$defs/TeamRef"
+        },
+        "positions": {
+          "items": {
+            "$ref": "#/$defs/PositionInterval"
+          },
+          "title": "Positions",
+          "type": "array"
+        },
+        "lineups_url": {
+          "title": "Lineups Url",
+          "type": "string"
+        },
+        "events_url": {
+          "title": "Events Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "match",
+        "player",
+        "team",
+        "lineups_url",
+        "events_url"
+      ],
+      "title": "PlayerMatchCoverage",
+      "type": "object"
+    },
+    "PlayerRef": {
+      "additionalProperties": false,
+      "properties": {
+        "player_id": {
+          "title": "Player Id",
+          "type": "integer"
+        },
+        "player_name": {
+          "title": "Player Name",
+          "type": "string"
+        },
+        "player_nickname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Player Nickname"
+        }
+      },
+      "required": [
+        "player_id",
+        "player_name"
+      ],
+      "title": "PlayerRef",
+      "type": "object"
+    },
+    "PlayerRoleMetricArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "metric_definition_version": {
+          "const": "footops-player-role-v1",
+          "default": "footops-player-role-v1",
+          "title": "Metric Definition Version",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "player": {
+          "$ref": "#/$defs/PlayerRef"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceReference"
+          },
+          "minItems": 1,
+          "title": "Sources",
+          "type": "array"
+        },
+        "matches": {
+          "items": {
+            "$ref": "#/$defs/MatchRoleMetrics"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Matches",
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "player",
+        "sources",
+        "matches"
+      ],
+      "title": "PlayerRoleMetricArtifact",
+      "type": "object"
+    },
+    "PositionInterval": {
+      "additionalProperties": false,
+      "properties": {
+        "position_id": {
+          "title": "Position Id",
+          "type": "integer"
+        },
+        "position_name": {
+          "title": "Position Name",
+          "type": "string"
+        },
+        "from_time": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "From Time"
+        },
+        "to_time": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "To Time"
+        },
+        "from_period": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "From Period"
+        },
+        "to_period": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "To Period"
+        }
+      },
+      "required": [
+        "position_id",
+        "position_name"
+      ],
+      "title": "PositionInterval",
+      "type": "object"
+    },
+    "SourceReference": {
+      "additionalProperties": false,
+      "description": "Trace one artifact back to the dataset resource that produced it.",
+      "properties": {
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "source_url": {
+          "title": "Source Url",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "attribution": {
+          "title": "Attribution",
+          "type": "string"
+        },
+        "license_url": {
+          "title": "License Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider",
+        "dataset",
+        "source_url",
+        "attribution",
+        "license_url"
+      ],
+      "title": "SourceReference",
+      "type": "object"
+    },
+    "TacticsAnnotation": {
+      "additionalProperties": false,
+      "properties": {
+        "annotation_id": {
+          "title": "Annotation Id",
+          "type": "string"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "finding_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Finding Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "annotation_id",
+        "text",
+        "finding_refs"
+      ],
+      "title": "TacticsAnnotation",
+      "type": "object"
+    },
+    "TacticsArrow": {
+      "additionalProperties": false,
+      "properties": {
+        "arrow_id": {
+          "title": "Arrow Id",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "movement",
+            "passing"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "start": {
+          "$ref": "#/$defs/BoardPoint"
+        },
+        "end": {
+          "$ref": "#/$defs/BoardPoint"
+        },
+        "finding_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Finding Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "arrow_id",
+        "label",
+        "kind",
+        "start",
+        "end",
+        "finding_refs"
+      ],
+      "title": "TacticsArrow",
+      "type": "object"
+    },
+    "TacticsBoardArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "generator": {
+          "const": "footops-deterministic-tactics-v1",
+          "default": "footops-deterministic-tactics-v1",
+          "title": "Generator",
+          "type": "string"
+        },
+        "title": {
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "pitch_orientation": {
+          "const": "vertical_attacking_up",
+          "default": "vertical_attacking_up",
+          "title": "Pitch Orientation",
+          "type": "string"
+        },
+        "formation": {
+          "default": "unassigned",
+          "enum": [
+            "unassigned",
+            "4-3-3",
+            "4-2-3-1",
+            "3-4-3"
+          ],
+          "title": "Formation",
+          "type": "string"
+        },
+        "players": {
+          "items": {
+            "$ref": "#/$defs/TacticsPlayerMarker"
+          },
+          "title": "Players",
+          "type": "array"
+        },
+        "zones": {
+          "items": {
+            "$ref": "#/$defs/TacticsZone"
+          },
+          "title": "Zones",
+          "type": "array"
+        },
+        "arrows": {
+          "items": {
+            "$ref": "#/$defs/TacticsArrow"
+          },
+          "title": "Arrows",
+          "type": "array"
+        },
+        "passing_lanes": {
+          "items": {
+            "$ref": "#/$defs/TacticsArrow"
+          },
+          "title": "Passing Lanes",
+          "type": "array"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/TacticsAnnotation"
+          },
+          "title": "Annotations",
+          "type": "array"
+        },
+        "finding_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Finding Refs",
+          "type": "array"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "title",
+        "finding_refs",
+        "evidence_refs"
+      ],
+      "title": "TacticsBoardArtifact",
+      "type": "object"
+    },
+    "TacticsPlayerMarker": {
+      "additionalProperties": false,
+      "properties": {
+        "marker_id": {
+          "title": "Marker Id",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "display_label": {
+          "maxLength": 3,
+          "minLength": 1,
+          "title": "Display Label",
+          "type": "string"
+        },
+        "position": {
+          "$ref": "#/$defs/BoardPoint"
+        },
+        "role": {
+          "default": "focus",
+          "enum": [
+            "focus",
+            "teammate",
+            "opponent"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "finding_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Finding Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "marker_id",
+        "label",
+        "display_label",
+        "position",
+        "finding_refs"
+      ],
+      "title": "TacticsPlayerMarker",
+      "type": "object"
+    },
+    "TacticsZone": {
+      "additionalProperties": false,
+      "properties": {
+        "zone_id": {
+          "title": "Zone Id",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "touch_area",
+            "attacking_third"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "x": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Y",
+          "type": "number"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Width",
+          "type": "number"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Height",
+          "type": "number"
+        },
+        "finding_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Finding Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "zone_id",
+        "label",
+        "kind",
+        "x",
+        "y",
+        "width",
+        "height",
+        "finding_refs"
+      ],
+      "title": "TacticsZone",
+      "type": "object"
+    },
+    "TeamRef": {
+      "additionalProperties": false,
+      "properties": {
+        "team_id": {
+          "title": "Team Id",
+          "type": "integer"
+        },
+        "team_name": {
+          "title": "Team Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "team_id",
+        "team_name"
+      ],
+      "title": "TeamRef",
+      "type": "object"
+    },
+    "WorkspaceStatus": {
+      "enum": [
+        "created",
+        "data_ready",
+        "metrics_ready",
+        "findings_ready",
+        "evidence_reviewed",
+        "tactics_ready",
+        "completed",
+        "insufficient_data",
+        "failed"
+      ],
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "workspace_id": {
+      "title": "Workspace Id",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/WorkspaceStatus",
+      "default": "created"
+    },
+    "request": {
+      "$ref": "#/$defs/AnalysisRequestArtifact"
+    },
+    "coverage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CoverageAuditArtifact"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "metrics": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PlayerRoleMetricArtifact"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/FindingArtifact"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "evidence": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EvidenceSetArtifact"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "evidence_review": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EvidenceReviewArtifact"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "tactics_board": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TacticsBoardArtifact"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "request"
+  ],
+  "title": "AnalysisWorkspace",
+  "type": "object"
+}

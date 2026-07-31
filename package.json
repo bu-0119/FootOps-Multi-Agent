@@ -1,0 +1,13 @@
+{
+  "name": "footops",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "npm --workspace @footops/web run dev",
+    "build": "npm --workspace @footops/web run build",
+    "preview": "npm --workspace @footops/web run preview"
+  }
+}

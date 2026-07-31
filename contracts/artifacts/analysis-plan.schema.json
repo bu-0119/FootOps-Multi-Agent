@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "AnalysisPlanStep": {
+      "additionalProperties": false,
+      "description": "One non-executed step in a future evidence-based analysis.",
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "purpose": {
+          "title": "Purpose",
+          "type": "string"
+        },
+        "required_data": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Data",
+          "type": "array"
+        },
+        "output": {
+          "title": "Output",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "purpose",
+        "output"
+      ],
+      "title": "AnalysisPlanStep",
+      "type": "object"
+    },
+    "QuestionUnderstanding": {
+      "additionalProperties": false,
+      "description": "A structured interpretation of the user's analysis request.",
+      "properties": {
+        "intent": {
+          "description": "The analysis goal, without answering it.",
+          "title": "Intent",
+          "type": "string"
+        },
+        "subjects": {
+          "description": "Teams, players, matches, or concepts named by the user.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Subjects",
+          "type": "array"
+        },
+        "requested_comparisons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Requested Comparisons",
+          "type": "array"
+        },
+        "requested_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Requested Evidence",
+          "type": "array"
+        },
+        "ambiguities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ambiguities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "intent"
+      ],
+      "title": "QuestionUnderstanding",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Structured question understanding and analysis plan.",
+  "properties": {
+    "understanding": {
+      "$ref": "#/$defs/QuestionUnderstanding"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/AnalysisPlanStep"
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "title": "Steps",
+      "type": "array"
+    },
+    "clarifying_questions": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 5,
+      "title": "Clarifying Questions",
+      "type": "array"
+    },
+    "assumptions": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 8,
+      "title": "Assumptions",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "understanding",
+    "steps"
+  ],
+  "title": "AnalysisPlan",
+  "type": "object"
+}

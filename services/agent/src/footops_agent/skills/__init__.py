@@ -1,0 +1,1 @@
+"""Versioned football-analysis skills."""

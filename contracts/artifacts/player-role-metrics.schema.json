@@ -1,0 +1,285 @@
+{
+  "$defs": {
+    "MatchRoleMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "match_id": {
+          "title": "Match Id",
+          "type": "integer"
+        },
+        "match_date": {
+          "format": "date",
+          "title": "Match Date",
+          "type": "string"
+        },
+        "event_count": {
+          "minimum": 0,
+          "title": "Event Count",
+          "type": "integer"
+        },
+        "touch_event_count": {
+          "minimum": 0,
+          "title": "Touch Event Count",
+          "type": "integer"
+        },
+        "average_touch_x": {
+          "anyOf": [
+            {
+              "maximum": 120,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Average Touch X"
+        },
+        "average_touch_y": {
+          "anyOf": [
+            {
+              "maximum": 80,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Average Touch Y"
+        },
+        "attacking_third_touch_count": {
+          "minimum": 0,
+          "title": "Attacking Third Touch Count",
+          "type": "integer"
+        },
+        "attacking_third_touch_ratio": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Attacking Third Touch Ratio"
+        },
+        "penalty_area_touch_count": {
+          "minimum": 0,
+          "title": "Penalty Area Touch Count",
+          "type": "integer"
+        },
+        "penalty_area_touch_ratio": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Penalty Area Touch Ratio"
+        },
+        "receipt_count": {
+          "minimum": 0,
+          "title": "Receipt Count",
+          "type": "integer"
+        },
+        "average_receipt_x": {
+          "anyOf": [
+            {
+              "maximum": 120,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Average Receipt X"
+        },
+        "forward_pass_count": {
+          "minimum": 0,
+          "title": "Forward Pass Count",
+          "type": "integer"
+        },
+        "completed_forward_pass_count": {
+          "minimum": 0,
+          "title": "Completed Forward Pass Count",
+          "type": "integer"
+        },
+        "progressive_carry_count": {
+          "minimum": 0,
+          "title": "Progressive Carry Count",
+          "type": "integer"
+        },
+        "key_pass_count": {
+          "minimum": 0,
+          "title": "Key Pass Count",
+          "type": "integer"
+        },
+        "shot_count": {
+          "minimum": 0,
+          "title": "Shot Count",
+          "type": "integer"
+        },
+        "shot_involvement_count": {
+          "minimum": 0,
+          "title": "Shot Involvement Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "match_id",
+        "match_date",
+        "event_count",
+        "touch_event_count",
+        "attacking_third_touch_count",
+        "penalty_area_touch_count",
+        "receipt_count",
+        "forward_pass_count",
+        "completed_forward_pass_count",
+        "progressive_carry_count",
+        "key_pass_count",
+        "shot_count",
+        "shot_involvement_count"
+      ],
+      "title": "MatchRoleMetrics",
+      "type": "object"
+    },
+    "PlayerRef": {
+      "additionalProperties": false,
+      "properties": {
+        "player_id": {
+          "title": "Player Id",
+          "type": "integer"
+        },
+        "player_name": {
+          "title": "Player Name",
+          "type": "string"
+        },
+        "player_nickname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Player Nickname"
+        }
+      },
+      "required": [
+        "player_id",
+        "player_name"
+      ],
+      "title": "PlayerRef",
+      "type": "object"
+    },
+    "SourceReference": {
+      "additionalProperties": false,
+      "description": "Trace one artifact back to the dataset resource that produced it.",
+      "properties": {
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "source_url": {
+          "title": "Source Url",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "attribution": {
+          "title": "Attribution",
+          "type": "string"
+        },
+        "license_url": {
+          "title": "License Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider",
+        "dataset",
+        "source_url",
+        "attribution",
+        "license_url"
+      ],
+      "title": "SourceReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "metric_definition_version": {
+      "const": "footops-player-role-v1",
+      "default": "footops-player-role-v1",
+      "title": "Metric Definition Version",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "player": {
+      "$ref": "#/$defs/PlayerRef"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/SourceReference"
+      },
+      "minItems": 1,
+      "title": "Sources",
+      "type": "array"
+    },
+    "matches": {
+      "items": {
+        "$ref": "#/$defs/MatchRoleMetrics"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "title": "Matches",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "player",
+    "sources",
+    "matches"
+  ],
+  "title": "PlayerRoleMetricArtifact",
+  "type": "object"
+}

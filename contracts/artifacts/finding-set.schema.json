@@ -1,0 +1,149 @@
+{
+  "$defs": {
+    "FindingArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "default": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "finding_id": {
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "statement": {
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        },
+        "claim_type": {
+          "enum": [
+            "descriptive",
+            "inference"
+          ],
+          "title": "Claim Type",
+          "type": "string"
+        },
+        "metric_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Metric Refs",
+          "type": "array"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "time_range": {
+          "$ref": "#/$defs/FindingTimeRange"
+        },
+        "direction": {
+          "enum": [
+            "increase",
+            "decrease",
+            "stable"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "finding_id",
+        "statement",
+        "claim_type",
+        "metric_refs",
+        "source_refs",
+        "time_range",
+        "direction",
+        "confidence"
+      ],
+      "title": "FindingArtifact",
+      "type": "object"
+    },
+    "FindingTimeRange": {
+      "additionalProperties": false,
+      "properties": {
+        "start_date": {
+          "format": "date",
+          "title": "Start Date",
+          "type": "string"
+        },
+        "end_date": {
+          "format": "date",
+          "title": "End Date",
+          "type": "string"
+        },
+        "match_ids": {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 10,
+          "minItems": 3,
+          "title": "Match Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "start_date",
+        "end_date",
+        "match_ids"
+      ],
+      "title": "FindingTimeRange",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "generator": {
+      "const": "footops-deterministic-finding-v1",
+      "default": "footops-deterministic-finding-v1",
+      "title": "Generator",
+      "type": "string"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/FindingArtifact"
+      },
+      "minItems": 1,
+      "title": "Findings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "findings"
+  ],
+  "title": "FindingSetArtifact",
+  "type": "object"
+}

@@ -1,0 +1,106 @@
+{
+  "$defs": {
+    "FindingEvidenceReview": {
+      "additionalProperties": false,
+      "properties": {
+        "finding_id": {
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "supported",
+            "needs_more_evidence",
+            "rejected"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "accepted_metric_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Accepted Metric Refs",
+          "type": "array"
+        },
+        "accepted_source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Accepted Source Refs",
+          "type": "array"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "finding_id",
+        "status"
+      ],
+      "title": "FindingEvidenceReview",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "reviewed_at": {
+      "format": "date-time",
+      "title": "Reviewed At",
+      "type": "string"
+    },
+    "gate_version": {
+      "const": "footops-evidence-gate-v1",
+      "default": "footops-evidence-gate-v1",
+      "title": "Gate Version",
+      "type": "string"
+    },
+    "overall_status": {
+      "enum": [
+        "passed",
+        "partial",
+        "rejected"
+      ],
+      "title": "Overall Status",
+      "type": "string"
+    },
+    "support_rate": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Support Rate",
+      "type": "number"
+    },
+    "reviews": {
+      "items": {
+        "$ref": "#/$defs/FindingEvidenceReview"
+      },
+      "minItems": 1,
+      "title": "Reviews",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "overall_status",
+    "support_rate",
+    "reviews"
+  ],
+  "title": "EvidenceReviewArtifact",
+  "type": "object"
+}

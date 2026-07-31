@@ -1,0 +1,354 @@
+{
+  "$defs": {
+    "CompetitionSeason": {
+      "additionalProperties": false,
+      "properties": {
+        "competition_id": {
+          "title": "Competition Id",
+          "type": "integer"
+        },
+        "season_id": {
+          "title": "Season Id",
+          "type": "integer"
+        },
+        "country_name": {
+          "title": "Country Name",
+          "type": "string"
+        },
+        "competition_name": {
+          "title": "Competition Name",
+          "type": "string"
+        },
+        "season_name": {
+          "title": "Season Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "competition_id",
+        "season_id",
+        "country_name",
+        "competition_name",
+        "season_name"
+      ],
+      "title": "CompetitionSeason",
+      "type": "object"
+    },
+    "MatchRef": {
+      "additionalProperties": false,
+      "properties": {
+        "match_id": {
+          "title": "Match Id",
+          "type": "integer"
+        },
+        "match_date": {
+          "format": "date",
+          "title": "Match Date",
+          "type": "string"
+        },
+        "competition": {
+          "$ref": "#/$defs/CompetitionSeason"
+        },
+        "home_team": {
+          "$ref": "#/$defs/TeamRef"
+        },
+        "away_team": {
+          "$ref": "#/$defs/TeamRef"
+        },
+        "home_score": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Home Score"
+        },
+        "away_score": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Away Score"
+        }
+      },
+      "required": [
+        "match_id",
+        "match_date",
+        "competition",
+        "home_team",
+        "away_team"
+      ],
+      "title": "MatchRef",
+      "type": "object"
+    },
+    "PlayerMatchCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "match": {
+          "$ref": "#/$defs/MatchRef"
+        },
+        "player": {
+          "$ref": "#/$defs/PlayerRef"
+        },
+        "team": {
+          "$ref": "#/$defs/TeamRef"
+        },
+        "positions": {
+          "items": {
+            "$ref": "#/$defs/PositionInterval"
+          },
+          "title": "Positions",
+          "type": "array"
+        },
+        "lineups_url": {
+          "title": "Lineups Url",
+          "type": "string"
+        },
+        "events_url": {
+          "title": "Events Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "match",
+        "player",
+        "team",
+        "lineups_url",
+        "events_url"
+      ],
+      "title": "PlayerMatchCoverage",
+      "type": "object"
+    },
+    "PlayerRef": {
+      "additionalProperties": false,
+      "properties": {
+        "player_id": {
+          "title": "Player Id",
+          "type": "integer"
+        },
+        "player_name": {
+          "title": "Player Name",
+          "type": "string"
+        },
+        "player_nickname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Player Nickname"
+        }
+      },
+      "required": [
+        "player_id",
+        "player_name"
+      ],
+      "title": "PlayerRef",
+      "type": "object"
+    },
+    "PositionInterval": {
+      "additionalProperties": false,
+      "properties": {
+        "position_id": {
+          "title": "Position Id",
+          "type": "integer"
+        },
+        "position_name": {
+          "title": "Position Name",
+          "type": "string"
+        },
+        "from_time": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "From Time"
+        },
+        "to_time": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "To Time"
+        },
+        "from_period": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "From Period"
+        },
+        "to_period": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "To Period"
+        }
+      },
+      "required": [
+        "position_id",
+        "position_name"
+      ],
+      "title": "PositionInterval",
+      "type": "object"
+    },
+    "SourceReference": {
+      "additionalProperties": false,
+      "description": "Trace one artifact back to the dataset resource that produced it.",
+      "properties": {
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "source_url": {
+          "title": "Source Url",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "attribution": {
+          "title": "Attribution",
+          "type": "string"
+        },
+        "license_url": {
+          "title": "License Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider",
+        "dataset",
+        "source_url",
+        "attribution",
+        "license_url"
+      ],
+      "title": "SourceReference",
+      "type": "object"
+    },
+    "TeamRef": {
+      "additionalProperties": false,
+      "properties": {
+        "team_id": {
+          "title": "Team Id",
+          "type": "integer"
+        },
+        "team_name": {
+          "title": "Team Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "team_id",
+        "team_name"
+      ],
+      "title": "TeamRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source": {
+      "$ref": "#/$defs/SourceReference"
+    },
+    "query": {
+      "title": "Query",
+      "type": "string"
+    },
+    "competition": {
+      "$ref": "#/$defs/CompetitionSeason"
+    },
+    "matches_scanned": {
+      "title": "Matches Scanned",
+      "type": "integer"
+    },
+    "appearances": {
+      "items": {
+        "$ref": "#/$defs/PlayerMatchCoverage"
+      },
+      "title": "Appearances",
+      "type": "array"
+    },
+    "requested_window": {
+      "maximum": 10,
+      "minimum": 3,
+      "title": "Requested Window",
+      "type": "integer"
+    },
+    "suggested_match_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "maxItems": 10,
+      "title": "Suggested Match Ids",
+      "type": "array"
+    },
+    "meets_minimum": {
+      "title": "Meets Minimum",
+      "type": "boolean"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "source",
+    "query",
+    "competition",
+    "matches_scanned",
+    "requested_window",
+    "meets_minimum"
+  ],
+  "title": "CoverageAuditArtifact",
+  "type": "object"
+}

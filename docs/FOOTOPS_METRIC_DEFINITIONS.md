@@ -1,0 +1,85 @@
+# FootOps 球员角色指标定义 v1
+
+> 算法版本：`footops-player-role-v1`
+> 坐标口径：StatsBomb 标准化 120 x 80 事件坐标
+> 实现位置：`services/agent/src/footops_agent/services/metric_engine.py`
+
+## 1. 输入约束
+
+指标输入只能是经过 Provider 标准化的 `MatchDataSnapshot`：
+
+- 所有快照必须属于同一球员；
+- 每个事件保留 `event_id`、`match_id`、事件类型和坐标；
+- 数值只由确定性 Python 代码计算；
+- Prompt、模型输出和自然语言结论不能作为数值输入；
+- 单个 Artifact 最多包含 10 场比赛。
+
+## 2. 触球代理事件
+
+`touch_event_count` 使用以下带 `location` 的球员事件作为可复算代理：
+
+```text
+Ball Receipt*
+Ball Recovery
+Carry
+Clearance
+Dispossessed
+Dribble
+Interception
+Miscontrol
+Pass
+Shot
+```
+
+它不等同于其他数据商定义的官方 touches，因此 UI 和报告必须显示具体口径。
+
+## 3. 指标公式
+
+| 字段 | 输入 | 公式 | 单位 | 空值规则 |
+| --- | --- | --- | --- | --- |
+| `event_count` | 目标球员全部事件 | 事件条数 | 次 | 无事件为 0 |
+| `touch_event_count` | 触球代理事件 | 带坐标事件条数 | 次 | 无事件为 0 |
+| `average_touch_x` | 触球代理事件 x | `sum(x) / n` | 0-120 坐标 | `n=0` 返回 `null` |
+| `average_touch_y` | 触球代理事件 y | `sum(y) / n` | 0-80 坐标 | `n=0` 返回 `null` |
+| `attacking_third_touch_count` | 触球代理事件 | `x >= 80` 的条数 | 次 | 无事件为 0 |
+| `attacking_third_touch_ratio` | 上述两项 | `进攻三区条数 / 触球代理条数` | 0-1 | 分母为 0 返回 `null` |
+| `penalty_area_touch_count` | 触球代理事件 | `x >= 102 and 18 <= y <= 62` | 次 | 无事件为 0 |
+| `penalty_area_touch_ratio` | 上述两项 | `禁区条数 / 触球代理条数` | 0-1 | 分母为 0 返回 `null` |
+| `receipt_count` | `Ball Receipt*` | 带坐标接球事件条数 | 次 | 无事件为 0 |
+| `average_receipt_x` | 接球事件 x | `sum(x) / n` | 0-120 坐标 | `n=0` 返回 `null` |
+| `forward_pass_count` | Pass 起终点 | `end_x > start_x` 的传球条数 | 次 | 缺任一坐标则排除 |
+| `completed_forward_pass_count` | 向前传球 outcome | outcome 缺失或为 `Complete` | 次 | 无向前传球为 0 |
+| `progressive_carry_count` | Carry 起终点 | `end_x - start_x >= 10` | 次 | 缺任一坐标则排除 |
+| `key_pass_count` | Pass 属性 | 有 `assisted_shot_id`、`shot_assist` 或 `goal_assist` | 次 | 无为 0 |
+| `shot_count` | Shot | Shot 事件条数 | 次 | 无为 0 |
+| `shot_involvement_count` | key pass + shot | 两者之和 | 次 | 无为 0 |
+
+平均值保留三位小数，比率保留四位小数。图表显示可以格式化，但不得覆盖 Artifact
+中的原始计算值。
+
+## 4. 适用范围
+
+v1 指标可以支持：
+
+- 比较多场比赛的持球活动高度；
+- 比较进攻三区和禁区参与比例；
+- 比较接球区域变化；
+- 比较向前传球、持球推进、关键传球和射门参与。
+
+v1 指标不能单独支持：
+
+- 无球跑位、压迫覆盖和完整跑动距离；
+- 教练指令或球员主观战术职责；
+- 跨数据源直接对比；
+- 因果判断；
+- 职业训练、临场决策或博彩判断。
+
+## 5. 变更规则
+
+修改事件集合、区域边界、阈值、完成规则或空值规则时，必须：
+
+1. 新增算法版本，不能悄悄覆盖 `footops-player-role-v1`；
+2. 更新 Fixture 和确定性期望值；
+3. 重新运行黄金样例；
+4. 更新 JSON Schema、本文档和当前进度；
+5. 旧 Workspace 保留原算法版本，不能自动改写历史数值。

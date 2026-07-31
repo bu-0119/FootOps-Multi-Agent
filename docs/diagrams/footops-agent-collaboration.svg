@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title description">
+  <title id="title">FootOps Agent 协作图</title>
+  <desc id="description">FootOpsAgentHarness 创建有界运行，CoordinatorAgent、DataAgent、TacticalAgent 和 EvidenceAgent 围绕 AnalysisBlackboard 按能力领取任务，通过版本化 Artifact 协作并由 Evidence Gate 收敛。</desc>
+
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#19324d" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow-dark" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#243447"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#d97706"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#14804a"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#7c3aed"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="11" markerHeight="11" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,7 L10,3.5 z" fill="#dc2626"/>
+    </marker>
+    <style>
+      text { font-family: Inter, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; letter-spacing: 0; fill: #17212b; }
+      .page-title { font-size: 28px; font-weight: 760; }
+      .page-subtitle { font-size: 15px; fill: #607080; }
+      .top-title { font-size: 17px; font-weight: 740; }
+      .agent-title { font-size: 22px; font-weight: 760; }
+      .board-title { font-size: 24px; font-weight: 770; }
+      .board-subtitle { font-size: 13px; fill: #657585; }
+      .box-title { font-size: 17px; font-weight: 730; }
+      .body { font-size: 14px; fill: #334454; }
+      .small { font-size: 12px; fill: #5c6b78; }
+      .micro { font-size: 11px; fill: #71808d; }
+      .mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 11px; fill: #394a59; }
+      .flow-label { font-size: 11px; font-weight: 700; }
+      .step { font-size: 12px; font-weight: 760; fill: #ffffff; text-anchor: middle; dominant-baseline: middle; }
+    </style>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#f7f9fc"/>
+
+  <text x="42" y="44" class="page-title">FootOps Agent 协作：Artifact 驱动的共享黑板与有界补证回环</text>
+  <text x="42" y="74" class="page-subtitle">不是 Agent 群聊，也不是无边界自治；按依赖领取任务，通过结构化产物协作，由 Harness 和 Evidence Gate 收敛</text>
+  <rect x="1588" y="28" width="289" height="42" rx="9" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.5"/>
+  <circle cx="1613" cy="49" r="6" fill="#7c3aed"/>
+  <text x="1630" y="54" font-size="13" font-weight="700" fill="#5b21b6">目标能力 · Phase 3 才实现</text>
+
+  <!-- Top orchestration rules -->
+  <rect x="28" y="105" width="1864" height="202" rx="14" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+  <path d="M370 207 H400" stroke="#243447" stroke-width="2.3" marker-end="url(#arrow-dark)"/>
+  <path d="M735 207 H765" stroke="#243447" stroke-width="2.3" marker-end="url(#arrow-dark)"/>
+  <path d="M1100 207 H1130" stroke="#243447" stroke-width="2.3" marker-end="url(#arrow-dark)"/>
+  <path d="M1465 207 H1495" stroke="#dc2626" stroke-width="2.3" stroke-dasharray="7 6" marker-end="url(#arrow-red)"/>
+
+  <g filter="url(#shadow)"><rect x="40" y="137" width="330" height="140" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="2"/></g>
+  <circle cx="65" cy="163" r="14" fill="#2563eb"/><text x="65" y="163" class="step">1</text>
+  <text x="89" y="169" class="top-title" fill="#1d4ed8">Harness 创建有界运行</text>
+  <text x="65" y="204" class="body">标准化问题、范围和验收条件</text>
+  <rect x="65" y="222" width="280" height="38" rx="6" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="78" y="239" class="mono">run_id / workspace_id / budgets</text>
+  <text x="78" y="254" class="mono">max_revision / checkpoint</text>
+
+  <g filter="url(#shadow)"><rect x="405" y="137" width="330" height="140" rx="10" fill="#ffffff" stroke="#d97706" stroke-width="2"/></g>
+  <circle cx="430" cy="163" r="14" fill="#d97706"/><text x="430" y="163" class="step">2</text>
+  <text x="454" y="169" class="top-title" fill="#b45309">CoordinatorAgent 立项</text>
+  <text x="430" y="204" class="body">创建 root task 与依赖关系</text>
+  <text x="430" y="229" class="body">维护验收条件、预算和终止决策</text>
+  <text x="430" y="254" class="small">最终采纳 Artifact，但不编造比赛数据</text>
+
+  <g filter="url(#shadow)"><rect x="770" y="137" width="330" height="140" rx="10" fill="#ffffff" stroke="#64748b" stroke-width="2"/></g>
+  <circle cx="795" cy="163" r="14" fill="#64748b"/><text x="795" y="163" class="step">3</text>
+  <text x="819" y="169" class="top-title">Task Claim / Scheduler</text>
+  <text x="795" y="204" class="body">每轮检查能力、依赖和预算</text>
+  <rect x="795" y="222" width="280" height="38" rx="6" fill="#f8fafc" stroke="#94a3b8"/>
+  <text x="808" y="239" class="mono">should_claim + confidence</text>
+  <text x="808" y="254" class="mono">dependency_ready + budget_gate</text>
+
+  <g filter="url(#shadow)"><rect x="1135" y="137" width="330" height="140" rx="10" fill="#ffffff" stroke="#14804a" stroke-width="2"/></g>
+  <circle cx="1160" cy="163" r="14" fill="#14804a"/><text x="1160" y="163" class="step">4</text>
+  <text x="1184" y="169" class="top-title" fill="#08783f">独立执行边界</text>
+  <text x="1160" y="204" class="body">Agent 只读所需上下文和 Artifact</text>
+  <text x="1160" y="229" class="body">工具白名单、Schema 与数据权限隔离</text>
+  <text x="1160" y="254" class="small">不直接互调，不共享隐式推理</text>
+
+  <g filter="url(#shadow)"><rect x="1500" y="137" width="350" height="140" rx="10" fill="#ffffff" stroke="#dc2626" stroke-width="2"/></g>
+  <circle cx="1525" cy="163" r="14" fill="#dc2626"/><text x="1525" y="163" class="step">5</text>
+  <text x="1549" y="169" class="top-title" fill="#b91c1c">Evidence Gate 优先</text>
+  <text x="1525" y="204" class="body">PASS / SUPPLEMENT / DEGRADE / REJECT</text>
+  <text x="1525" y="229" class="body">高置信无证据结论不可进入交付</text>
+  <text x="1525" y="254" class="small">补证次数受 max_revision 与预算控制</text>
+
+  <text x="960" y="340" text-anchor="middle" font-size="16" font-weight="720" fill="#415469">复杂分析：Agent 围绕 AnalysisBlackboard 领取任务、发布 Artifact、审核后收敛</text>
+
+  <!-- Main Blackboard -->
+  <g filter="url(#shadow)">
+    <rect x="520" y="366" width="880" height="535" rx="14" fill="#ffffff" stroke="#64748b" stroke-width="2.2"/>
+  </g>
+  <text x="960" y="407" text-anchor="middle" class="board-title">AnalysisBlackboard</text>
+  <text x="960" y="431" text-anchor="middle" class="board-subtitle">append-only：任务、事件、Artifact 和审核只追加版本；聊天消息不是唯一业务状态</text>
+
+  <rect x="558" y="458" width="360" height="158" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
+  <text x="738" y="488" text-anchor="middle" class="box-title" fill="#1d4ed8">Open Tasks</text>
+  <text x="582" y="519" class="body">scope_data　审计比赛与样本覆盖</text>
+  <text x="582" y="545" class="body">compute_metrics　计算球员跨场指标</text>
+  <text x="582" y="571" class="body">interpret_role　形成角色变化结论</text>
+  <text x="582" y="597" class="body">review_evidence / sync_board</text>
+
+  <rect x="982" y="458" width="380" height="158" rx="10" fill="#fff7ed" stroke="#d97706" stroke-width="1.8"/>
+  <text x="1172" y="488" text-anchor="middle" class="box-title" fill="#b45309">Event Stream</text>
+  <text x="1006" y="519" class="mono">RUN_STARTED / TASK_CREATED</text>
+  <text x="1006" y="545" class="mono">TASK_CLAIMED / TOOL_COMPLETED</text>
+  <text x="1006" y="571" class="mono">ARTIFACT_PUBLISHED / REVIEW_REQUESTED</text>
+  <text x="1006" y="597" class="mono">REVISION_REQUESTED / RUN_ACCEPTED</text>
+
+  <rect x="558" y="642" width="360" height="190" rx="10" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="738" y="672" text-anchor="middle" class="box-title" fill="#6d28d9">Artifact Ledger</text>
+  <text x="582" y="703" class="body">AnalysisPlanArtifact</text>
+  <text x="582" y="729" class="body">DatasetArtifact / MetricArtifact</text>
+  <text x="582" y="755" class="body">FindingArtifact / TacticsBoardArtifact</text>
+  <text x="582" y="781" class="body">EvidenceReviewArtifact / ReportArtifact</text>
+  <text x="582" y="810" class="small">每次修改生成新版本，并保存依赖与来源引用</text>
+
+  <rect x="982" y="642" width="380" height="190" rx="10" fill="#fff5f5" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="1172" y="672" text-anchor="middle" class="box-title" fill="#b91c1c">Acceptance &amp; Revision</text>
+  <rect x="1006" y="692" width="150" height="34" rx="6" fill="#ecfdf5" stroke="#6ee7b7"/>
+  <text x="1081" y="715" text-anchor="middle" class="small" fill="#047857">PASS · 可采纳</text>
+  <rect x="1181" y="692" width="157" height="34" rx="6" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="1260" y="715" text-anchor="middle" class="small" fill="#b45309">SUPPLEMENT · 补证</text>
+  <rect x="1006" y="742" width="150" height="34" rx="6" fill="#fefce8" stroke="#fde047"/>
+  <text x="1081" y="765" text-anchor="middle" class="small" fill="#854d0e">DEGRADE · 降级</text>
+  <rect x="1181" y="742" width="157" height="34" rx="6" fill="#fef2f2" stroke="#fca5a5"/>
+  <text x="1260" y="765" text-anchor="middle" class="small" fill="#b91c1c">REJECT · 拒绝</text>
+  <text x="1006" y="807" class="small">数值冲突以确定性 MetricArtifact 为准</text>
+
+  <rect x="704" y="852" width="512" height="31" rx="6" fill="#f8fafc" stroke="#94a3b8"/>
+  <text x="960" y="873" text-anchor="middle" class="small">AgentRegistry / Message Bus：capability · inbox · dependency · budget · cancellation</text>
+
+  <!-- Agent cards -->
+  <g filter="url(#shadow)"><rect x="38" y="390" width="430" height="224" rx="12" fill="#ffffff" stroke="#d97706" stroke-width="2.2"/></g>
+  <text x="67" y="430" class="agent-title" fill="#b45309">CoordinatorAgent</text>
+  <text x="67" y="464" class="body">创建 root task、依赖和验收标准</text>
+  <text x="67" y="493" class="body">选择直接工具、单 Agent 或多 Agent</text>
+  <text x="67" y="522" class="body">检查预算、冲突和 Evidence Gate 状态</text>
+  <text x="67" y="551" class="body">采纳、要求补证、降级或停止</text>
+  <rect x="67" y="571" width="350" height="26" rx="5" fill="#fff7ed"/>
+  <text x="242" y="589" text-anchor="middle" class="small" fill="#b45309">输出：AnalysisPlan + 最终交付结构</text>
+
+  <g filter="url(#shadow)"><rect x="38" y="681" width="430" height="230" rx="12" fill="#ffffff" stroke="#2563eb" stroke-width="2.2"/></g>
+  <text x="67" y="721" class="agent-title" fill="#1d4ed8">DataAgent</text>
+  <text x="67" y="755" class="body">按能力 claim 数据与指标任务</text>
+  <text x="67" y="784" class="body">选择公开数据源并记录覆盖与限制</text>
+  <text x="67" y="813" class="body">调用只读 Adapter 和确定性指标工具</text>
+  <text x="67" y="842" class="body">不允许模型心算或修改原始数据</text>
+  <rect x="67" y="864" width="350" height="28" rx="5" fill="#eff6ff"/>
+  <text x="242" y="883" text-anchor="middle" class="small" fill="#1d4ed8">发布：DatasetArtifact + MetricArtifact</text>
+
+  <g filter="url(#shadow)"><rect x="1452" y="390" width="430" height="240" rx="12" fill="#ffffff" stroke="#dc2626" stroke-width="2.2"/></g>
+  <text x="1481" y="430" class="agent-title" fill="#b91c1c">EvidenceAgent</text>
+  <text x="1481" y="464" class="body">读取 Finding、Metric、Source 与时间范围</text>
+  <text x="1481" y="493" class="body">校验数值一致性、来源、样本和冲突</text>
+  <text x="1481" y="522" class="body">检查战术板标记能否追溯到 Finding</text>
+  <text x="1481" y="551" class="body">发布通过、补证、降级或拒绝</text>
+  <rect x="1481" y="574" width="350" height="34" rx="5" fill="#fff5f5"/>
+  <text x="1656" y="596" text-anchor="middle" class="small" fill="#b91c1c">发布：EvidenceReviewArtifact / revision task</text>
+
+  <g filter="url(#shadow)"><rect x="1452" y="687" width="430" height="224" rx="12" fill="#ffffff" stroke="#14804a" stroke-width="2.2"/></g>
+  <text x="1481" y="727" class="agent-title" fill="#08783f">TacticalAgent</text>
+  <text x="1481" y="761" class="body">读取 MetricArtifact 与版本化战术 Skill</text>
+  <text x="1481" y="790" class="body">区分数据事实、战术解释和合理推断</text>
+  <text x="1481" y="819" class="body">生成结构化结论与可编辑战术板</text>
+  <text x="1481" y="848" class="body">根据审核结果只修改受影响 Artifact</text>
+  <rect x="1481" y="870" width="350" height="28" rx="5" fill="#f3fbf6"/>
+  <text x="1656" y="889" text-anchor="middle" class="small" fill="#08783f">发布：FindingArtifact + TacticsBoardArtifact</text>
+
+  <!-- Output -->
+  <g filter="url(#shadow)"><rect x="650" y="926" width="620" height="116" rx="12" fill="#ffffff" stroke="#0f766e" stroke-width="2.2"/></g>
+  <text x="680" y="963" class="agent-title" fill="#0f766e">Harness 收敛并交付 AnalysisWorkspace</text>
+  <text x="680" y="993" class="body">持久化 accepted Artifacts、Checkpoint、引用、修订记录和 Run Trace</text>
+  <text x="680" y="1020" class="body">SSE 返回回答、证据、趋势图数据、战术板和 ReportArtifact</text>
+
+  <!-- Collaboration links -->
+  <path d="M468 476 C505 476, 515 500, 548 500" fill="none" stroke="#d97706" stroke-width="2.2" stroke-dasharray="7 6" marker-end="url(#arrow-orange)"/>
+  <text x="476" y="463" class="flow-label" fill="#b45309">create / prioritize</text>
+
+  <path d="M468 764 C510 745, 520 570, 548 570" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-dasharray="7 6" marker-end="url(#arrow-blue)"/>
+  <text x="477" y="726" class="flow-label" fill="#1d4ed8">claim task</text>
+  <path d="M468 826 C505 826, 520 752, 548 752" fill="none" stroke="#2563eb" stroke-width="2.4" marker-end="url(#arrow-blue)"/>
+  <text x="477" y="812" class="flow-label" fill="#1d4ed8">publish data + metrics</text>
+
+  <path d="M1452 783 C1415 783, 1402 752, 1372 752" fill="none" stroke="#14804a" stroke-width="2.4" marker-end="url(#arrow-green)"/>
+  <text x="1368" y="739" text-anchor="end" class="flow-label" fill="#08783f">read metrics / publish finding + board</text>
+
+  <path d="M1452 510 C1418 510, 1410 690, 1372 690" fill="none" stroke="#dc2626" stroke-width="2.4" marker-end="url(#arrow-red)"/>
+  <text x="1439" y="652" text-anchor="end" class="flow-label" fill="#b91c1c">review</text>
+  <path d="M1452 570 C1405 570, 1405 550, 1372 550" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-dasharray="7 6" marker-end="url(#arrow-red)"/>
+  <text x="1438" y="557" text-anchor="end" class="flow-label" fill="#b91c1c">revision event</text>
+
+  <path d="M982 790 C975 850, 950 914, 890 914 H510 C482 914, 478 650, 460 574" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#arrow-orange)"/>
+  <text x="690" y="908" class="flow-label" fill="#b45309">accept / degrade decision</text>
+
+  <path d="M1172 832 V916" stroke="#0f766e" stroke-width="2.6" marker-end="url(#arrow-green)"/>
+  <text x="1185" y="887" class="flow-label" fill="#0f766e">accepted artifacts</text>
+
+  <path d="M1172 692 C1172 628, 1120 615, 1120 616" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow-red)"/>
+  <text x="1184" y="632" class="flow-label" fill="#b91c1c">SUPPLEMENT</text>
+
+  <text x="38" y="1064" class="micro">蓝：数据　绿：战术解释　红：证据审核　橙：协调与验收　紫：Artifact / Runtime</text>
+  <text x="1882" y="1064" text-anchor="end" class="micro">目标协作图不代表当前已完成多 Agent 实现</text>
+</svg>
