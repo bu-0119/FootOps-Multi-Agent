@@ -1,0 +1,72 @@
+{
+  "additionalProperties": false,
+  "description": "Declare independent data, knowledge, and orchestration requirements.",
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "intent": {
+      "enum": [
+        "chat",
+        "rule_qa",
+        "tactical_knowledge",
+        "metric_knowledge",
+        "data_analysis",
+        "hybrid_tactical_analysis"
+      ],
+      "title": "Intent",
+      "type": "string"
+    },
+    "need_match_data": {
+      "default": false,
+      "title": "Need Match Data",
+      "type": "boolean"
+    },
+    "need_rule_rag": {
+      "default": false,
+      "title": "Need Rule Rag",
+      "type": "boolean"
+    },
+    "need_tactical_rag": {
+      "default": false,
+      "title": "Need Tactical Rag",
+      "type": "boolean"
+    },
+    "need_metric_rag": {
+      "default": false,
+      "title": "Need Metric Rag",
+      "type": "boolean"
+    },
+    "need_multi_agent": {
+      "default": false,
+      "title": "Need Multi Agent",
+      "type": "boolean"
+    },
+    "scope_required": {
+      "default": false,
+      "title": "Scope Required",
+      "type": "boolean"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "reason": {
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    }
+  },
+  "required": [
+    "intent",
+    "confidence",
+    "reason"
+  ],
+  "title": "ExecutionPlanArtifact",
+  "type": "object"
+}

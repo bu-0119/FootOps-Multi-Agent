@@ -99,7 +99,7 @@
             "type": "integer"
           },
           "maxItems": 10,
-          "minItems": 3,
+          "minItems": 2,
           "title": "Match Ids",
           "type": "array"
         }

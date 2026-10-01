@@ -1,9 +1,14 @@
 """Deterministic application services outside the Agent runtime."""
 
-from .data_catalog import DataCatalogService, InsufficientDataError
+from .data_catalog import (
+    DataCatalogService,
+    InsufficientDataError,
+    PlayerNotFoundError,
+)
 from .evidence_gate import EvidenceGate
 from .finding_builder import DeterministicFindingBuilder
 from .finding_review import PlayerRoleFindingReviewService
+from .intent_routing import IntentRoute, RequestIntentRouter
 from .metric_engine import PlayerRoleMetricEngine
 from .player_role import PlayerRoleAnalysisService
 from .question_scope import (
@@ -23,11 +28,14 @@ __all__ = [
     "DeterministicTacticsBoardBuilder",
     "EvidenceGate",
     "InsufficientDataError",
+    "IntentRoute",
     "InvalidWorkspaceTransitionError",
     "AnalysisWorkspaceService",
     "PlayerRoleAnalysisService",
     "PlayerRoleFindingReviewService",
+    "RequestIntentRouter",
     "PlayerRoleMetricEngine",
+    "PlayerNotFoundError",
     "PlayerRoleQuestionRouter",
     "UnsupportedAnalysisQuestionError",
     "WorkspaceStateMachine",

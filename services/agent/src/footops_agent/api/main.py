@@ -10,46 +10,66 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
+from pydantic import BaseModel
 
+from footops_agent.artifacts import AgentAnalysisInput, AgentToolTrace
+from footops_agent.collaboration import MultiAgentAnalysisRequest
 from footops_agent.config import Settings
-from footops_agent.harness import FootOpsAgentHarness, HarnessError
+from footops_agent.harness import (
+    FootOpsAgentHarness,
+    FootOpsAnalysisHarness,
+    FootOpsMultiAgentHarness,
+    HarnessError,
+)
 from footops_agent.providers import (
     DataProviderError,
     FootballDataProvider,
     StatsBombOpenDataProvider,
 )
+from footops_agent.rag import HybridKnowledgeRetriever, RedisVectorKnowledgeIndex
 from footops_agent.repositories import (
     AnalysisWorkspaceRepository,
     InMemoryAnalysisWorkspaceRepository,
     WorkspaceNotFoundError,
 )
+from footops_agent.runtime import FootOpsMultiAgentRuntime
 from footops_agent.services import (
     AnalysisWorkspaceService,
     DataCatalogService,
     InsufficientDataError,
+    PlayerNotFoundError,
     PlayerRoleAnalysisService,
     PlayerRoleFindingReviewService,
     UnsupportedAnalysisQuestionError,
 )
 
 from .schemas import (
+    AgentAnalysisRequest,
+    AgentAnalysisResponse,
+    AgentRunStreamEvent,
     AnalysisPlanRequest,
     AnalysisPlanResponse,
     AnalysisStreamEvent,
     AnalysisWorkspaceCreateRequest,
     AnalysisWorkspaceResponse,
+    CompetitionCatalogResponse,
     DataCoverageAuditResponse,
     ErrorBody,
     ErrorResponse,
     HealthResponse,
     LlmStatusResponse,
+    MultiAgentAnalysisResponse,
+    MultiAgentRunResponse,
+    MultiAgentStreamEvent,
+    MultiAgentTraceEvent,
+    PlayerCatalogResponse,
     PlayerDataRequest,
     PlayerRoleFindingReviewResponse,
     PlayerRoleMetricsResponse,
 )
 
 
-def _sse(event: AnalysisStreamEvent) -> str:
+def _sse(event: BaseModel) -> str:
     return f"event: {event.event}\ndata: {event.model_dump_json()}\n\n"
 
 
@@ -58,6 +78,8 @@ def create_app(
     harness: FootOpsAgentHarness | None = None,
     data_provider: FootballDataProvider | None = None,
     workspace_repository: AnalysisWorkspaceRepository | None = None,
+    analysis_harness: FootOpsAnalysisHarness | None = None,
+    multi_agent_harness: FootOpsMultiAgentHarness | None = None,
 ) -> FastAPI:
     """Build the application with injectable settings for tests."""
     settings = settings or Settings()
@@ -66,11 +88,35 @@ def create_app(
     data_catalog = DataCatalogService(data_provider)
     player_role_service = PlayerRoleAnalysisService(data_provider)
     finding_review_service = PlayerRoleFindingReviewService(data_provider)
-    workspace_repository = (
-        workspace_repository or InMemoryAnalysisWorkspaceRepository()
+    vector_index = (
+        RedisVectorKnowledgeIndex(settings)
+        if settings.footops_vector_rag_enabled
+        else None
     )
+    knowledge_retriever = HybridKnowledgeRetriever(vector_index=vector_index)
+    workspace_repository = workspace_repository or InMemoryAnalysisWorkspaceRepository()
     workspace_service = AnalysisWorkspaceService(data_provider, workspace_repository)
+    multi_agent_runtime = FootOpsMultiAgentRuntime(
+        data_provider,
+        workspace_repository,
+        knowledge_retriever=knowledge_retriever,
+    )
+    multi_agent_harness = multi_agent_harness or FootOpsMultiAgentHarness(
+        settings,
+        data_catalog,
+        multi_agent_runtime,
+    )
+    analysis_harness = analysis_harness or FootOpsAnalysisHarness(
+        settings,
+        data_catalog,
+        workspace_service,
+        multi_agent_harness=multi_agent_harness,
+        knowledge_retriever=knowledge_retriever,
+    )
     app = FastAPI(title="FootOps Agent API", version="0.1.0")
+    app.state.knowledge_retriever = knowledge_retriever
+    if vector_index is not None:
+        app.router.add_event_handler("shutdown", vector_index.close)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.footops_cors_origins,
@@ -124,10 +170,23 @@ def create_app(
         body = ErrorResponse(
             error=ErrorBody(
                 code="insufficient_data",
-                message="公开数据不足以构成至少三场比赛的分析窗口。",
+                message="公开数据不足以构成至少两场比赛的分析窗口。",
             ),
         )
         return JSONResponse(status_code=422, content=body.model_dump())
+
+    @app.exception_handler(PlayerNotFoundError)
+    async def handle_player_not_found(
+        _request: Request,
+        _exc: PlayerNotFoundError,
+    ) -> JSONResponse:
+        body = ErrorResponse(
+            error=ErrorBody(
+                code="player_not_found",
+                message="所选赛事和赛季中没有找到该球员的公开出场数据。",
+            ),
+        )
+        return JSONResponse(status_code=404, content=body.model_dump())
 
     @app.exception_handler(WorkspaceNotFoundError)
     async def handle_workspace_not_found(
@@ -186,6 +245,367 @@ def create_app(
             ),
         )
 
+    @app.get(
+        "/api/v1/catalog/competitions",
+        response_model=CompetitionCatalogResponse,
+        responses={502: {"model": ErrorResponse}},
+    )
+    def list_competitions() -> CompetitionCatalogResponse:
+        return CompetitionCatalogResponse(
+            competitions=data_catalog.list_competitions(),
+        )
+
+    @app.get(
+        "/api/v1/catalog/players",
+        response_model=PlayerCatalogResponse,
+        responses={502: {"model": ErrorResponse}},
+    )
+    def list_players(
+        competition_id: int,
+        season_id: int,
+    ) -> PlayerCatalogResponse:
+        competition, players = data_catalog.list_players(
+            competition_id,
+            season_id,
+        )
+        return PlayerCatalogResponse(
+            competition=competition,
+            players=players,
+        )
+
+    @app.post(
+        "/api/v1/agent/runs",
+        response_model=AgentAnalysisResponse,
+        responses={
+            413: {"model": ErrorResponse},
+            422: {"model": ErrorResponse},
+            502: {"model": ErrorResponse},
+            503: {"model": ErrorResponse},
+            504: {"model": ErrorResponse},
+        },
+    )
+    async def run_analysis_agent(
+        payload: AgentAnalysisRequest,
+    ) -> AgentAnalysisResponse:
+        return await analysis_harness.run(
+            AgentAnalysisInput(
+                question=payload.question,
+                scope_hint=payload.to_scope_hint(),
+                history=payload.history,
+            )
+        )
+
+    @app.post(
+        "/api/v1/agent/runs/stream",
+        response_class=StreamingResponse,
+        responses={
+            200: {
+                "description": "Versioned Agent harness business events.",
+                "content": {"text/event-stream": {}},
+            },
+            422: {"model": ErrorResponse},
+        },
+    )
+    async def stream_analysis_agent(
+        payload: AgentAnalysisRequest,
+    ) -> StreamingResponse:
+        request_id = uuid4().hex
+        request = AgentAnalysisInput(
+            question=payload.question,
+            scope_hint=payload.to_scope_hint(),
+            history=payload.history,
+        )
+
+        async def events() -> AsyncIterator[str]:
+            queue: asyncio.Queue[AgentToolTrace] = asyncio.Queue()
+            sequence = 1
+            yield _sse(
+                AgentRunStreamEvent(
+                    event="agent.started",
+                    request_id=request_id,
+                    sequence=sequence,
+                    message="Agent 正在解析问题并选择受控工具。",
+                )
+            )
+
+            task = asyncio.create_task(
+                analysis_harness.run(request, queue.put_nowait)
+            )
+            while not task.done() or not queue.empty():
+                try:
+                    trace = await asyncio.wait_for(queue.get(), timeout=0.1)
+                except TimeoutError:
+                    continue
+                sequence += 1
+                yield _sse(
+                    AgentRunStreamEvent(
+                        event="agent.tool.completed",
+                        request_id=request_id,
+                        sequence=sequence,
+                        message=trace.summary,
+                        trace=trace,
+                    )
+                )
+
+            try:
+                response = await task
+            except HarnessError as exc:
+                sequence += 1
+                yield _sse(
+                    AgentRunStreamEvent(
+                        event="agent.error",
+                        request_id=request_id,
+                        sequence=sequence,
+                        message="Agent 执行失败。",
+                        error=ErrorBody(
+                            code=exc.code,
+                            message=exc.public_message,
+                        ),
+                    )
+                )
+                return
+
+            final_event = {
+                "chat": "agent.chat_completed",
+                "completed": "agent.completed",
+                "clarification_required": "agent.clarification_required",
+                "unsupported": "agent.unsupported",
+            }[response.status]
+            sequence += 1
+            yield _sse(
+                AgentRunStreamEvent(
+                    event=final_event,  # type: ignore[arg-type]
+                    request_id=request_id,
+                    sequence=sequence,
+                    message=response.message,
+                    response=response,
+                )
+            )
+
+        return StreamingResponse(
+            events(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    @app.post(
+        "/api/v1/multi-agent/runs",
+        response_model=MultiAgentRunResponse,
+        responses={
+            413: {"model": ErrorResponse},
+            422: {"model": ErrorResponse},
+            502: {"model": ErrorResponse},
+            503: {"model": ErrorResponse},
+            504: {"model": ErrorResponse},
+        },
+    )
+    async def run_natural_language_multi_agent(
+        payload: AgentAnalysisRequest,
+    ) -> MultiAgentRunResponse:
+        result = await multi_agent_harness.run(
+            AgentAnalysisInput(
+                question=payload.question,
+                scope_hint=payload.to_scope_hint(),
+                history=payload.history,
+            )
+        )
+        collaboration = result.collaboration
+        if result.status == "unsupported":
+            return MultiAgentRunResponse(
+                run_id=result.run_id,
+                status="unsupported",
+                model_called=False,
+                model="none",
+                message=(
+                    "该请求需要普通对话或 Knowledge RAG；当前多 Agent 数据分析入口"
+                    "没有启动范围解析和比赛工具。"
+                ),
+                duration_ms=result.duration_ms,
+                execution_plan=result.execution_plan,
+            )
+        if collaboration is None:
+            if result.scope_result is None:
+                raise RuntimeError("scope result is required for clarification")
+            return MultiAgentRunResponse(
+                run_id=result.run_id,
+                status="clarification_required",
+                model_called=result.scope_model_called,
+                model=result.scope_model,
+                message=result.scope_result.artifact.message,
+                duration_ms=result.duration_ms,
+                execution_plan=result.execution_plan,
+                scope=result.scope_result.artifact,
+                scope_trace=result.scope_result.trace,
+                usage=result.scope_result.usage,
+            )
+        rounds = max(
+            (
+                int(event.metadata["round"])
+                for event in collaboration.events
+                if "round" in event.metadata
+            ),
+            default=1,
+        )
+        return MultiAgentRunResponse(
+            run_id=result.run_id,
+            status="completed",
+            model_called=result.scope_model_called,
+            model=result.scope_model,
+            message="范围已核验，多 Agent 已完成分析并通过证据审核。",
+            duration_ms=result.duration_ms,
+            execution_plan=result.execution_plan,
+            scope=result.scope_result.artifact,
+            scope_trace=result.scope_result.trace,
+            usage=result.scope_result.usage,
+            agents=["FootOpsScopeAgent", *collaboration.agent_names],
+            rounds=rounds,
+            trace=[
+                MultiAgentTraceEvent(
+                    sequence=index,
+                    event_type=event.event_type.value,
+                    actor=event.actor,
+                    task_id=event.task_id,
+                    artifact_id=event.artifact_id,
+                    message=event.message,
+                )
+                for index, event in enumerate(collaboration.events, start=1)
+            ],
+            workspace=collaboration.workspace,
+        )
+
+    @app.post(
+        "/api/v1/multi-agent/runs/stream",
+        response_class=StreamingResponse,
+        responses={
+            200: {
+                "description": (
+                    "Versioned user-facing multi-agent collaboration events."
+                ),
+                "content": {"text/event-stream": {}},
+            },
+            422: {"model": ErrorResponse},
+            502: {"model": ErrorResponse},
+            503: {"model": ErrorResponse},
+            504: {"model": ErrorResponse},
+        },
+    )
+    async def stream_natural_language_multi_agent(
+        payload: AgentAnalysisRequest,
+    ) -> StreamingResponse:
+        request_id = uuid4().hex
+
+        async def events() -> AsyncIterator[str]:
+            sequence = 1
+            yield _sse(
+                MultiAgentStreamEvent(
+                    event="multi_agent.started",
+                    request_id=request_id,
+                    sequence=sequence,
+                    message="正在处理你的问题。",
+                )
+            )
+            try:
+                response = await run_natural_language_multi_agent(payload)
+            except HarnessError as exc:
+                sequence += 1
+                yield _sse(
+                    MultiAgentStreamEvent(
+                        event="multi_agent.error",
+                        request_id=request_id,
+                        sequence=sequence,
+                        message="处理失败。",
+                        error=ErrorBody(
+                            code=exc.code,
+                            message=exc.public_message,
+                        ),
+                    )
+                )
+                return
+
+            for trace in response.trace:
+                sequence += 1
+                yield _sse(
+                    MultiAgentStreamEvent(
+                        event="multi_agent.collaboration",
+                        request_id=request_id,
+                        sequence=sequence,
+                        message=trace.message or trace.event_type,
+                        trace=trace,
+                    )
+                )
+            sequence += 1
+            final_event = {
+                "completed": "multi_agent.completed",
+                "clarification_required": "multi_agent.clarification_required",
+                "unsupported": "multi_agent.unsupported",
+            }[response.status]
+            yield _sse(
+                MultiAgentStreamEvent(
+                    event=final_event,  # type: ignore[arg-type]
+                    request_id=request_id,
+                    sequence=sequence,
+                    message=response.message,
+                    response=response,
+                )
+            )
+
+        return StreamingResponse(
+            events(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    @app.post(
+        "/api/v1/multi-agent/analyses",
+        response_model=MultiAgentAnalysisResponse,
+        status_code=201,
+        responses={422: {"model": ErrorResponse}, 502: {"model": ErrorResponse}},
+    )
+    def run_multi_agent_analysis(
+        payload: AnalysisWorkspaceCreateRequest,
+    ) -> MultiAgentAnalysisResponse:
+        result = multi_agent_runtime.run(
+            MultiAgentAnalysisRequest(
+                question=payload.question,
+                competition_id=payload.competition_id,
+                season_id=payload.season_id,
+                player_query=payload.player,
+                requested_window=payload.requested_window,
+                player_id=payload.player_id,
+            )
+        )
+        rounds = max(
+            (
+                int(event.metadata["round"])
+                for event in result.events
+                if "round" in event.metadata
+            ),
+            default=1,
+        )
+        return MultiAgentAnalysisResponse(
+            run_id=result.run_id,
+            agents=list(result.agent_names),
+            rounds=rounds,
+            trace=[
+                MultiAgentTraceEvent(
+                    sequence=index,
+                    event_type=event.event_type.value,
+                    actor=event.actor,
+                    task_id=event.task_id,
+                    artifact_id=event.artifact_id,
+                    message=event.message,
+                )
+                for index, event in enumerate(result.events, start=1)
+            ],
+            workspace=result.workspace,
+        )
+
     @app.post(
         "/api/v1/analyses",
         response_model=AnalysisWorkspaceResponse,
@@ -201,6 +621,7 @@ def create_app(
             payload.season_id,
             payload.player,
             payload.requested_window,
+            payload.player_id,
         )
         return AnalysisWorkspaceResponse(
             workspace=workspace,
@@ -240,6 +661,7 @@ def create_app(
                     payload.season_id,
                     payload.player,
                     payload.requested_window,
+                    payload.player_id,
                 )
             except DataProviderError:
                 yield _sse(
@@ -264,7 +686,21 @@ def create_app(
                         message="分析失败。",
                         error=ErrorBody(
                             code="insufficient_data",
-                            message="公开数据不足以构成至少三场比赛的分析窗口。",
+                            message="公开数据不足以构成至少两场比赛的分析窗口。",
+                        ),
+                    )
+                )
+                return
+            except PlayerNotFoundError:
+                yield _sse(
+                    AnalysisStreamEvent(
+                        event="analysis.error",
+                        request_id=request_id,
+                        sequence=2,
+                        message="未找到球员数据。",
+                        error=ErrorBody(
+                            code="player_not_found",
+                            message=("所选赛事和赛季中没有找到该球员的公开出场数据。"),
                         ),
                     )
                 )
@@ -346,6 +782,7 @@ def create_app(
             payload.season_id,
             payload.player,
             payload.requested_window,
+            payload.player_id,
         )
         return DataCoverageAuditResponse(audit=audit)
 
@@ -362,6 +799,7 @@ def create_app(
             payload.season_id,
             payload.player,
             payload.requested_window,
+            payload.player_id,
         )
         return PlayerRoleMetricsResponse(audit=audit, metrics=metrics)
 
@@ -378,6 +816,7 @@ def create_app(
             payload.season_id,
             payload.player,
             payload.requested_window,
+            payload.player_id,
         )
         return PlayerRoleFindingReviewResponse(
             audit=audit,

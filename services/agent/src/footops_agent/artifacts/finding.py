@@ -11,7 +11,7 @@ from .base import StrictModel, utc_now
 class FindingTimeRange(StrictModel):
     start_date: date
     end_date: date
-    match_ids: list[int] = Field(min_length=3, max_length=10)
+    match_ids: list[int] = Field(min_length=2, max_length=10)
 
 
 class FindingArtifact(StrictModel):

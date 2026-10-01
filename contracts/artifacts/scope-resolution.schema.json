@@ -1,0 +1,133 @@
+{
+  "$defs": {
+    "ResolvedAgentScope": {
+      "additionalProperties": false,
+      "description": "The scope understood or resolved by the orchestration Agent.",
+      "properties": {
+        "competition_id": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Competition Id"
+        },
+        "season_id": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Season Id"
+        },
+        "competition_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Competition Name"
+        },
+        "season_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Season Name"
+        },
+        "player": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Player"
+        },
+        "player_id": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Player Id"
+        },
+        "requested_window": {
+          "anyOf": [
+            {
+              "maximum": 10,
+              "minimum": 2,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Window"
+        }
+      },
+      "title": "ResolvedAgentScope",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A catalog-grounded scope or one bounded clarification request.",
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "resolved",
+        "clarification_required"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "message": {
+      "minLength": 1,
+      "title": "Message",
+      "type": "string"
+    },
+    "scope": {
+      "$ref": "#/$defs/ResolvedAgentScope"
+    }
+  },
+  "required": [
+    "status",
+    "message"
+  ],
+  "title": "ScopeResolutionArtifact",
+  "type": "object"
+}

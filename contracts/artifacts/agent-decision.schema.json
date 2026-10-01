@@ -1,0 +1,137 @@
+{
+  "$defs": {
+    "ResolvedAgentScope": {
+      "additionalProperties": false,
+      "description": "The scope understood or resolved by the orchestration Agent.",
+      "properties": {
+        "competition_id": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Competition Id"
+        },
+        "season_id": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Season Id"
+        },
+        "competition_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Competition Name"
+        },
+        "season_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Season Name"
+        },
+        "player": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Player"
+        },
+        "player_id": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Player Id"
+        },
+        "requested_window": {
+          "anyOf": [
+            {
+              "maximum": 10,
+              "minimum": 2,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Window"
+        }
+      },
+      "title": "ResolvedAgentScope",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Schema-validated final decision produced by the AgentScope loop.",
+  "properties": {
+    "action": {
+      "enum": [
+        "chat",
+        "completed",
+        "clarification_required",
+        "unsupported"
+      ],
+      "title": "Action",
+      "type": "string"
+    },
+    "message": {
+      "minLength": 1,
+      "title": "Message",
+      "type": "string"
+    },
+    "resolved_scope": {
+      "$ref": "#/$defs/ResolvedAgentScope"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 8,
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "action",
+    "message"
+  ],
+  "title": "AgentDecision",
+  "type": "object"
+}

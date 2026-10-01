@@ -54,6 +54,48 @@ export interface PlayerMatchCoverage {
   events_url: string;
 }
 
+export interface PlayerCatalogEntry {
+  player: PlayerRef;
+  teams: TeamRef[];
+  appearance_count: number;
+  first_match_date: string;
+  last_match_date: string;
+}
+
+export interface AnalysisScopeInput {
+  competition_id: number;
+  season_id: number;
+  player: string;
+  player_id?: number;
+  requested_window: number;
+}
+
+export interface AgentScopeHintInput {
+  competition_id?: number;
+  season_id?: number;
+  player?: string;
+  player_id?: number;
+  requested_window?: number;
+}
+
+export interface AgentConversationTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface CompetitionCatalogResponse {
+  status: "ready";
+  provider: "statsbomb-open-data";
+  competitions: CompetitionSeason[];
+}
+
+export interface PlayerCatalogResponse {
+  status: "ready";
+  provider: "statsbomb-open-data";
+  competition: CompetitionSeason;
+  players: PlayerCatalogEntry[];
+}
+
 export interface MatchRoleMetrics {
   match_id: number;
   match_date: string;
@@ -244,6 +286,7 @@ export interface AnalysisWorkspace {
       competition_id: number;
       season_id: number;
       player: string;
+      player_id: number;
       team: string | null;
       match_ids: number[];
     };
@@ -270,6 +313,108 @@ export interface AnalysisWorkspaceResponse {
   workspace: AnalysisWorkspace;
 }
 
+export interface ResolvedAgentScope {
+  competition_id: number | null;
+  season_id: number | null;
+  competition_name: string | null;
+  season_name: string | null;
+  player: string | null;
+  player_id: number | null;
+  requested_window: number | null;
+}
+
+export interface AgentToolTrace {
+  sequence: number;
+  tool_name: string;
+  status: "completed" | "not_found" | "insufficient" | "unsupported" | "error";
+  summary: string;
+}
+
+export interface KnowledgeEvidenceReference {
+  evidence_id: string;
+  document_id: string;
+  domain: "rule" | "tactics" | "case" | "metric_definition";
+  title: string;
+  section: string;
+  summary: string;
+  source_url: string;
+  source_authority: string;
+  source_version: string;
+  effective_from: string | null;
+  language: string;
+  content_form: "paraphrase" | "quotation";
+  bm25_score: number;
+  vector_score: number;
+  rerank_score: number;
+}
+
+export interface KnowledgeEvidenceArtifact {
+  schema_version: "1.0";
+  query: string;
+  requested_domains: Array<"rule" | "tactics" | "case" | "metric_definition">;
+  corpus_version: string;
+  retrieval_method: "redis_char_vector_bm25_hybrid_v1";
+  status: "ready" | "insufficient";
+  references: KnowledgeEvidenceReference[];
+  generated_at: string;
+}
+
+export interface KnowledgeAnswerArtifact {
+  schema_version: "1.0";
+  status: "answered" | "insufficient";
+  answer: string;
+  citation_ids: string[];
+  limitations: string[];
+}
+
+export interface AgentAnalysisResponse {
+  run_id: string;
+  status: "chat" | "completed" | "clarification_required" | "unsupported";
+  mode: "mock" | "deepseek";
+  provider: "none" | "deepseek";
+  model: string;
+  model_called: boolean;
+  data_retrieved: boolean;
+  message: string;
+  execution_plan: {
+    intent:
+      | "chat"
+      | "rule_qa"
+      | "tactical_knowledge"
+      | "metric_knowledge"
+      | "data_analysis"
+      | "hybrid_tactical_analysis";
+  };
+  decision: {
+    action: "chat" | "completed" | "clarification_required" | "unsupported";
+    message: string;
+    resolved_scope: ResolvedAgentScope;
+    limitations: string[];
+  };
+  trace: AgentToolTrace[];
+  knowledge_evidence: KnowledgeEvidenceArtifact | null;
+  knowledge_answer: KnowledgeAnswerArtifact | null;
+  workspace: AnalysisWorkspace | null;
+}
+
+export interface AgentRunStreamEvent {
+  schema_version: "1.0";
+  event:
+    | "agent.started"
+    | "agent.tool.completed"
+    | "agent.chat_completed"
+    | "agent.completed"
+    | "agent.clarification_required"
+    | "agent.unsupported"
+    | "agent.error";
+  request_id: string;
+  sequence: number;
+  message: string;
+  trace: AgentToolTrace | null;
+  response: AgentAnalysisResponse | null;
+  error: { code: string; message: string } | null;
+}
+
 interface ErrorResponse {
   error?: { message?: string };
 }
@@ -284,31 +429,62 @@ interface AnalysisStreamEvent {
   error: { code: string; message: string } | null;
 }
 
-export async function requestPedriHistoricalMetrics(
+async function responseError(
+  response: Response,
+  fallback: string,
+): Promise<Error> {
+  let detail: ErrorResponse | undefined;
+  try {
+    detail = (await response.json()) as ErrorResponse;
+  } catch {
+    detail = undefined;
+  }
+  return new Error(detail?.error?.message ?? fallback);
+}
+
+export async function fetchCompetitionCatalog(
+  signal?: AbortSignal,
+): Promise<CompetitionCatalogResponse> {
+  const response = await fetch("/api/v1/catalog/competitions", { signal });
+
+  if (!response.ok) {
+    throw await responseError(response, "赛事目录暂时不可用。");
+  }
+
+  return (await response.json()) as CompetitionCatalogResponse;
+}
+
+export async function fetchPlayerCatalog(
+  competitionId: number,
+  seasonId: number,
+  signal?: AbortSignal,
+): Promise<PlayerCatalogResponse> {
+  const params = new URLSearchParams({
+    competition_id: String(competitionId),
+    season_id: String(seasonId),
+  });
+  const response = await fetch(`/api/v1/catalog/players?${params}`, { signal });
+
+  if (!response.ok) {
+    throw await responseError(response, "球员目录暂时不可用。");
+  }
+
+  return (await response.json()) as PlayerCatalogResponse;
+}
+
+export async function requestPlayerHistoricalMetrics(
+  scope: AnalysisScopeInput,
   signal?: AbortSignal,
 ): Promise<PlayerRoleMetricsResponse> {
   const response = await fetch("/api/v1/metrics/player-role", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      competition_id: 11,
-      season_id: 90,
-      player: "Pedri",
-      requested_window: 5,
-    }),
+    body: JSON.stringify(scope),
     signal,
   });
 
   if (!response.ok) {
-    let detail: ErrorResponse | undefined;
-    try {
-      detail = (await response.json()) as ErrorResponse;
-    } catch {
-      detail = undefined;
-    }
-    throw new Error(
-      detail?.error?.message ?? "历史公开比赛数据暂时不可用。",
-    );
+    throw await responseError(response, "历史公开比赛数据暂时不可用。");
   }
 
   return (await response.json()) as PlayerRoleMetricsResponse;
@@ -316,6 +492,7 @@ export async function requestPedriHistoricalMetrics(
 
 export async function createPlayerRoleWorkspace(
   question: string,
+  scope: AnalysisScopeInput,
   signal?: AbortSignal,
   onStatus?: (message: string) => void,
 ): Promise<AnalysisWorkspaceResponse> {
@@ -324,23 +501,15 @@ export async function createPlayerRoleWorkspace(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       question,
-      competition_id: 11,
-      season_id: 90,
-      player: "Pedri",
-      requested_window: 5,
+      ...scope,
     }),
     signal,
   });
 
   if (!response.ok) {
-    let detail: ErrorResponse | undefined;
-    try {
-      detail = (await response.json()) as ErrorResponse;
-    } catch {
-      detail = undefined;
-    }
-    throw new Error(
-      detail?.error?.message ?? "描述性观察与证据审核暂时不可用。",
+    throw await responseError(
+      response,
+      "描述性观察与证据审核暂时不可用。",
     );
   }
 
@@ -392,6 +561,73 @@ export async function createPlayerRoleWorkspace(
   }
   if (!completed) {
     throw new Error("分析事件流结束，但未返回工作区。");
+  }
+  return completed;
+}
+
+export async function runFootOpsAgent(
+  question: string,
+  scopeHint: AgentScopeHintInput = {},
+  history: AgentConversationTurn[] = [],
+  signal?: AbortSignal,
+  onStatus?: (message: string) => void,
+  onEvent?: (event: AgentRunStreamEvent) => void,
+): Promise<AgentAnalysisResponse> {
+  const response = await fetch("/api/v1/agent/runs/stream", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, history, ...scopeHint }),
+    signal,
+  });
+
+  if (!response.ok) {
+    throw await responseError(response, "Agent 暂时无法完成这次调度。");
+  }
+  if (!response.body) {
+    throw new Error("浏览器无法读取 Agent 事件流。");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let completed: AgentAnalysisResponse | null = null;
+
+  const consumeEvent = (rawEvent: string) => {
+    const data = rawEvent
+      .replaceAll("\r\n", "\n")
+      .split("\n")
+      .filter((line) => line.startsWith("data:"))
+      .map((line) => line.slice(5).trimStart())
+      .join("\n");
+    if (!data) {
+      return;
+    }
+    const event = JSON.parse(data) as AgentRunStreamEvent;
+    onStatus?.(event.message);
+    onEvent?.(event);
+    if (event.event === "agent.error") {
+      throw new Error(event.error?.message ?? "Agent 事件流执行失败。");
+    }
+    if (event.response) {
+      completed = event.response;
+    }
+  };
+
+  while (true) {
+    const { done, value } = await reader.read();
+    buffer += decoder.decode(value, { stream: !done });
+    const events = buffer.split(/\r?\n\r?\n/);
+    buffer = events.pop() ?? "";
+    events.forEach(consumeEvent);
+    if (done) {
+      break;
+    }
+  }
+  if (buffer.trim()) {
+    consumeEvent(buffer);
+  }
+  if (!completed) {
+    throw new Error("Agent 事件流结束，但未返回结构化结果。");
   }
   return completed;
 }

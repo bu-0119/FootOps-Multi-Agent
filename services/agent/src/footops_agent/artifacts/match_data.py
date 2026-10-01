@@ -55,6 +55,16 @@ class PlayerMatchCoverage(StrictModel):
     events_url: str
 
 
+class PlayerCatalogEntry(StrictModel):
+    """One resolvable player and their coverage in a competition season."""
+
+    player: PlayerRef
+    teams: list[TeamRef] = Field(default_factory=list)
+    appearance_count: int = Field(ge=1)
+    first_match_date: date
+    last_match_date: date
+
+
 class CoverageAuditArtifact(StrictModel):
     schema_version: Literal["1.0"] = "1.0"
     source: SourceReference
@@ -62,7 +72,7 @@ class CoverageAuditArtifact(StrictModel):
     competition: CompetitionSeason
     matches_scanned: int
     appearances: list[PlayerMatchCoverage] = Field(default_factory=list)
-    requested_window: int = Field(ge=3, le=10)
+    requested_window: int = Field(ge=2, le=10)
     suggested_match_ids: list[int] = Field(default_factory=list, max_length=10)
     meets_minimum: bool
     warnings: list[str] = Field(default_factory=list)

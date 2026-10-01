@@ -18,7 +18,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--competition-id", type=int, required=True)
     parser.add_argument("--season-id", type=int, required=True)
     parser.add_argument("--player", required=True)
-    parser.add_argument("--window", type=int, choices=range(3, 11), default=5)
+    parser.add_argument("--window", type=int, choices=range(2, 11), default=5)
     parser.add_argument(
         "--metrics",
         action="store_true",

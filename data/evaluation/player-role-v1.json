@@ -1,0 +1,145 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "footops-player-role-v1",
+  "description": "FootOps 普通对话、球员角色分析、澄清和能力边界黄金任务。",
+  "tasks": [
+    {
+      "task_id": "ordinary-greeting-bypasses-analysis",
+      "question": "你好",
+      "scope_hint": {},
+      "expectation": {
+        "status": "chat",
+        "require_workspace": false,
+        "required_agent_tools": []
+      },
+      "tags": ["chat", "intent-routing", "multi-agent-bypass"]
+    },
+    {
+      "task_id": "explicit-scope-role-change",
+      "question": "分析佩德里最近三场的角色变化",
+      "scope_hint": {
+        "competition_id": 11,
+        "season_id": 90,
+        "player": "Pedri",
+        "player_id": 30486,
+        "requested_window": 3
+      },
+      "expectation": {
+        "status": "completed",
+        "require_workspace": true,
+        "required_agent_tools": ["run_player_role_analysis"]
+      },
+      "tags": ["happy-path", "explicit-scope", "evidence"]
+    },
+    {
+      "task_id": "natural-language-scope-resolution",
+      "question": "分析佩德里在西甲 2020/21 赛季最近三场的角色变化",
+      "scope_hint": {},
+      "expectation": {
+        "status": "completed",
+        "require_workspace": true,
+        "required_agent_tools": [
+          "search_competitions",
+          "search_players",
+          "run_player_role_analysis"
+        ]
+      },
+      "tags": ["happy-path", "natural-language", "tool-routing"]
+    },
+    {
+      "task_id": "missing-competition-season",
+      "question": "分析佩德里最近三场的角色变化",
+      "scope_hint": {},
+      "expectation": {
+        "status": "clarification_required",
+        "require_workspace": false,
+        "required_agent_tools": ["search_competitions"]
+      },
+      "tags": ["clarification", "missing-scope"]
+    },
+    {
+      "task_id": "explicit-forward-passing",
+      "question": "分析佩德里最近三场的向前传球变化",
+      "scope_hint": {
+        "competition_id": 11,
+        "season_id": 90,
+        "player": "Pedri",
+        "player_id": 30486,
+        "requested_window": 3
+      },
+      "expectation": {
+        "status": "completed",
+        "require_workspace": true,
+        "required_agent_tools": ["run_player_role_analysis"]
+      },
+      "tags": ["passing", "metric-routing", "evidence"]
+    },
+    {
+      "task_id": "explicit-progressive-carry",
+      "question": "分析佩德里最近三场的推进带球变化",
+      "scope_hint": {
+        "competition_id": 11,
+        "season_id": 90,
+        "player": "Pedri",
+        "player_id": 30486,
+        "requested_window": 3
+      },
+      "expectation": {
+        "status": "completed",
+        "require_workspace": true,
+        "required_agent_tools": ["run_player_role_analysis"]
+      },
+      "tags": ["carrying", "metric-routing", "evidence"]
+    },
+    {
+      "task_id": "explicit-shot-involvement",
+      "question": "分析佩德里最近三场的射门参与变化",
+      "scope_hint": {
+        "competition_id": 11,
+        "season_id": 90,
+        "player": "Pedri",
+        "player_id": 30486,
+        "requested_window": 3
+      },
+      "expectation": {
+        "status": "completed",
+        "require_workspace": true,
+        "required_agent_tools": ["run_player_role_analysis"]
+      },
+      "tags": ["attack", "metric-routing", "evidence"]
+    },
+    {
+      "task_id": "unsupported-shot-analysis",
+      "question": "分析佩德里最近三场的射门和预期进球变化",
+      "scope_hint": {
+        "competition_id": 11,
+        "season_id": 90,
+        "player": "Pedri",
+        "player_id": 30486,
+        "requested_window": 3
+      },
+      "expectation": {
+        "status": "unsupported",
+        "require_workspace": false,
+        "required_agent_tools": []
+      },
+      "tags": ["boundary", "unsupported-metric"]
+    },
+    {
+      "task_id": "unknown-player",
+      "question": "分析 Nobody Example 最近三场的角色变化",
+      "scope_hint": {
+        "competition_id": 11,
+        "season_id": 90,
+        "player": "Nobody Example",
+        "requested_window": 3
+      },
+      "expectation": {
+        "status": "clarification_required",
+        "require_workspace": false,
+        "required_agent_tools": ["search_players"]
+      },
+      "tags": ["clarification", "entity-resolution"]
+    }
+  ]
+}

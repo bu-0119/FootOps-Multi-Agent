@@ -13,10 +13,18 @@ dependencies = [
   "fastapi>=0.115,<1",
   "httpx>=0.28,<1",
   "pydantic-settings>=2.7,<3",
+  "redis>=5.2,<7",
   "uvicorn[standard]>=0.34,<1",
 ]
 
 [project.optional-dependencies]
+agentscope-app = [
+  "agentscope[service,storage-redis]==2.0.5",
+]
+agentscope-sql = [
+  "agentscope[storage-sql]==2.0.5",
+  "aiomysql>=0.3,<1",
+]
 test = [
   "httpx>=0.28,<1",
   "pytest>=8.3,<9",
@@ -27,6 +35,7 @@ test = [
 [project.scripts]
 footops-agent = "footops_agent.api.main:run"
 footops-data-audit = "footops_agent.cli.data_audit:run"
+footops-eval = "footops_agent.cli.evaluate:run"
 
 [tool.setuptools.packages.find]
 where = ["src"]

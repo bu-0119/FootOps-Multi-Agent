@@ -22,9 +22,23 @@ class Settings(BaseSettings):
     deepseek_api_key: SecretStr | None = None
     deepseek_base_url: str = "https://api.deepseek.com"
     deepseek_model: str = "deepseek-v4-flash"
-    footops_agent_max_iters: int = Field(default=3, ge=1, le=8)
+    footops_deepseek_input_cost_per_million_usd: float | None = Field(
+        default=None,
+        ge=0,
+    )
+    footops_deepseek_output_cost_per_million_usd: float | None = Field(
+        default=None,
+        ge=0,
+    )
+    footops_agent_max_iters: int = Field(default=10, ge=1, le=12)
+    footops_agent_run_timeout_seconds: float = Field(default=120, gt=0, le=300)
+    footops_context_trigger_ratio: float = Field(default=0.75, gt=0, lt=0.9)
+    footops_context_reserve_ratio: float = Field(default=0.15, gt=0, lt=0.9)
+    footops_tool_result_limit: int = Field(default=12_000, ge=1000, le=100_000)
     footops_input_max_chars: int = Field(default=4000, ge=1, le=100_000)
     footops_request_timeout_seconds: float = Field(default=30, gt=0, le=300)
+    footops_redis_url: str = "redis://localhost:6379/0"
+    footops_vector_rag_enabled: bool = True
     statsbomb_open_data_base_url: str = (
         "https://raw.githubusercontent.com/hudl/open-data/master/data"
     )

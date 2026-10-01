@@ -20,6 +20,7 @@ class MetricFindingSpec:
     label: str
     stable_threshold: float
     formatter: Callable[[float], str]
+    limitations: tuple[str, ...] = ()
 
 
 METRIC_FINDING_SPECS = (
@@ -41,6 +42,54 @@ METRIC_FINDING_SPECS = (
         stable_threshold=2.0,
         formatter=lambda value: f"{value:.1f}",
     ),
+    MetricFindingSpec(
+        field="penalty_area_touch_ratio",
+        label="禁区触球占比",
+        stable_threshold=0.03,
+        formatter=lambda value: f"{value * 100:.0f}%",
+    ),
+    MetricFindingSpec(
+        field="forward_pass_count",
+        label="场均向前传球次数",
+        stable_threshold=1.0,
+        formatter=lambda value: f"{value:.1f} 次",
+        limitations=("次数未按出场分钟和球队控球时间标准化。",),
+    ),
+    MetricFindingSpec(
+        field="completed_forward_pass_count",
+        label="场均成功向前传球次数",
+        stable_threshold=1.0,
+        formatter=lambda value: f"{value:.1f} 次",
+        limitations=("次数未按出场分钟和球队控球时间标准化。",),
+    ),
+    MetricFindingSpec(
+        field="progressive_carry_count",
+        label="场均推进带球次数",
+        stable_threshold=0.5,
+        formatter=lambda value: f"{value:.1f} 次",
+        limitations=("推进带球采用纵向前进至少 10 米的 FootOps v1 口径。",),
+    ),
+    MetricFindingSpec(
+        field="key_pass_count",
+        label="场均关键传球次数",
+        stable_threshold=0.5,
+        formatter=lambda value: f"{value:.1f} 次",
+        limitations=("关键传球依赖公开事件中的助攻射门标记。",),
+    ),
+    MetricFindingSpec(
+        field="shot_count",
+        label="场均射门次数",
+        stable_threshold=0.5,
+        formatter=lambda value: f"{value:.1f} 次",
+        limitations=("射门次数不代表射门质量，也不等同于 xG 或射正次数。",),
+    ),
+    MetricFindingSpec(
+        field="shot_involvement_count",
+        label="场均射门参与次数",
+        stable_threshold=0.5,
+        formatter=lambda value: f"{value:.1f} 次",
+        limitations=("射门参与只包含本人射门与关键传球，不等同于 xG 或进球贡献。",),
+    ),
 )
 
 
@@ -52,8 +101,8 @@ class DeterministicFindingBuilder:
         metrics: PlayerRoleMetricArtifact,
     ) -> tuple[FindingSetArtifact, EvidenceSetArtifact]:
         rows = metrics.matches
-        if len(rows) < 3:
-            raise ValueError("at least three metric rows are required")
+        if len(rows) < 2:
+            raise ValueError("at least two metric rows are required")
         if len(metrics.sources) != len(rows):
             raise ValueError("each metric row must have one source reference")
 
@@ -131,6 +180,7 @@ class DeterministicFindingBuilder:
             limitations=[
                 "这是样本内的描述性比较，不等同于战术角色变化。",
                 "前后分段均值会受到对手、比分和出场时间影响。",
+                *spec.limitations,
             ],
         )
         metric_evidence = [

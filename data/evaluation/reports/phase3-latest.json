@@ -1,0 +1,1171 @@
+{
+  "schema_version": "1.0",
+  "report_id": "d05b2449cc0a4c278c3ddedcf981b205",
+  "suite_id": "footops-player-role-v1",
+  "generated_at": "2026-08-01T14:28:24.429866Z",
+  "results": [
+    {
+      "task_id": "ordinary-greeting-bypasses-analysis",
+      "mode": "deterministic",
+      "passed": false,
+      "observation": {
+        "mode": "deterministic",
+        "status": "clarification_required",
+        "message": "确定性直调需要显式赛事、赛季和球员范围。",
+        "duration_ms": 0.001,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": false,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "ordinary-greeting-bypasses-analysis",
+      "mode": "direct_llm",
+      "passed": true,
+      "observation": {
+        "mode": "direct_llm",
+        "status": "chat",
+        "message": "你好！我是 FootOps，专注于足球战术分析。我可以帮你分析位置与触球区域、向前传球、推进带球、关键传球和射门参与等战术指标。如果你有具体的比赛或球员分析需求，告诉我比赛范围（如赛事、赛季、球员），我会尽力协助。",
+        "duration_ms": 2598.177,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 1260,
+          "output_tokens": 120,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "chat",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "ordinary-greeting-bypasses-analysis",
+      "mode": "single_agent",
+      "passed": true,
+      "observation": {
+        "mode": "single_agent",
+        "status": "chat",
+        "message": "你好！我是 FootOps 助手，很高兴为你服务。⚽\n\n我可以帮你解答足球知识、聊比赛话题，或者如果你需要分析球员的多场比赛数据，我也可以引导你进入分析模式。\n\n有什么想聊的，尽管说！",
+        "duration_ms": 1543.36,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 639,
+          "output_tokens": 94,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "chat",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "ordinary-greeting-bypasses-analysis",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "chat",
+        "message": "普通对话由入口路由直接回复，不启动多 Agent。",
+        "duration_ms": 0.013,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "chat_bypass",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-scope-role-change",
+      "mode": "deterministic",
+      "passed": true,
+      "observation": {
+        "mode": "deterministic",
+        "status": "completed",
+        "message": "确定性链路已完成。",
+        "duration_ms": 131.501,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": "2f6dfed9d27e428eaa5e2c9b03a667b0",
+        "finding_count": 6,
+        "claim_support_rate": 1.0,
+        "usage": null,
+        "stopping_reason": "tactics_ready",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-scope-role-change",
+      "mode": "direct_llm",
+      "passed": false,
+      "observation": {
+        "mode": "direct_llm",
+        "status": "unsupported",
+        "message": "\"角色变化\"这一分析维度超出了FootOps可验证的分析范围。FootOps仅支持基于位置与触球区域、向前传球、推进带球、关键传球和射门参与等可量化指标的分析。角色变化涉及战术职责、站位体系、教练意图等多重主观判断，且当前没有输入中的原始比赛数据可供核验，无法给出可审计的结论。建议将问题拆解为具体可量化指标，例如\"佩德里最近三场的触球区域分布变化\"或\"佩德里最近三场的向前传球次数变化\"，我可以基于这些指标进行分析。",
+        "duration_ms": 3848.865,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 1303,
+          "output_tokens": 293,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "unsupported",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": false,
+        "workspace_match": false,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-scope-role-change",
+      "mode": "single_agent",
+      "passed": true,
+      "observation": {
+        "mode": "single_agent",
+        "status": "completed",
+        "message": "已完成佩德里最近三场的角色分析。分析基于已核验的赛事（competition_id=11）、赛季（season_id=90）和球员（Pedri, player_id=30486），窗口为最近3场。证据门控通过，共生成6项确定性发现，工作区已构建（workspace_id: 8eb70c20d7764dac97c55a5c637f3145）。\n\n分析覆盖的指标包括：位置与触球区域、向前传球、推进带球、关键传球和射门参与（射门+关键传球）。具体数值与逐场变化请以工作区存储的指标为准，本回复不复制指标文本。\n\n需要说明的边界：当前确定性发现不包含进球、助攻、xG、射正、伤病、实时状态、因果推断或战术意图。若需要更长时间窗口（3–10场）或对比其他球员，可继续提出。",
+        "duration_ms": 7675.495,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "run_player_role_analysis"
+        ],
+        "workspace_id": "8eb70c20d7764dac97c55a5c637f3145",
+        "finding_count": 6,
+        "claim_support_rate": 1.0,
+        "usage": {
+          "input_tokens": 7377,
+          "output_tokens": 637,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "completed",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": true,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-scope-role-change",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 113.582,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent",
+          "TacticalAgent"
+        ],
+        "workspace_id": "8f0efa43738e4728a22ee153151a48da",
+        "finding_count": 6,
+        "claim_support_rate": 1.0,
+        "usage": null,
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "natural-language-scope-resolution",
+      "mode": "deterministic",
+      "passed": false,
+      "observation": {
+        "mode": "deterministic",
+        "status": "clarification_required",
+        "message": "确定性直调需要显式赛事、赛季和球员范围。",
+        "duration_ms": 0.001,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": false,
+        "workspace_match": false,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "natural-language-scope-resolution",
+      "mode": "direct_llm",
+      "passed": false,
+      "observation": {
+        "mode": "direct_llm",
+        "status": "clarification_required",
+        "message": "我需要确认几个关键信息才能开始分析佩德里在西甲 2020/21 赛季的角色变化：\n\n1. **\"最近三场\"的具体范围**：当前时间是 2026 年 8 月，而 2020/21 赛季早已结束。请明确\"最近三场\"是指该赛季最后三场（即 2021 年 5 月的收官阶段），还是指某个特定时间点（如某轮比赛）之前的最近三场？\n2. **分析维度**：我的分析能力覆盖位置与触球区域、向前传球、推进带球、关键传球和射门参与。请确认你希望从哪些维度评估佩德里的角色变化（例如触球区域分布、向前传球频率、推进带球次数等）。\n3. **对比基准**：是希望对比这三场之间的变化，还是对比这三场与该赛季整体表现的差异？\n\n请补充以上信息，我将据此展开分析。",
+        "duration_ms": 3878.274,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 1276,
+          "output_tokens": 393,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": false,
+        "workspace_match": false,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "natural-language-scope-resolution",
+      "mode": "single_agent",
+      "passed": true,
+      "observation": {
+        "mode": "single_agent",
+        "status": "completed",
+        "message": "已完成对佩德里（Pedro González López，player_id 30486，巴塞罗那）在西甲 2020/21 赛季最近三场的角色分析。分析基于已核验的比赛数据，覆盖位置与触球区域、向前传球、推进带球、关键传球和射门参与等维度，共 6 项发现，证据校验通过。具体指标与逐场趋势已存入分析工作区（workspace_id: 0616594a0dda4efda66bb20eef688f61），可直接查看。",
+        "duration_ms": 44203.047,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "search_competitions",
+          "search_players",
+          "search_players",
+          "run_player_role_analysis"
+        ],
+        "workspace_id": "0616594a0dda4efda66bb20eef688f61",
+        "finding_count": 6,
+        "claim_support_rate": 1.0,
+        "usage": {
+          "input_tokens": 16788,
+          "output_tokens": 906,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "completed",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": true,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "natural-language-scope-resolution",
+      "mode": "multi_agent",
+      "passed": false,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "clarification_required",
+        "message": "多 Agent 执行切片当前需要显式赛事、赛季和球员范围。",
+        "duration_ms": 0.015,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": false,
+        "workspace_match": false,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "missing-competition-season",
+      "mode": "deterministic",
+      "passed": true,
+      "observation": {
+        "mode": "deterministic",
+        "status": "clarification_required",
+        "message": "确定性直调需要显式赛事、赛季和球员范围。",
+        "duration_ms": 0.001,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "missing-competition-season",
+      "mode": "direct_llm",
+      "passed": true,
+      "observation": {
+        "mode": "direct_llm",
+        "status": "clarification_required",
+        "message": "要分析佩德里最近三场的角色变化，我需要明确以下范围信息：\n\n1. **比赛范围**：请指定具体是哪三场比赛（例如具体日期、对阵球队），或指定赛事（如西甲、欧冠）和赛季，以便锁定比赛窗口。\n2. **角色维度**：您希望从哪些指标维度分析角色变化？FootOps 可支持的分析维度包括：位置与触球区域、向前传球、推进带球、关键传球和射门参与。请确认您关注的重点。\n\n请补充上述信息后，我可以基于公开比赛数据展开分析。",
+        "duration_ms": 2702.645,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 1267,
+          "output_tokens": 255,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "missing-competition-season",
+      "mode": "single_agent",
+      "passed": true,
+      "observation": {
+        "mode": "single_agent",
+        "status": "clarification_required",
+        "message": "请补充要分析的赛事和赛季；我只会使用公开目录中核验到的范围。",
+        "duration_ms": 8601.01,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "search_competitions",
+          "search_competitions",
+          "search_competitions"
+        ],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 11204,
+          "output_tokens": 671,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": true,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "missing-competition-season",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "clarification_required",
+        "message": "多 Agent 执行切片当前需要显式赛事、赛季和球员范围。",
+        "duration_ms": 0.053,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-forward-passing",
+      "mode": "deterministic",
+      "passed": true,
+      "observation": {
+        "mode": "deterministic",
+        "status": "completed",
+        "message": "确定性链路已完成。",
+        "duration_ms": 122.916,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": "7c59b3f19e764ce1b04dc492021cf068",
+        "finding_count": 2,
+        "claim_support_rate": 1.0,
+        "usage": null,
+        "stopping_reason": "completed",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-forward-passing",
+      "mode": "direct_llm",
+      "passed": false,
+      "observation": {
+        "mode": "direct_llm",
+        "status": "unsupported",
+        "message": "我无法完成对佩德里最近三场向前传球变化的分析。虽然你提供了比赛范围（competition_id=11, season_id=90）和球员信息（Pedri, player_id=30486, 最近3场），但作为直接对照组，我没有访问比赛事件数据、指标服务或检索工具的能力，无法获取或验证佩德里在这三场比赛中任何实际的向前传球数据。没有原始数据支撑，我不能编造分析结论或数值。建议通过具备比赛数据访问能力的 FootOps 完整版本来执行此分析。",
+        "duration_ms": 3053.983,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 1304,
+          "output_tokens": 277,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "unsupported",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": false,
+        "workspace_match": false,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-forward-passing",
+      "mode": "single_agent",
+      "passed": true,
+      "observation": {
+        "mode": "single_agent",
+        "status": "completed",
+        "message": "已完成佩德里最近三场的向前传球分析。分析基于西甲（competition_id=11）2025/26 赛季（season_id=90）中佩德里（player_id=30486）最近 3 场比赛的确定性指标，证据门控已通过，工作区已构建（workspace_id: 168a5e38d5304c40a19495bdb3bb1c15）。具体指标数值由工作区存储，请以工作区结果为准。需要说明的是，本分析覆盖向前传球、触球区域、推进带球、关键传球与射门参与等维度，不包含对进球、助攻、xG、伤停或战术意图的推断。",
+        "duration_ms": 6682.731,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "run_player_role_analysis"
+        ],
+        "workspace_id": "168a5e38d5304c40a19495bdb3bb1c15",
+        "finding_count": 2,
+        "claim_support_rate": 1.0,
+        "usage": {
+          "input_tokens": 7383,
+          "output_tokens": 612,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "completed",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": true,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-forward-passing",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 162.523,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent"
+        ],
+        "workspace_id": "4ddb1b00934842e68eedd62294abb88f",
+        "finding_count": 2,
+        "claim_support_rate": 1.0,
+        "usage": null,
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-progressive-carry",
+      "mode": "deterministic",
+      "passed": true,
+      "observation": {
+        "mode": "deterministic",
+        "status": "completed",
+        "message": "确定性链路已完成。",
+        "duration_ms": 97.118,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": "fe62ceefc75c42a6a757dd8ba4f40361",
+        "finding_count": 1,
+        "claim_support_rate": 1.0,
+        "usage": null,
+        "stopping_reason": "completed",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-progressive-carry",
+      "mode": "direct_llm",
+      "passed": false,
+      "observation": {
+        "mode": "direct_llm",
+        "status": "unsupported",
+        "message": "我无法完成这项分析。作为直接对照组，我没有比赛事件数据、指标服务或检索工具，无法获取佩德里最近三场的推进带球数据，也无法验证任何相关比赛事实。此外，当前输入中没有提供任何原始比赛数据或事件证据可供分析。建议使用具备完整数据访问能力的 FootOps 完整版本来处理此请求。",
+        "duration_ms": 2376.086,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 1305,
+          "output_tokens": 243,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "unsupported",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": false,
+        "workspace_match": false,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-progressive-carry",
+      "mode": "single_agent",
+      "passed": true,
+      "observation": {
+        "mode": "single_agent",
+        "status": "completed",
+        "message": "已完成佩德里最近三场的推进带球分析。分析基于已验证的比赛数据，覆盖推进带球（progressive carries）等指标在最近三场比赛中的变化趋势。详细指标与逐场数据已存入工作区（workspace_id: cf735823ac87473aa77b3edc310f1509），可直接查看。",
+        "duration_ms": 6130.997,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "run_player_role_analysis"
+        ],
+        "workspace_id": "cf735823ac87473aa77b3edc310f1509",
+        "finding_count": 1,
+        "claim_support_rate": 1.0,
+        "usage": {
+          "input_tokens": 7383,
+          "output_tokens": 520,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "completed",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": true,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-progressive-carry",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 113.965,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent"
+        ],
+        "workspace_id": "7e9ebb7581464fce8cd8fda3e725ba21",
+        "finding_count": 1,
+        "claim_support_rate": 1.0,
+        "usage": null,
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-shot-involvement",
+      "mode": "deterministic",
+      "passed": true,
+      "observation": {
+        "mode": "deterministic",
+        "status": "completed",
+        "message": "确定性链路已完成。",
+        "duration_ms": 136.226,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": "bb267645dae841868321652dfd8c6e6c",
+        "finding_count": 1,
+        "claim_support_rate": 1.0,
+        "usage": null,
+        "stopping_reason": "completed",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-shot-involvement",
+      "mode": "direct_llm",
+      "passed": false,
+      "observation": {
+        "mode": "direct_llm",
+        "status": "clarification_required",
+        "message": "我理解你想分析佩德里最近三场的射门参与变化，但当前输入中缺少必要的原始比赛数据或事件数据来源。作为直接对照组，我无法声称已经检索或计算任何比赛事实。\n\n请提供以下任一信息以便继续：\n1. 佩德里最近三场的具体比赛事件数据（如射门、关键传球、射门助攻等原始记录）；\n2. 或确认你希望我基于某个已提供的数据集进行分析。\n\n另外，请明确\"射门参与\"的具体定义——是指射门尝试、射门助攻（key pass）、还是包含射门前最后一传在内的更广义参与？不同定义会显著影响分析口径。",
+        "duration_ms": 3449.121,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 1305,
+          "output_tokens": 312,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": false,
+        "workspace_match": false,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-shot-involvement",
+      "mode": "single_agent",
+      "passed": true,
+      "observation": {
+        "mode": "single_agent",
+        "status": "completed",
+        "message": "已完成对佩德里最近三场射门参与变化的分析。分析基于已验证的比赛数据（射门参与 = 射门 + 关键传球），证据校验通过，结果已存入工作区（workspace_id: f029227e82964a1ba8ce8b71e5ea6bb5）。具体指标请以工作区存储的确定性结果为准。",
+        "duration_ms": 5472.369,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "run_player_role_analysis"
+        ],
+        "workspace_id": "f029227e82964a1ba8ce8b71e5ea6bb5",
+        "finding_count": 1,
+        "claim_support_rate": 1.0,
+        "usage": {
+          "input_tokens": 7387,
+          "output_tokens": 508,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "completed",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": true,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-shot-involvement",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 97.775,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent"
+        ],
+        "workspace_id": "c1d537c8b7f0463894360108c40a3262",
+        "finding_count": 1,
+        "claim_support_rate": 1.0,
+        "usage": null,
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "unsupported-shot-analysis",
+      "mode": "deterministic",
+      "passed": true,
+      "observation": {
+        "mode": "deterministic",
+        "status": "unsupported",
+        "message": "当前数据链支持已选球员最近 3 至 10 场的位置与触球区域、向前传球、推进带球、关键传球和射门参与趋势。暂不支持 xG、射正、进球、助攻、防守和球员评分。",
+        "duration_ms": 0.143,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "unsupported",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "unsupported-shot-analysis",
+      "mode": "direct_llm",
+      "passed": false,
+      "observation": {
+        "mode": "direct_llm",
+        "status": "clarification_required",
+        "message": "我需要确认分析范围。您要求分析佩德里最近三场的射门和预期进球（xG）变化，但当前输入中没有提供任何原始比赛数据或事件数据。作为对照组，我无法检索、计算或验证任何比赛事实，因此无法生成有数据支撑的分析结论。\n\n请提供以下任一信息以便继续：\n1. 佩德里最近三场比赛的具体射门次数和xG数值（原始数据）；\n2. 或确认您希望由具备数据检索能力的完整版FootOps来处理此请求。\n\n在获得原始证据之前，我不会编造任何射门或xG数据。",
+        "duration_ms": 2947.221,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 1307,
+          "output_tokens": 287,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": false,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "unsupported-shot-analysis",
+      "mode": "single_agent",
+      "passed": true,
+      "observation": {
+        "mode": "single_agent",
+        "status": "unsupported",
+        "message": "当前数据链暂不支持\"预期进球（xG）\"指标，因此无法直接回答佩德里最近三场的射门与预期进球变化。\n\n当前可执行的分析范围包括：佩德里最近 3–10 场的位置与触球区域、向前传球、推进带球、关键传球和射门参与（射门+关键传球）趋势。\n\n如果你希望分析佩德里最近三场的射门参与变化（而非 xG），我可以基于已验证数据执行该分析。请确认是否调整问题方向。",
+        "duration_ms": 7264.073,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "run_player_role_analysis"
+        ],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 7484,
+          "output_tokens": 696,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "unsupported",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "unsupported-shot-analysis",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "unsupported",
+        "message": "当前数据链支持已选球员最近 3 至 10 场的位置与触球区域、向前传球、推进带球、关键传球和射门参与趋势。暂不支持 xG、射正、进球、助攻、防守和球员评分。",
+        "duration_ms": 106.522,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "unsupported",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "unknown-player",
+      "mode": "deterministic",
+      "passed": true,
+      "observation": {
+        "mode": "deterministic",
+        "status": "clarification_required",
+        "message": "Nobody Example",
+        "duration_ms": 67.726,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "unknown-player",
+      "mode": "direct_llm",
+      "passed": true,
+      "observation": {
+        "mode": "direct_llm",
+        "status": "clarification_required",
+        "message": "我需要确认分析范围。您要求分析 \"Nobody Example\" 最近三场的角色变化，但当前输入中没有提供任何原始比赛数据或事件证据（如触球位置、传球、带球、关键传球、射门参与等）。作为对照组，我无法检索或验证该球员的比赛事实，也无法凭空生成分析结论。\n\n请提供以下任一信息以便继续：\n1. 该球员最近三场的原始事件数据（触球位置、向前传球、推进带球、关键传球、射门参与等）；\n2. 或确认您希望我仅基于您提供的具体数据片段进行分析，而非依赖外部检索。\n\n在获得可核验的数据之前，我无法给出任何关于角色变化的结论。",
+        "duration_ms": 3190.278,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 1296,
+          "output_tokens": 304,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "unknown-player",
+      "mode": "single_agent",
+      "passed": true,
+      "observation": {
+        "mode": "single_agent",
+        "status": "clarification_required",
+        "message": "已确认 La Liga 2020/2021，但没有唯一匹配到该球员。请补充常用英文名或完整姓名。",
+        "duration_ms": 37225.821,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "search_players"
+        ],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 7349,
+          "output_tokens": 642,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": true,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "unknown-player",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "clarification_required",
+        "message": "Nobody Example",
+        "duration_ms": 37.073,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    }
+  ],
+  "summaries": [
+    {
+      "mode": "deterministic",
+      "total_cases": 9,
+      "passed_cases": 7,
+      "pass_rate": 0.7777777777777778,
+      "average_latency_ms": 61.737,
+      "total_input_tokens": 0,
+      "total_output_tokens": 0,
+      "estimated_cost_usd": null,
+      "tool_sequence_accuracy": null,
+      "average_claim_support_rate": 1.0,
+      "unsupported_completion_count": 0,
+      "error_count": 0
+    },
+    {
+      "mode": "direct_llm",
+      "total_cases": 9,
+      "passed_cases": 3,
+      "pass_rate": 0.3333333333333333,
+      "average_latency_ms": 3116.072,
+      "total_input_tokens": 11623,
+      "total_output_tokens": 2484,
+      "estimated_cost_usd": null,
+      "tool_sequence_accuracy": null,
+      "average_claim_support_rate": null,
+      "unsupported_completion_count": 0,
+      "error_count": 0
+    },
+    {
+      "mode": "single_agent",
+      "total_cases": 9,
+      "passed_cases": 9,
+      "pass_rate": 1.0,
+      "average_latency_ms": 13866.545,
+      "total_input_tokens": 72994,
+      "total_output_tokens": 5286,
+      "estimated_cost_usd": null,
+      "tool_sequence_accuracy": 1.0,
+      "average_claim_support_rate": 1.0,
+      "unsupported_completion_count": 0,
+      "error_count": 0
+    },
+    {
+      "mode": "multi_agent",
+      "total_cases": 9,
+      "passed_cases": 8,
+      "pass_rate": 0.8888888888888888,
+      "average_latency_ms": 70.169,
+      "total_input_tokens": 0,
+      "total_output_tokens": 0,
+      "estimated_cost_usd": null,
+      "tool_sequence_accuracy": null,
+      "average_claim_support_rate": 1.0,
+      "unsupported_completion_count": 0,
+      "error_count": 0
+    }
+  ],
+  "notes": [
+    "直接 LLM 基线不提供工具或比赛数据，完成型任务失败是有效对照结果。",
+    "费用仅在配置每百万 Token 单价后估算；未配置时保留为 null。",
+    "评测不保存模型思维过程或 API Key。"
+  ]
+}

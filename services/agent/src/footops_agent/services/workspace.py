@@ -136,6 +136,7 @@ class AnalysisWorkspaceService:
         season_id: int,
         player_query: str,
         requested_window: int = 5,
+        player_id: int | None = None,
     ) -> AnalysisWorkspace:
         selection = self.question_router.select(question, player_query)
         audit, metrics, finding_set, evidence, review = self.review_service.review(
@@ -143,6 +144,7 @@ class AnalysisWorkspaceService:
             season_id,
             player_query,
             requested_window,
+            player_id,
         )
         finding_set, evidence, review = self._select_reviewed_findings(
             finding_set,
@@ -152,9 +154,7 @@ class AnalysisWorkspaceService:
         )
         selected_ids = set(audit.suggested_match_ids)
         selected_appearance = next(
-            item
-            for item in audit.appearances
-            if item.match.match_id in selected_ids
+            item for item in audit.appearances if item.match.match_id in selected_ids
         )
         request = AnalysisRequestArtifact(
             question=question,
@@ -162,6 +162,7 @@ class AnalysisWorkspaceService:
                 competition_id=competition_id,
                 season_id=season_id,
                 player=metrics.player.player_nickname or metrics.player.player_name,
+                player_id=metrics.player.player_id,
                 team=selected_appearance.team.team_name,
                 match_ids=audit.suggested_match_ids,
             ),
@@ -231,9 +232,7 @@ class AnalysisWorkspaceService:
         accepted_refs = {
             reference
             for item in reviews
-            for reference in (
-                item.accepted_metric_refs + item.accepted_source_refs
-            )
+            for reference in (item.accepted_metric_refs + item.accepted_source_refs)
         }
         references = [
             item for item in evidence.references if item.evidence_id in accepted_refs

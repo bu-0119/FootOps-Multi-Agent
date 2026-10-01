@@ -6,17 +6,29 @@ import json
 from pathlib import Path
 
 from footops_agent.api.main import create_app
-from footops_agent.api.schemas import AnalysisStreamEvent
+from footops_agent.api.schemas import (
+    AgentRunStreamEvent,
+    AnalysisStreamEvent,
+    MultiAgentStreamEvent,
+)
 from footops_agent.artifacts import (
+    AgentDecision,
+    AgentModelUsage,
     AnalysisPlan,
     AnalysisWorkspace,
     CoverageAuditArtifact,
     EvidenceReference,
     EvidenceReviewArtifact,
     EvidenceSetArtifact,
+    ExecutionPlanArtifact,
     FindingSetArtifact,
+    KnowledgeAnswerArtifact,
+    KnowledgeEvidenceArtifact,
     MatchDataSnapshot,
+    PlayerCatalogEntry,
     PlayerRoleMetricArtifact,
+    ScopeResolutionArtifact,
+    TacticalHypothesisArtifact,
     TacticsBoardArtifact,
 )
 from footops_agent.config import Settings
@@ -24,15 +36,23 @@ from footops_agent.config import Settings
 ROOT = Path(__file__).resolve().parents[1]
 
 ARTIFACT_SCHEMAS = {
+    "agent-decision.schema.json": AgentDecision,
+    "agent-model-usage.schema.json": AgentModelUsage,
     "analysis-plan.schema.json": AnalysisPlan,
     "analysis-workspace.schema.json": AnalysisWorkspace,
     "coverage-audit.schema.json": CoverageAuditArtifact,
     "evidence-reference.schema.json": EvidenceReference,
     "evidence-review.schema.json": EvidenceReviewArtifact,
     "evidence-set.schema.json": EvidenceSetArtifact,
+    "execution-plan.schema.json": ExecutionPlanArtifact,
     "finding-set.schema.json": FindingSetArtifact,
+    "knowledge-answer.schema.json": KnowledgeAnswerArtifact,
+    "knowledge-evidence.schema.json": KnowledgeEvidenceArtifact,
     "match-data-snapshot.schema.json": MatchDataSnapshot,
+    "player-catalog-entry.schema.json": PlayerCatalogEntry,
     "player-role-metrics.schema.json": PlayerRoleMetricArtifact,
+    "scope-resolution.schema.json": ScopeResolutionArtifact,
+    "tactical-hypothesis.schema.json": TacticalHypothesisArtifact,
     "tactics-board.schema.json": TacticsBoardArtifact,
 }
 
@@ -53,6 +73,14 @@ def main() -> int:
     write_json(
         ROOT / "contracts/events/analysis-stream-event.schema.json",
         AnalysisStreamEvent.model_json_schema(),
+    )
+    write_json(
+        ROOT / "contracts/events/agent-run-stream-event.schema.json",
+        AgentRunStreamEvent.model_json_schema(),
+    )
+    write_json(
+        ROOT / "contracts/events/multi-agent-stream-event.schema.json",
+        MultiAgentStreamEvent.model_json_schema(),
     )
 
     app = create_app(settings=Settings(_env_file=None, llm_mode="mock"))

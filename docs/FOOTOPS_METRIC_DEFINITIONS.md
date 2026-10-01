@@ -1,10 +1,14 @@
-# FootOps 球员角色指标定义 v1
+# FootOps 球员多场描述性指标定义 v1
 
 > 算法版本：`footops-player-role-v1`
 > 坐标口径：StatsBomb 标准化 120 x 80 事件坐标
 > 实现位置：`services/agent/src/footops_agent/services/metric_engine.py`
 
 ## 1. 输入约束
+
+本版本是**单球员、多场事件指标**，不是整场比赛或球队级分析。Provider 原始事件中
+可以包含 `Shot`，但当前指标层只把它用于基础射门次数和射门参与，不代表已经支持完整
+射门质量分析。
 
 指标输入只能是经过 Provider 标准化的 `MatchDataSnapshot`：
 
@@ -57,10 +61,25 @@ Shot
 平均值保留三位小数，比率保留四位小数。图表显示可以格式化，但不得覆盖 Artifact
 中的原始计算值。
 
+### 3.1 Finding 覆盖
+
+当前 `DeterministicFindingBuilder` 已为以下 10 个指标生成可审核的跨比赛描述性 Finding：
+
+`average_touch_x`、`attacking_third_touch_ratio`、`penalty_area_touch_ratio`、
+`average_receipt_x`、`forward_pass_count`、`completed_forward_pass_count`、
+`progressive_carry_count`、`key_pass_count`、`shot_count`、`shot_involvement_count`。
+
+宽泛的角色/近期表现问题不会一次堆满全部指标，而是选择触球位置、进攻三区、接球位置、
+成功向前传球、推进带球和射门参与 6 个代表性 Finding；明确问题只选择相关指标。
+次数类 Finding 当前是所选比赛的场均次数，尚未按出场分钟或球队控球时间归一化，必须在
+limitations 中披露。`shot_involvement_count` 只是射门与关键传球之和，不代表进球、xG
+或完整进攻贡献。
+
 ## 4. 适用范围
 
 v1 指标可以支持：
 
+- 单个球员在连续多场比赛中的描述性趋势；
 - 比较多场比赛的持球活动高度；
 - 比较进攻三区和禁区参与比例；
 - 比较接球区域变化；
@@ -72,6 +91,8 @@ v1 指标不能单独支持：
 - 教练指令或球员主观战术职责；
 - 跨数据源直接对比；
 - 因果判断；
+- 整场比赛的两队战术结构和比赛阶段复盘；
+- xG、射正、进球质量、射门方式等高级射门分析；
 - 职业训练、临场决策或博彩判断。
 
 ## 5. 变更规则

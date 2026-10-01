@@ -1,0 +1,91 @@
+{
+  "$defs": {
+    "PlayerRef": {
+      "additionalProperties": false,
+      "properties": {
+        "player_id": {
+          "title": "Player Id",
+          "type": "integer"
+        },
+        "player_name": {
+          "title": "Player Name",
+          "type": "string"
+        },
+        "player_nickname": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Player Nickname"
+        }
+      },
+      "required": [
+        "player_id",
+        "player_name"
+      ],
+      "title": "PlayerRef",
+      "type": "object"
+    },
+    "TeamRef": {
+      "additionalProperties": false,
+      "properties": {
+        "team_id": {
+          "title": "Team Id",
+          "type": "integer"
+        },
+        "team_name": {
+          "title": "Team Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "team_id",
+        "team_name"
+      ],
+      "title": "TeamRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One resolvable player and their coverage in a competition season.",
+  "properties": {
+    "player": {
+      "$ref": "#/$defs/PlayerRef"
+    },
+    "teams": {
+      "items": {
+        "$ref": "#/$defs/TeamRef"
+      },
+      "title": "Teams",
+      "type": "array"
+    },
+    "appearance_count": {
+      "minimum": 1,
+      "title": "Appearance Count",
+      "type": "integer"
+    },
+    "first_match_date": {
+      "format": "date",
+      "title": "First Match Date",
+      "type": "string"
+    },
+    "last_match_date": {
+      "format": "date",
+      "title": "Last Match Date",
+      "type": "string"
+    }
+  },
+  "required": [
+    "player",
+    "appearance_count",
+    "first_match_date",
+    "last_match_date"
+  ],
+  "title": "PlayerCatalogEntry",
+  "type": "object"
+}

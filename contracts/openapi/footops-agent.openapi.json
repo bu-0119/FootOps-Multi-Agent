@@ -41,6 +41,394 @@
         }
       }
     },
+    "/api/v1/catalog/competitions": {
+      "get": {
+        "summary": "List Competitions",
+        "operationId": "list_competitions_api_v1_catalog_competitions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompetitionCatalogResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog/players": {
+      "get": {
+        "summary": "List Players",
+        "operationId": "list_players_api_v1_catalog_players_get",
+        "parameters": [
+          {
+            "name": "competition_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Competition Id"
+            }
+          },
+          {
+            "name": "season_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Season Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerCatalogResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agent/runs": {
+      "post": {
+        "summary": "Run Analysis Agent",
+        "operationId": "run_analysis_agent_api_v1_agent_runs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentAnalysisRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentAnalysisResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agent/runs/stream": {
+      "post": {
+        "summary": "Stream Analysis Agent",
+        "operationId": "stream_analysis_agent_api_v1_agent_runs_stream_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentAnalysisRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Versioned Agent harness business events.",
+            "content": {
+              "text/event-stream": {}
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multi-agent/runs": {
+      "post": {
+        "summary": "Run Natural Language Multi Agent",
+        "operationId": "run_natural_language_multi_agent_api_v1_multi_agent_runs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentAnalysisRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultiAgentRunResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multi-agent/runs/stream": {
+      "post": {
+        "summary": "Stream Natural Language Multi Agent",
+        "operationId": "stream_natural_language_multi_agent_api_v1_multi_agent_runs_stream_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentAnalysisRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Versioned user-facing multi-agent collaboration events.",
+            "content": {
+              "text/event-stream": {}
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/multi-agent/analyses": {
+      "post": {
+        "summary": "Run Multi Agent Analysis",
+        "operationId": "run_multi_agent_analysis_api_v1_multi_agent_analyses_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalysisWorkspaceCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultiAgentAnalysisResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/analyses": {
       "post": {
         "summary": "Create Analysis Workspace",
@@ -397,6 +785,360 @@
   },
   "components": {
     "schemas": {
+      "AgentAnalysisRequest": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Question"
+          },
+          "competition_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Competition Id"
+          },
+          "season_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Season Id"
+          },
+          "player": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player"
+          },
+          "player_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Id"
+          },
+          "requested_window": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10.0,
+                "minimum": 2.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Window"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/AgentConversationTurn"
+            },
+            "type": "array",
+            "maxItems": 12,
+            "title": "History"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "AgentAnalysisRequest",
+        "description": "Natural-language-first request with optional scope constraints."
+      },
+      "AgentAnalysisResponse": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "chat",
+              "completed",
+              "clarification_required",
+              "unsupported"
+            ],
+            "title": "Status"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "mock",
+              "deepseek"
+            ],
+            "title": "Mode"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "none",
+              "deepseek"
+            ],
+            "title": "Provider"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "model_called": {
+            "type": "boolean",
+            "title": "Model Called"
+          },
+          "data_retrieved": {
+            "type": "boolean",
+            "title": "Data Retrieved"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/AgentDecision"
+          },
+          "trace": {
+            "items": {
+              "$ref": "#/components/schemas/AgentToolTrace"
+            },
+            "type": "array",
+            "title": "Trace"
+          },
+          "duration_ms": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Duration Ms"
+          },
+          "execution_plan": {
+            "$ref": "#/components/schemas/ExecutionPlanArtifact"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentModelUsage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "knowledge_evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/KnowledgeEvidenceArtifact"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "knowledge_answer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/KnowledgeAnswerArtifact"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "workspace": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnalysisWorkspace"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "status",
+          "mode",
+          "provider",
+          "model",
+          "model_called",
+          "data_retrieved",
+          "message",
+          "decision",
+          "duration_ms",
+          "execution_plan"
+        ],
+        "title": "AgentAnalysisResponse",
+        "description": "Outcome of one bounded AgentScope orchestration run."
+      },
+      "AgentConversationTurn": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "title": "Role"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Content"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "AgentConversationTurn",
+        "description": "One compact prior turn supplied to the stateless HTTP runtime."
+      },
+      "AgentDecision": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "chat",
+              "completed",
+              "clarification_required",
+              "unsupported"
+            ],
+            "title": "Action"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Message"
+          },
+          "resolved_scope": {
+            "$ref": "#/components/schemas/ResolvedAgentScope"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 8,
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "message"
+        ],
+        "title": "AgentDecision",
+        "description": "Schema-validated final decision produced by the AgentScope loop."
+      },
+      "AgentModelUsage": {
+        "properties": {
+          "input_tokens": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Input Tokens",
+            "default": 0
+          },
+          "output_tokens": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Output Tokens",
+            "default": 0
+          },
+          "estimated_cost_usd": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Cost Usd"
+          },
+          "pricing_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pricing Basis"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "AgentModelUsage",
+        "description": "Provider-reported token usage and optional configured cost estimate."
+      },
+      "AgentToolTrace": {
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Sequence"
+          },
+          "tool_name": {
+            "type": "string",
+            "title": "Tool Name"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "not_found",
+              "insufficient",
+              "unsupported",
+              "error"
+            ],
+            "title": "Status"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sequence",
+          "tool_name",
+          "status",
+          "summary"
+        ],
+        "title": "AgentToolTrace",
+        "description": "Auditable business-level trace without exposing model reasoning."
+      },
       "AnalysisPlan": {
         "properties": {
           "understanding": {
@@ -596,6 +1338,11 @@
             "minLength": 1,
             "title": "Player"
           },
+          "player_id": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Player Id"
+          },
           "team": {
             "anyOf": [
               {
@@ -613,7 +1360,7 @@
             },
             "type": "array",
             "maxItems": 10,
-            "minItems": 3,
+            "minItems": 2,
             "title": "Match Ids"
           }
         },
@@ -623,6 +1370,7 @@
           "competition_id",
           "season_id",
           "player",
+          "player_id",
           "match_ids"
         ],
         "title": "AnalysisScope"
@@ -738,10 +1486,22 @@
             "minLength": 1,
             "title": "Player"
           },
+          "player_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Id"
+          },
           "requested_window": {
             "type": "integer",
             "maximum": 10.0,
-            "minimum": 3.0,
+            "minimum": 2.0,
             "title": "Requested Window",
             "default": 5
           },
@@ -844,6 +1604,35 @@
         ],
         "title": "BoardPoint"
       },
+      "CompetitionCatalogResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ready",
+            "title": "Status",
+            "default": "ready"
+          },
+          "provider": {
+            "type": "string",
+            "const": "statsbomb-open-data",
+            "title": "Provider",
+            "default": "statsbomb-open-data"
+          },
+          "competitions": {
+            "items": {
+              "$ref": "#/components/schemas/CompetitionSeason"
+            },
+            "type": "array",
+            "title": "Competitions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "competitions"
+        ],
+        "title": "CompetitionCatalogResponse"
+      },
       "CompetitionSeason": {
         "properties": {
           "competition_id": {
@@ -910,7 +1699,7 @@
           "requested_window": {
             "type": "integer",
             "maximum": 10.0,
-            "minimum": 3.0,
+            "minimum": 2.0,
             "title": "Requested Window"
           },
           "suggested_match_ids": {
@@ -1200,6 +1989,78 @@
         ],
         "title": "EvidenceSetArtifact"
       },
+      "ExecutionPlanArtifact": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1.0",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "intent": {
+            "type": "string",
+            "enum": [
+              "chat",
+              "rule_qa",
+              "tactical_knowledge",
+              "metric_knowledge",
+              "data_analysis",
+              "hybrid_tactical_analysis"
+            ],
+            "title": "Intent"
+          },
+          "need_match_data": {
+            "type": "boolean",
+            "title": "Need Match Data",
+            "default": false
+          },
+          "need_rule_rag": {
+            "type": "boolean",
+            "title": "Need Rule Rag",
+            "default": false
+          },
+          "need_tactical_rag": {
+            "type": "boolean",
+            "title": "Need Tactical Rag",
+            "default": false
+          },
+          "need_metric_rag": {
+            "type": "boolean",
+            "title": "Need Metric Rag",
+            "default": false
+          },
+          "need_multi_agent": {
+            "type": "boolean",
+            "title": "Need Multi Agent",
+            "default": false
+          },
+          "scope_required": {
+            "type": "boolean",
+            "title": "Scope Required",
+            "default": false
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "intent",
+          "confidence",
+          "reason"
+        ],
+        "title": "ExecutionPlanArtifact",
+        "description": "Declare independent data, knowledge, and orchestration requirements."
+      },
       "FindingArtifact": {
         "properties": {
           "schema_version": {
@@ -1379,7 +2240,7 @@
             },
             "type": "array",
             "maxItems": 10,
-            "minItems": 3,
+            "minItems": 2,
             "title": "Match Ids"
           }
         },
@@ -1423,6 +2284,239 @@
         "additionalProperties": false,
         "type": "object",
         "title": "HealthResponse"
+      },
+      "KnowledgeAnswerArtifact": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1.0",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "answered",
+              "insufficient"
+            ],
+            "title": "Status"
+          },
+          "answer": {
+            "type": "string",
+            "maxLength": 5000,
+            "minLength": 1,
+            "title": "Answer"
+          },
+          "citation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 8,
+            "title": "Citation Ids"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 8,
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "answer"
+        ],
+        "title": "KnowledgeAnswerArtifact",
+        "description": "KnowledgeAgent answer whose citations must resolve to retrieved evidence."
+      },
+      "KnowledgeEvidenceArtifact": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1.0",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Query"
+          },
+          "requested_domains": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "rule",
+                "tactics",
+                "case",
+                "metric_definition"
+              ]
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Requested Domains"
+          },
+          "corpus_version": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Corpus Version"
+          },
+          "retrieval_method": {
+            "type": "string",
+            "const": "redis_char_vector_bm25_hybrid_v1",
+            "title": "Retrieval Method",
+            "default": "redis_char_vector_bm25_hybrid_v1"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "insufficient"
+            ],
+            "title": "Status"
+          },
+          "references": {
+            "items": {
+              "$ref": "#/components/schemas/KnowledgeEvidenceReference"
+            },
+            "type": "array",
+            "title": "References"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "query",
+          "requested_domains",
+          "corpus_version",
+          "status"
+        ],
+        "title": "KnowledgeEvidenceArtifact",
+        "description": "Auditable output from one bounded knowledge retrieval request."
+      },
+      "KnowledgeEvidenceReference": {
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Evidence Id"
+          },
+          "document_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Document Id"
+          },
+          "domain": {
+            "type": "string",
+            "enum": [
+              "rule",
+              "tactics",
+              "case",
+              "metric_definition"
+            ],
+            "title": "Domain"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Title"
+          },
+          "section": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Section"
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Summary"
+          },
+          "source_url": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Source Url"
+          },
+          "source_authority": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Source Authority"
+          },
+          "source_version": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Source Version"
+          },
+          "effective_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective From"
+          },
+          "language": {
+            "type": "string",
+            "minLength": 2,
+            "title": "Language"
+          },
+          "content_form": {
+            "type": "string",
+            "enum": [
+              "paraphrase",
+              "quotation"
+            ],
+            "title": "Content Form",
+            "default": "paraphrase"
+          },
+          "bm25_score": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Bm25 Score"
+          },
+          "vector_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Vector Score"
+          },
+          "rerank_score": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Rerank Score"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "evidence_id",
+          "document_id",
+          "domain",
+          "title",
+          "section",
+          "summary",
+          "source_url",
+          "source_authority",
+          "source_version",
+          "language",
+          "bm25_score",
+          "vector_score",
+          "rerank_score"
+        ],
+        "title": "KnowledgeEvidenceReference",
+        "description": "One retrievable, versioned knowledge passage with source provenance."
       },
       "LlmStatusResponse": {
         "properties": {
@@ -1685,6 +2779,303 @@
         ],
         "title": "MatchRoleMetrics"
       },
+      "MultiAgentAnalysisResponse": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "status": {
+            "type": "string",
+            "const": "ready",
+            "title": "Status",
+            "default": "ready"
+          },
+          "runtime": {
+            "type": "string",
+            "const": "footops_event_driven_multi_agent_v1",
+            "title": "Runtime",
+            "default": "footops_event_driven_multi_agent_v1"
+          },
+          "provider": {
+            "type": "string",
+            "const": "statsbomb-open-data",
+            "title": "Provider",
+            "default": "statsbomb-open-data"
+          },
+          "model_called": {
+            "type": "boolean",
+            "const": false,
+            "title": "Model Called",
+            "default": false
+          },
+          "agents": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Agents"
+          },
+          "rounds": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Rounds"
+          },
+          "trace": {
+            "items": {
+              "$ref": "#/components/schemas/MultiAgentTraceEvent"
+            },
+            "type": "array",
+            "title": "Trace"
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/AnalysisWorkspace"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "agents",
+          "rounds",
+          "trace",
+          "workspace"
+        ],
+        "title": "MultiAgentAnalysisResponse",
+        "description": "Outcome of one scoped event-driven multi-agent run."
+      },
+      "MultiAgentRunResponse": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "clarification_required",
+              "unsupported"
+            ],
+            "title": "Status"
+          },
+          "runtime": {
+            "type": "string",
+            "const": "footops_event_driven_multi_agent_v1",
+            "title": "Runtime",
+            "default": "footops_event_driven_multi_agent_v1"
+          },
+          "provider": {
+            "type": "string",
+            "const": "statsbomb-open-data",
+            "title": "Provider",
+            "default": "statsbomb-open-data"
+          },
+          "model_called": {
+            "type": "boolean",
+            "title": "Model Called"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "duration_ms": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Duration Ms"
+          },
+          "execution_plan": {
+            "$ref": "#/components/schemas/ExecutionPlanArtifact"
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScopeResolutionArtifact"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scope_trace": {
+            "items": {
+              "$ref": "#/components/schemas/AgentToolTrace"
+            },
+            "type": "array",
+            "title": "Scope Trace"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentModelUsage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "agents": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Agents"
+          },
+          "rounds": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Rounds",
+            "default": 0
+          },
+          "trace": {
+            "items": {
+              "$ref": "#/components/schemas/MultiAgentTraceEvent"
+            },
+            "type": "array",
+            "title": "Trace"
+          },
+          "workspace": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnalysisWorkspace"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "status",
+          "model_called",
+          "model",
+          "message",
+          "duration_ms",
+          "execution_plan"
+        ],
+        "title": "MultiAgentRunResponse",
+        "description": "Natural-language ScopeAgent result and optional multi-agent workspace."
+      },
+      "MultiAgentTraceEvent": {
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Sequence"
+          },
+          "event_type": {
+            "type": "string",
+            "title": "Event Type"
+          },
+          "actor": {
+            "type": "string",
+            "title": "Actor"
+          },
+          "task_id": {
+            "type": "string",
+            "title": "Task Id",
+            "default": ""
+          },
+          "artifact_id": {
+            "type": "string",
+            "title": "Artifact Id",
+            "default": ""
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sequence",
+          "event_type",
+          "actor"
+        ],
+        "title": "MultiAgentTraceEvent",
+        "description": "Public collaboration trace without model reasoning or raw payloads."
+      },
+      "PlayerCatalogEntry": {
+        "properties": {
+          "player": {
+            "$ref": "#/components/schemas/PlayerRef"
+          },
+          "teams": {
+            "items": {
+              "$ref": "#/components/schemas/TeamRef"
+            },
+            "type": "array",
+            "title": "Teams"
+          },
+          "appearance_count": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Appearance Count"
+          },
+          "first_match_date": {
+            "type": "string",
+            "format": "date",
+            "title": "First Match Date"
+          },
+          "last_match_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Last Match Date"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "player",
+          "appearance_count",
+          "first_match_date",
+          "last_match_date"
+        ],
+        "title": "PlayerCatalogEntry",
+        "description": "One resolvable player and their coverage in a competition season."
+      },
+      "PlayerCatalogResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ready",
+            "title": "Status",
+            "default": "ready"
+          },
+          "provider": {
+            "type": "string",
+            "const": "statsbomb-open-data",
+            "title": "Provider",
+            "default": "statsbomb-open-data"
+          },
+          "competition": {
+            "$ref": "#/components/schemas/CompetitionSeason"
+          },
+          "players": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerCatalogEntry"
+            },
+            "type": "array",
+            "title": "Players"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "competition",
+          "players"
+        ],
+        "title": "PlayerCatalogResponse"
+      },
       "PlayerDataRequest": {
         "properties": {
           "competition_id": {
@@ -1702,10 +3093,22 @@
             "minLength": 1,
             "title": "Player"
           },
+          "player_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Id"
+          },
           "requested_window": {
             "type": "integer",
             "maximum": 10.0,
-            "minimum": 3.0,
+            "minimum": 2.0,
             "title": "Requested Window",
             "default": 5
           }
@@ -2068,6 +3471,130 @@
         ],
         "title": "QuestionUnderstanding",
         "description": "A structured interpretation of the user's analysis request."
+      },
+      "ResolvedAgentScope": {
+        "properties": {
+          "competition_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Competition Id"
+          },
+          "season_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Season Id"
+          },
+          "competition_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Competition Name"
+          },
+          "season_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Season Name"
+          },
+          "player": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player"
+          },
+          "player_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Id"
+          },
+          "requested_window": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10.0,
+                "minimum": 2.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Window"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ResolvedAgentScope",
+        "description": "The scope understood or resolved by the orchestration Agent."
+      },
+      "ScopeResolutionArtifact": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1.0",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "resolved",
+              "clarification_required"
+            ],
+            "title": "Status"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Message"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/ResolvedAgentScope"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "message"
+        ],
+        "title": "ScopeResolutionArtifact",
+        "description": "A catalog-grounded scope or one bounded clarification request."
       },
       "SourceReference": {
         "properties": {

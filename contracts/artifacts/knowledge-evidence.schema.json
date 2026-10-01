@@ -1,0 +1,188 @@
+{
+  "$defs": {
+    "KnowledgeEvidenceReference": {
+      "additionalProperties": false,
+      "description": "One retrievable, versioned knowledge passage with source provenance.",
+      "properties": {
+        "evidence_id": {
+          "minLength": 1,
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "document_id": {
+          "minLength": 1,
+          "title": "Document Id",
+          "type": "string"
+        },
+        "domain": {
+          "enum": [
+            "rule",
+            "tactics",
+            "case",
+            "metric_definition"
+          ],
+          "title": "Domain",
+          "type": "string"
+        },
+        "title": {
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "section": {
+          "minLength": 1,
+          "title": "Section",
+          "type": "string"
+        },
+        "summary": {
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        },
+        "source_url": {
+          "minLength": 1,
+          "title": "Source Url",
+          "type": "string"
+        },
+        "source_authority": {
+          "minLength": 1,
+          "title": "Source Authority",
+          "type": "string"
+        },
+        "source_version": {
+          "minLength": 1,
+          "title": "Source Version",
+          "type": "string"
+        },
+        "effective_from": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective From"
+        },
+        "language": {
+          "minLength": 2,
+          "title": "Language",
+          "type": "string"
+        },
+        "content_form": {
+          "default": "paraphrase",
+          "enum": [
+            "paraphrase",
+            "quotation"
+          ],
+          "title": "Content Form",
+          "type": "string"
+        },
+        "bm25_score": {
+          "minimum": 0,
+          "title": "Bm25 Score",
+          "type": "number"
+        },
+        "vector_score": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Vector Score",
+          "type": "number"
+        },
+        "rerank_score": {
+          "minimum": 0,
+          "title": "Rerank Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "document_id",
+        "domain",
+        "title",
+        "section",
+        "summary",
+        "source_url",
+        "source_authority",
+        "source_version",
+        "language",
+        "bm25_score",
+        "vector_score",
+        "rerank_score"
+      ],
+      "title": "KnowledgeEvidenceReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Auditable output from one bounded knowledge retrieval request.",
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "query": {
+      "minLength": 1,
+      "title": "Query",
+      "type": "string"
+    },
+    "requested_domains": {
+      "items": {
+        "enum": [
+          "rule",
+          "tactics",
+          "case",
+          "metric_definition"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Requested Domains",
+      "type": "array"
+    },
+    "corpus_version": {
+      "minLength": 1,
+      "title": "Corpus Version",
+      "type": "string"
+    },
+    "retrieval_method": {
+      "const": "redis_char_vector_bm25_hybrid_v1",
+      "default": "redis_char_vector_bm25_hybrid_v1",
+      "title": "Retrieval Method",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "ready",
+        "insufficient"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "references": {
+      "items": {
+        "$ref": "#/$defs/KnowledgeEvidenceReference"
+      },
+      "title": "References",
+      "type": "array"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "query",
+    "requested_domains",
+    "corpus_version",
+    "status"
+  ],
+  "title": "KnowledgeEvidenceArtifact",
+  "type": "object"
+}

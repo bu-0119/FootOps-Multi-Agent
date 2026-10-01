@@ -317,7 +317,7 @@
     },
     "requested_window": {
       "maximum": 10,
-      "minimum": 3,
+      "minimum": 2,
       "title": "Requested Window",
       "type": "integer"
     },

@@ -6,6 +6,7 @@ from footops_agent.artifacts import (
     CompetitionSeason,
     MatchDataSnapshot,
     MatchRef,
+    PlayerCatalogEntry,
     PlayerMatchCoverage,
     SourceReference,
 )
@@ -32,7 +33,10 @@ class FootballDataProvider(Protocol):
         self,
         matches: list[MatchRef],
         player_query: str,
+        player_id: int | None = None,
     ) -> list[PlayerMatchCoverage]: ...
+
+    def list_players(self, matches: list[MatchRef]) -> list[PlayerCatalogEntry]: ...
 
     def load_player_snapshot(
         self,

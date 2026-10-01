@@ -11,6 +11,7 @@ interface TopbarProps {
   collapsed: boolean;
   title: string;
   dataRetrievedAt: string | null;
+  scopeLabel: string;
   onToggleSidebar: () => void;
   onOpenMobile: () => void;
 }
@@ -19,6 +20,7 @@ export function Topbar({
   collapsed,
   title,
   dataRetrievedAt,
+  scopeLabel,
   onToggleSidebar,
   onOpenMobile,
 }: TopbarProps) {
@@ -44,12 +46,7 @@ export function Topbar({
           {collapsed ? <PanelLeftOpen size={19} /> : <PanelLeftClose size={19} />}
         </button>
         <h1>{title}</h1>
-        <label className="competition-select">
-          <span className="sr-only">赛事范围</span>
-          <select defaultValue="laliga-2020-21">
-            <option value="laliga-2020-21">西甲 2020/21</option>
-          </select>
-        </label>
+        <span className="competition-scope-label">{scopeLabel}</span>
       </div>
 
       <div className="topbar-actions">

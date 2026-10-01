@@ -2,7 +2,7 @@
 
 > 文档状态：持续更新
 > 建立日期：2026-07-31
-> 当前学习进度：Phase 2A 已完成，下一章进入 Phase 2B 单 Agent MVP
+> 当前学习进度：本机 Redis Vector RAG 与两场球员报告首切片已接入
 > 用途：把每个已完成开发切片转化为可复习的工程知识
 
 ## 1. 这份文档解决什么问题
@@ -117,10 +117,11 @@ FootOps 使用 Pydantic 定义严格模型，并导出 JSON Schema 与 OpenAPI�
 
 ### 4.3 与 MindBridge 的对比
 
-MindBridge 使用通用 `AgentArtifact(kind, payload)` 在黑板上传递产物，适合承载不同心理
-支持任务；FootOps 当前优先使用足球领域的强类型 Artifact，因为指标字段、单位、来源和
-比赛范围必须被程序校验。未来多 Agent 可以在黑板上传递这些 Artifact，但不会退化为
-只有模型才能理解的自由文本。
+MindBridge 使用通用 `AgentArtifact(kind, payload)` 在自研黑板上传递产物，适合承载不同
+心理支持任务；FootOps 当前优先使用足球领域的强类型 Artifact，因为指标字段、单位、
+来源和比赛范围必须被程序校验。未来多 Agent 的通信和任务状态由 AgentScope App/Team
+负责，消息中只传 Artifact ID 或摘要；完整 Artifact 仍保存在 FootOps Workspace/
+Repository，不退化为只有模型才能理解的自由文本。
 
 ### 4.4 阅读代码与验证
 
@@ -212,66 +213,121 @@ Trace、工具计划和报告落库。FootOps 当前 Harness 只是最小安全�
 当前 Harness 还没有预算统计、取消、Checkpoint、重试、工具后处理和 Trace 持久化。
 这些能力必须在实际业务链需要时按开发顺序补充。
 
-## 7. Phase 2A Spike：AgentScope 2.0.5
+## 7. Phase 2A Spike 与架构审计：AgentScope 2.0.5
 
 ### 7.1 一句话理解
 
-AgentScope 当前为 FootOps 提供模型 Agent、有限 ReAct 循环和结构化输出能力，但不负责
-FootOps 的业务数据、指标真实性和最终证据审核。
+AgentScope 是 FootOps 选择的 Agent Runtime，不是只负责单 Agent 的模型包装器；只是
+FootOps 当前仅接入了它的单 `Agent` 切片，多 Agent App/Team 能力还没有进入运行链路。
 
 ### 7.2 为什么接入 AgentScope
 
-直接调用模型 API 只能得到一次文本补全。后续单 Agent 需要在有限预算内理解问题、选择
-Skill、调用只读工具并根据工具结果生成结构化产物。AgentScope 提供统一 `Agent`、
-`ReActConfig`、`reply()`/`reply_stream()`、结构化 Schema 和 Toolkit 接口，可以减少重复
-实现模型循环的工作。
+直接调用模型 API 只能得到一次文本补全。Agent 系统还需要有限 ReAct 循环、工具调用、
+结构化输出、上下文状态、任务拆分、SubAgent 生命周期、团队通信和会话存储。AgentScope
+2.0.5 已提供这些通用能力，FootOps 应把开发时间用于足球数据、指标、Artifact 和证据
+门禁，而不是重写一套通用多 Agent 框架。
 
-当前 Spike 只验证：
+当前已经运行的 Spike 只有：
 
 ```text
 AnalysisPlanner
-  -> AgentScope Agent
+  -> AgentScope Agent + ReActConfig
   -> DeepSeekChatModel
   -> structured_schema=AnalysisPlan
   -> Pydantic 校验
 ```
 
+已从本地 2.0.5 包源码审计、但尚未接入的能力包括：
+
+| 能力 | AgentScope 2.0.5 入口 | FootOps 计划用途 |
+| --- | --- | --- |
+| 工具和 Skill | `Toolkit`、`FunctionTool`、MCP、Skill | Phase 2B 注入数据与指标只读工具 |
+| 上下文状态 | `ContextConfig`、`AgentState` | 压缩长上下文并保存 Agent 运行状态 |
+| 任务状态 | `TaskContext`、`TaskCreate/Get/List/Update` | 代替自研通用任务板 |
+| App/Team | `create_app`、`SubAgentTemplate` | Team Leader 按角色模板创建 SubAgent |
+| 团队协作 | App 注入的 Agent 创建/邀请/通信工具 | 代替自研 Agent 生命周期和群聊协议 |
+| 实时传输 | `InMemoryMessageBus`、`RedisMessageBus` | 跨 Session 消息与唤醒 |
+| 框架持久化 | `RedisStorage`、`AsyncSQLAlchemyStorage` | Agent、Session、Team 等框架状态 |
+| 文件工作区 | `LocalWorkspaceManager` 等 | Agent 工作目录和隔离；不同于 AnalysisWorkspace |
+
 ### 7.3 与 MindBridge 同类能力的共同点
 
-- 都把 Agent 角色、模型调用和业务 Harness 分层；
+- 都把角色、模型调用、任务、协作和业务 Harness 分层；
 - 都限制 Agent 循环和运行预算；
-- 都要求模型输出经过业务规则或 Schema 校验；
+- 都要求业务产物经过规则或 Schema 校验；
 - 都不会让模型直接替代数据库事务和外部副作用管理。
 
 ### 7.4 与 MindBridge 的关键差异
 
-MindBridge 没有使用 AgentScope 作为核心 Runtime。它使用自研的
-`AgentProfile + Registry + decide/act + EventDrivenCoordinator + Blackboard` 完成多 Agent
-认领和调度，并通过自己的 `AiClient` 调用模型。
+MindBridge 没有 AgentScope 依赖，所以它自研了
+`AgentProfile + Registry + decide/act + EventDrivenCoordinator + Blackboard`。FootOps 最初
+计划直接跳到 AgentScope App/Team；用户明确项目以学习 Agent 原理为优先后，Phase 3A
+改为先实现一个最小领域协议，亲自验证 Task Claim、Artifact、独立审核和 Final Accept。
+该协议不包含通用 MessageBus、Scheduler 或 Storage，Phase 3B 仍要映射到 AgentScope。
 
-FootOps 的设计是：
+对应关系是：
 
-- 使用 AgentScope 处理单个 Agent 内部的模型推理、结构化输出和未来工具调用；
-- 使用 FootOps 自己的 Harness、路由、Artifact 和未来 Blackboard 管理足球业务；
-- 不让 AgentScope 类型泄露到 HTTP 或前端；
-- 不照搬 MindBridge 的自研模型循环，也不把 AgentScope 当成完整业务系统。
+```text
+MindBridge EventDrivenMultiAgent
+  ~= AgentScope App/Team + Session + MessageBus + Task Tools
+     + FootOps Workspace/Artifact/Evidence Gate
 
-因此，“接入 AgentScope”不等于“已经完成多 Agent”，也不等于“已经完成真实分析”。
+MindBridge AgentProfile/Registry
+  ~= AgentScope Agent 配置 + SubAgentTemplate + Tool/Permission 配置
 
-### 7.5 阅读代码与验证
+MindBridge CollaborationBlackboard
+  ~= AgentScope TaskContext/团队消息
+     + FootOps AnalysisWorkspace 的领域状态投影
+```
+
+AgentScope 负责通用运行时；FootOps 仍负责足球业务路由、强类型 Artifact、
+`AnalysisWorkspace`、确定性指标、Evidence Gate 和 HTTP/SSE 契约。AgentScope 类型不会
+泄露给前端，但这不意味着 FootOps 要在框架外重写消息总线和调度器。
+
+### 7.5 版本陷阱
+
+FootOps 锁定的是 `agentscope==2.0.5`。本地验证显示该版本没有
+`agentscope.pipeline`，因此官网其他版本出现的 `Pipeline`/`MsgHub` 不能写进当前实现。
+
+同时，包内虽有公开 `agentscope.app`，当前 `pyproject.toml` 只安装基础
+`agentscope==2.0.5`，未安装 `service` extra；现在导入 App 会因缺少 `apscheduler`
+失败。AgentScope App/Team 的准确状态仍是“包内能力已审计、项目尚未具备运行依赖”；
+Phase 3A 领域协作层已运行不等于 App/Team 已完成。Phase 3B 先补齐并锁定 extras，再做
+App 挂载集成测试。
+
+### 7.6 阅读代码与验证
+
+FootOps 当前实现：
 
 - `services/agent/src/footops_agent/runtime/model_adapter.py`；
 - `services/agent/src/footops_agent/agents/planner.py`；
+- `services/agent/src/footops_agent/collaboration/`；
+- `services/agent/src/footops_agent/agents/collaborative.py`；
+- `services/agent/src/footops_agent/runtime/multi_agent.py`；
+- `services/agent/tests/test_multi_agent.py`；
 - `services/agent/tests/test_deepseek_adapter.py`。
+
+本地 AgentScope 2.0.5 能力来源：
+
+- `.venv/lib/python3.12/site-packages/agentscope/app/__init__.py`；
+- `.venv/lib/python3.12/site-packages/agentscope/app/_types.py`；
+- `.venv/lib/python3.12/site-packages/agentscope/app/_app.py`；
+- `.venv/lib/python3.12/site-packages/agentscope/app/_service/_toolkit.py`；
+- `.venv/lib/python3.12/site-packages/agentscope/app/message_bus/`；
+- `.venv/lib/python3.12/site-packages/agentscope/app/storage/`；
+- `.venv/lib/python3.12/site-packages/agentscope/state/` 和 `agentscope/tool/`。
 
 ```bash
 .venv/bin/pytest services/agent/tests/test_deepseek_adapter.py
+.venv/bin/python -c "import agentscope; print(agentscope.__version__)"
 ```
 
-### 7.6 当前边界与下一步
+### 7.7 当前边界与下一步
 
-目前 AgentScope Agent 只生成计划，尚未注册足球数据 Tool、指标 Tool 或 Skill。必须先
-完成 Phase 2A 的确定性数据链，再在 Phase 2B 让 Agent 选择这些只读能力。
+Phase 2B 已让一个 Agent 使用 `Toolkit`/`FunctionTool`、Skill 和 `ContextConfig` 完成黄金
+任务。Phase 3A 为学习目的增加最小 Registry/Board/Coordinator，但只表达 FootOps 领域
+协作语义；不实现通用 MessageBus、Scheduler 或 Storage。Phase 3B 再接 App/Team、
+`SubAgentTemplate`、任务工具和框架 Storage，并与 Phase 3A 做可重复对照。
 
 ## 8. Phase 2A Spike：ModelAdapter 与 DeepSeek
 
@@ -532,8 +588,9 @@ Finding 生成和证据判断。
 - `POST /api/v1/findings/player-role/review`；
 - `services/agent/tests/test_data_pipeline.py`。
 
-当前 100% 支持率只表示三条描述性 Finding 的引用全部通过，不表示战术角色变化已经
-被证明。战术推断只有事件指标时会被标记为 `needs_more_evidence`。
+100% 支持率只表示所选描述性 Finding 的引用全部通过，不表示战术角色变化已经被证明。
+本切片最初覆盖三条位置 Finding，第 13.16 节扩展到十个指标；战术推断只有事件指标时
+仍会被标记为 `needs_more_evidence`。
 
 ### 13.8 AnalysisWorkspace 生命周期与 Repository 基线
 
@@ -607,37 +664,375 @@ npm --prefix apps/web run build
 Agent 事件。这样未来 Java 后端或其他前端可以只依赖 HTTP/SSE 契约，不依赖 AgentScope
 内部对象。
 
+### 13.11 问题范围路由与相关 Finding 选择
+
+最初的 Workspace Service 接收了 `question`，却没有让问题参与执行选择，因此任何输入
+都会运行同一套固定黄金样例。`PlayerRoleQuestionRouter` 现在先验证球员和受支持意图，
+再从位置/触球、向前传球、推进带球、关键传球和射门参与对应的 Finding 中选择相关结果。
+Evidence、Review、趋势图和战术板随后只消费被选中的结果。
+
+这不是 LLM 意图识别，而是 Phase 2A 的确定性产品边界：无法执行的问题返回
+`unsupported_analysis_question`，不能为了维持聊天体验而套用固定答案。Phase 2B 可让
+Agent 负责澄清和工具选择，但仍必须受这个可执行能力集合约束。
+
+通用球员数据接入后又补充了正常用户问法回归：“分析最近几场表现”“最近踢得怎么样”
+和“看看近期活动趋势”映射到六项代表性综合观察；明确询问进球、助攻、xG、射正、防守
+和评分等尚未接入指标时仍拒绝执行。这个规则避免两种错误：路由过窄导致所有自然问法
+失败，以及路由过宽导致所有问题都复用同一组结果。
+
+阅读与验证：
+
+- `services/question_scope.py`、`services/workspace.py`；
+- `api/main.py` 的同步与 SSE 错误映射；
+- `apps/web/src/components/ChatView.tsx`、`TrendChart.tsx`；
+- `services/agent/tests/test_workspace.py`。
+
+### 13.12 通用球员目录与按需事件读取
+
+最初前端把赛事、赛季、Pedri 和五场窗口写在请求体中，Provider 虽然可以按姓名查找，
+产品链路仍只能表现为固定样例。本切片新增赛事目录和球员目录接口：球员目录只聚合
+lineup 中的规范球员 ID、姓名、球队、出场数和日期范围，不预下载所有球员事件。用户
+提交分析后，Provider 才读取所选 3 至 10 场的比赛事件文件，再按规范球员 ID 过滤并
+交给确定性指标引擎。StatsBomb Open Data 的文件粒度是整场比赛，不支持按球员单独下载，
+但系统不会因此预下载整个赛季或所有球员事件。
+
+这与 MindBridge 先解析业务实体、再按需检索领域数据的原则一致，但比赛事件不是 RAG：
+它是结构化、可计算、随比赛增长的数据，应通过 Provider/API 精确查询；RAG 后续只保存
+相对稳定的战术知识、指标定义和分析规范。
+
+阅读与验证：
+
+- `providers/base.py`、`providers/statsbomb_open.py`；
+- `services/data_catalog.py`；
+- `api/schemas.py`、`api/main.py`；
+- `apps/web/src/api/data.ts`、`App.tsx`、`components/ChatView.tsx`；
+- `services/agent/tests/test_data_pipeline.py`、`test_workspace.py`。
+
+真实验收中，西甲 2020/21 目录解析出 383 名有出场记录的球员，并使用 Lionel Messi
+最近三场完成事件读取、指标计算、Finding 和 Evidence Gate 链路。当前边界是 StatsBomb
+Open Data 没有中文别名和全局球员搜索 API；输入任意中文译名或查询开放数据未覆盖的
+球员仍会明确失败。
+
+### 13.13 自然语言单 Agent、Toolkit 与 Skill
+
+Phase 2B 的首个切片不再要求用户先填写赛事和球员。`FootOpsAnalysisAgent` 使用
+AgentScope 2.0.5 内置 ReAct 有限循环，先读取 `footops-player-role-analysis` Skill，
+再从请求级 Toolkit 中选择赛事检索、球员解析和确定性分析工具。赛事 ID、赛季 ID 和
+球员 ID 必须来自用户可选约束或工具结果；候选不唯一时返回结构化补问，不能靠模型
+记忆猜测。分析完成状态还必须由 Harness 核对真实 Workspace，模型单独声称完成无效。
+
+这对应 MindBridge 的 Runtime Harness、业务 Skill 和工具后处理思想，但当前保持单
+Agent：Agent 负责理解与调度，现有 Service 负责指标、Finding、Evidence Gate、战术板
+和 Workspace。前端携带最近六轮短期历史，使用户可以直接回答 Agent 的范围补问；
+数据库会话记忆仍未实现；请求级上下文预算与压缩配置见下一节。
+
+阅读与验证：
+
+- `runtime/analysis_agent.py`、`tools/analysis.py`；
+- `skills/player_role_analysis/SKILL.md`；
+- `harness/analysis.py`、`api/main.py` 的 `/api/v1/agent/runs`；
+- `apps/web/src/App.tsx`、`api/data.ts`、`components/ChatView.tsx`；
+- `services/agent/tests/test_workspace.py`。
+
+### 13.14 Agent 业务事件、状态与上下文预算
+
+自然语言入口新增 `/api/v1/agent/runs/stream`。它发送 `agent.started`、逐次
+`agent.tool.completed`，以及 completed、clarification、unsupported 或 error 最终事件。
+`AgentToolContext` 在记录业务 Trace 时同步通知 Harness 事件队列，因此前端可以展示真实
+工具进度，而不消费 AgentScope 私有 Message 或模型思维过程。同步 POST 入口继续保留，
+方便自动化调用和故障排查。
+
+每次执行显式创建独立 `AgentState`，并配置 `ContextConfig`：75% 触发压缩、15% 保留、
+工具结果上限 12000 token。压缩 Prompt 只保留用户范围、工具核验结果、Workspace ID 和
+待解决问题，禁止补入模型记忆。前端目前携带最近六轮历史；服务端数据库 Session、跨
+刷新恢复和压缩触发压力测试仍待实现。
+
+本切片还修复了中文全自然语言请求的 502：中文姓名需要一次转写重试，6 次 ReAct 预算
+不足以完成 Skill、四次工具动作和结构化输出，因此上限最终调整为 10。若工具已生成可信
+Workspace 但模型只耗尽格式化预算，Runtime 从 Workspace 构造完成 Decision；无
+Workspace 时仍失败，不能把不完整运行伪装成成功。
+
+阅读与验证：
+
+- `runtime/analysis_agent.py`、`harness/analysis.py`、`tools/analysis.py`；
+- `api/schemas.py` 的 `AgentRunStreamEvent` 与 `api/main.py` 的流式入口；
+- `contracts/events/agent-run-stream-event.schema.json`；
+- `tests/test_deepseek_adapter.py`、`tests/test_workspace.py`。
+
+### 13.15 黄金任务评测 Harness
+
+新增 `footops-player-role-v1` 黄金任务评测集，第一批验证完整范围执行、自然语言范围解析、
+缺少赛事补问、越界指标拒绝和未知球员补问。同一套期望行为依次交给确定性直调、无工具
+直接 LLM 和当前 AgentScope 单 Agent，报告记录状态、Workspace、工具序列、证据支持率、
+耗时、Token、停止原因和错误类型。费用只接受运维配置的每百万 Token 单价，不在代码中
+固化可能变化的供应商价格。
+
+首次评测暴露出 scope_hint 与 Skill 的规则冲突，以及中文姓名重试耗尽 8 次循环预算。
+统一规则、增强赛事自然语言匹配并把有限上限调整为 10 后，真实结果为：确定性直调
+4/5、直接 LLM 2/5、单 Agent 5/5。随后增加向前传球、推进带球和射门参与三个业务任务，
+第二批真实结果为确定性直调 7/8、直接 LLM 2/8、单 Agent 8/8。单 Agent 工具序列正确率
+和已生成结论的证据支持率均为 100%。这证明当前 Harness 对已声明任务有价值，但并不
+证明多 Agent 会更好。
+
+阅读与验证：
+
+- `evaluation/models.py`、`evaluation/runners.py`、`evaluation/service.py`；
+- `runtime/direct_llm.py`、`runtime/usage.py`；
+- `data/evaluation/player-role-v1.json`；
+- `python -m footops_agent.cli.evaluate`；
+- `tests/test_evaluation.py`。
+
+### 13.16 业务 Finding 扩展与用户范围优先级
+
+指标引擎此前已经计算传球、推进和进攻参与数据，但 Finding Builder 只消费三个位置指标，
+所以“指标存在”并不等于 Agent 能回答对应问题。本切片为禁区触球、向前传球、成功向前
+传球、推进带球、关键传球、射门和射门参与补齐确定性 Finding、Evidence 与问题路由，
+总覆盖达到 10 个指标。宽泛问题选择 6 个代表性观察，具体问题只保留相关 Finding，避免
+回答既固定又冗长。前端趋势图使用“位置 / 推进进攻”分段模式，不把坐标、比例和次数混在
+同一纵轴语义中。
+
+浏览器联调还暴露了一个 Harness 外的产品边界错误：用户明确写“最近三场”，但前端默认
+发送 `requested_window=5`，导致 Agent 合理地服从了错误 hint。修复后，赛事和窗口默认由
+Agent 从自然语言解析，只有用户主动选择筛选项时才发送约束。这说明边界管理不仅在 Prompt
+和 Tool 中，也包括 UI 产生的结构化输入；用户明确意图与默认控件冲突时，默认值不能静默
+覆盖用户文本。
+
+次数类 Finding 仍是场均次数，尚未按出场分钟或球队控球时间归一化；射门参与只是射门与
+关键传球之和。它们可以支持样本内描述性比较，不能直接写成战术因果或完整贡献评价。
+
+阅读与验证：
+
+- `services/finding_builder.py`、`services/question_scope.py`；
+- `skills/player_role_analysis/SKILL.md`、`prompts.py`；
+- `apps/web/src/components/TrendChart.tsx`、`ChatView.tsx`、`App.tsx`；
+- `data/evaluation/player-role-v1.json`；
+- `tests/test_data_pipeline.py`、`tests/test_workspace.py`、`tests/test_evaluation.py`。
+
+### 13.17 Phase 3A：MindBridge 风格事件驱动多 Agent
+
+项目定位重新确认后，开发主线从继续增加足球指标切换为学习多 Agent 编排。代码级走读
+MindBridge 的 `events.py`、`registry.py`、`coordinator.py`、`autonomous.py`、
+`event_driven_runtime.py` 和对应测试后，FootOps 建立了最小协作协议：不可变 Board 保存
+Task、Artifact 和 Event；Coordinator 根据缺失 Artifact 创建任务；Worker 按 capability
+和当前 Board 状态 claim；EvidenceAgent 独立审核；Coordinator 只在审核通过且必要战术
+投影完成后接受 Workspace。
+
+当前角色是 CoordinatorAgent、DataAgent、TacticalAgent 和 EvidenceAgent。综合角色问题
+的真实 claim 顺序为 Data -> Tactical(findings) -> Evidence(review) -> Tactical(tactics)；
+只询问向前传球时不会创建 tactics 任务，因此它不是写死的四函数流水线。轮次不足会产生
+`BUDGET_EXHAUSTED`，Runtime 不会返回伪成功。
+
+第一版 Worker 故意先复用确定性领域服务，不让模型质量掩盖编排错误。独立 API
+`POST /api/v1/multi-agent/analyses` 返回 Workspace 和脱敏协作 Trace。加入普通问候后的
+四模式九任务结果为：确定性 7/9、直接 LLM 3/9、单 Agent 9/9、多 Agent 8/9；多 Agent
+唯一失败是无结构化 scope hint 的自然语言问题，因此后续新增 ScopeAgent，而不是继续
+堆指标；完成结果见 13.20 节。
+
+与 MindBridge 相比，当前尚无 Agent Message、私有记忆、critique/revision、并发 claim、
+Checkpoint 和持久化 Trace；也尚未接入 AgentScope App/Team。完整映射和学习路线见
+[FOOTOPS_MULTI_AGENT_LEARNING.md](./FOOTOPS_MULTI_AGENT_LEARNING.md)。
+
+阅读与验证：
+
+- `collaboration/events.py`、`registry.py`、`coordinator.py`；
+- `agents/collaborative.py`、`runtime/multi_agent.py`；
+- `tests/test_multi_agent.py`；
+- `data/evaluation/reports/phase3-latest.json`。
+
+### 13.18 入口意图路由与 ConversationAgent
+
+MindBridge 会先判断请求是否需要业务 Agent，普通交流不应启动整个协作 Runtime。FootOps
+因此在 `FootOpsAnalysisHarness` 前加入 `RequestIntentRouter`：问候和普通足球交流进入
+无工具 `ConversationAgent`，分析意图才进入原有单 Agent 数据链。多 Agent 评测入口复用
+同一 Router，避免不同运行模式出现不一致的产品边界。
+
+普通回复仍由 AgentScope `Agent` 和 DeepSeek 生成，但不给它注册数据工具，也不创建
+Workspace。API 返回 `status=chat`、`data_retrieved=false` 和空 trace；前端显示普通对话
+标签，不再渲染“0 条观察”或证据区域。入口 Router 与后续 ScopeAgent 不重复：前者回答
+“要不要分析”，后者只在分析分支回答“分析谁、哪个赛事、哪个赛季、多少场”。
+
+验证结果：真实 DeepSeek 问候调用通过，浏览器中输入“你好”得到普通回复；全套 62 项
+测试、Ruff 和前端生产构建通过。九任务结果为确定性 7/9、直接 LLM 3/9、单 Agent 9/9、
+多 Agent 8/9。
+
+阅读与验证：
+
+- `services/intent_routing.py`、`runtime/chat_agent.py`、`harness/analysis.py`；
+- `api/main.py`、`api/schemas.py`；
+- `apps/web/src/components/ChatView.tsx`；
+- `tests/test_intent_routing.py`、`tests/test_workspace.py`。
+
+### 13.19 战术知识与联合推理方向校准（仅设计，尚未实现）
+
+当前十项指标和两类趋势图证明了 Provider -> Metric -> Finding -> Evidence -> Workspace
+纵向链路，但 TacticalAgent 仍主要组合确定性 Finding，尚未形成“提出假设、检索战术知识、
+检查反例、接受 critique、有限修订”的战术推理循环。项目需求因此明确：现有指标是可测试
+基线，不是最终能力边界。
+
+目标入口不再只有 chat/analysis 二分类，而是生成 ExecutionPlan，分别表达是否需要比赛
+数据、IFAB/FIFA 规则、战术知识、案例模板和多 Agent。比赛事实继续由 Data Provider
+获取；规则、战术概念、已授权案例、指标口径和分析模板进入 Knowledge RAG。复杂问题由
+DataAgent 与规划中的 KnowledgeAgent 分别提供证据，TacticalAgent 发布结构化战术假设，
+EvidenceAgent 检查数据引用、知识引用和推断边界后触发接受、修订、降级或拒绝。
+
+这次只修改需求、架构和开发顺序，没有新增 RAG、KnowledgeAgent 或战术推理代码。后续
+必须先用黄金任务验证检索正确性、引用正确性和联合分析收益，再宣称系统具备该能力。
+
+### 13.20 ScopeAgent：先确认分析对象，再启动协作
+
+原多 Agent Runtime 只能接收显式 competition_id、season_id、player_id 和窗口，因此自然
+语言黄金任务失败。现在新增独立 `FootOpsScopeAgent`：它是 AgentScope ReAct 角色，但工具
+权限只有 `search_competitions` 和 `search_players`，不能读取事件、计算指标或生成 Finding。
+其 `ScopeResolutionArtifact` 在 `resolved` 状态下必须包含完整赛事、球员和窗口。
+
+模型输出不能直接成为可信 ID。目录工具把唯一赛事和球员候选保存在请求级 Context，Runtime
+会用候选覆盖模型输出；如果 ID 既不来自 scope hint，也不来自工具唯一候选，则降级为
+clarification。解析完成后 `FootOpsMultiAgentHarness` 才构造 `MultiAgentAnalysisRequest`，
+启动原有 CollaborationBoard。显式范围调试接口继续保留，自然语言入口新增为
+`POST /api/v1/multi-agent/runs`。
+
+真实 DeepSeek 黄金任务顺序为 search_competitions -> search_players -> DataAgent ->
+TacticalAgent -> EvidenceAgent -> TacticalAgent，最终由 Coordinator 接受 Workspace。
+ScopeAgent 后的多 Agent 九任务 `9/9`，平均 `3361.8 ms`，Token 共 `25716`；全套测试
+`67 passed`。这也修正了旧基线中多 Agent `0 Token/约 70 ms` 的含义：旧数据只测了范围
+已知后的协作协议，新数据包含真实范围解析成本。
+
+阅读与验证：
+
+- `artifacts/scope.py`、`runtime/scope_agent.py`、`harness/multi_agent.py`；
+- `tools/analysis.py`、`api/main.py`、`api/schemas.py`；
+- `tests/test_scope_agent.py`；
+- `data/evaluation/reports/phase3-scope-agent-latest.json`。
+
+### 13.21 ExecutionPlan：数据和知识需求不再互斥
+
+旧 `RequestIntentRouter` 只输出 chat/analysis，无法表达规则问答不需要比赛数据、战术原因
+分析同时需要比赛数据与战术知识。现在新增 `ExecutionPlanArtifact`，用独立布尔字段声明
+`need_match_data`、`need_rule_rag`、`need_tactical_rag`、`need_multi_agent` 和
+`scope_required`，并区分 chat、rule_qa、tactical_knowledge、data_analysis、
+hybrid_tactical_analysis 五类意图。
+
+Harness 已消费该计划。普通问候仍进入 ConversationAgent；纯数据问题进入现有分析链；
+规则、战术知识和联合分析由于 Knowledge RAG 尚未实现，会直接返回 unsupported，不启动
+ScopeAgent、比赛数据工具或模型回答。这样“主动触球”的规则含义不会因为包含“触球”二字
+误触发球员指标链，也不会把模型常识伪装成已检索规则。
+
+全套测试增至 `71 passed`。本切片只完成路由和能力门禁；Knowledge RAG、知识引用和
+KnowledgeAgent 仍是下一阶段，不能把 unsupported 状态描述为已经具备规则问答能力。
+
+阅读与验证：
+
+- `artifacts/execution_plan.py`、`services/intent_routing.py`；
+- `harness/analysis.py`、`harness/multi_agent.py`；
+- `tests/test_intent_routing.py`、`tests/test_scope_agent.py`。
+
+### 13.22 Knowledge RAG 规则纵向链与 KnowledgeAgent
+
+ExecutionPlan 能识别规则问题后，项目新增第一条真实知识链。首批语料不是比赛事件，也不是
+模型自行总结的实时内容，而是基于 IFAB Laws of the Game 2026/27 建立的版本化中文释义
+条目。每条记录保存知识域、规则章节、发布机构、版本、生效日期、官方 URL 和内容形式；
+当前释义明确标记为 `paraphrase`，不把二次整理冒充规则原文。
+
+检索采用 `BM25 + 字符 n-gram 稀疏向量 + 确定性 rerank`。这让最小切片不依赖额外
+Embedding 服务，组件分数和排序可重复测试；代价是跨语言语义召回有限。因此当前实现是
+混合检索与 Artifact 契约的工程基线，不是生产级 dense semantic RAG。规则查询会发布
+`KnowledgeEvidenceArtifact`，其中包含可解析的 evidence ID 和来源元数据。
+
+`FootOpsKnowledgeAgent` 是 AgentScope ReAct 角色，只有只读 `search_knowledge` 工具。
+Harness 控制允许检索的知识域，模型不能自行扩大范围。回答必须输出
+`KnowledgeAnswerArtifact` 并引用工具返回的 ID；Runtime 会删除越界引用，无有效引用时
+使用已检索证据生成受控降级答案。纯规则问题不会启动 ScopeAgent、比赛 Provider 或
+CollaborationBoard。当前尚无战术知识语料，纯战术概念返回 insufficient；数据 + 知识联合
+问题仍返回 unsupported，等待 KnowledgeAgent 接入 Board 和 TacticalHypothesis 修订循环。
+
+验证结果：规则“主动触球”检索将 Law 11 deliberate play 排在首位；规则 API 返回
+`status=completed`、`data_retrieved=false` 和可回溯引用；战术知识域缺失时拒绝使用模型
+记忆补齐。全套测试增至 `77 passed`。
+
+阅读与验证：
+
+- `artifacts/knowledge.py`、`rag/corpus.py`、`rag/retrieval.py`；
+- `tools/knowledge.py`、`runtime/knowledge_agent.py`、`harness/analysis.py`；
+- `tests/test_knowledge_rag.py`；
+- `contracts/artifacts/knowledge-evidence.schema.json`、
+  `contracts/artifacts/knowledge-answer.schema.json`。
+
+### 13.23 Redis Vector RAG 与两场球员报告
+
+此前的知识检索只在 Python 进程内计算 BM25 与字符 n-gram 相似度，既没有真实语义
+Embedding，也没有向量库。当前 RAG 仍只索引规则条目、战术概念和指标口径；StatsBomb
+比赛事件及其确定性指标留在 Provider/Workspace 链，不写入知识向量库。
+
+FootOps 使用确定性的字符 n-gram 哈希生成固定维度特征向量，通过 Redis 8 Vector Sets 的
+`VADD`/`VSIM` 保存并召回语料；同一 Redis 中还持久化知识正文、关键词、版本和来源元数据。
+`RedisVectorKnowledgeIndex` 按语料指纹惰性同步，检索时从 Redis 读回知识条目，再按知识域
+过滤并用 BM25、向量分数和关键词加权重排，最终输出可追溯的 `KnowledgeEvidenceArtifact`。
+该向量不是模型生成的语义 Embedding，跨表达、同义词和跨语言召回能力有限。Redis 不可用时
+KnowledgeAgent 返回证据不足，不回退进程内语料，也禁止模型仅凭记忆回答。
+
+入口遵循 MindBridge 的“先计划、按能力调用”方式：`ExecutionPlan` 判断是否需要规则、战术
+或指标知识；纯知识问题由 `KnowledgeAgent` 调用受限域的只读 `search_knowledge` 工具；数据与
+战术联合问题由 Board 中的 `KnowledgeAgent` 使用相同 Redis 知识库补充证据；普通问候不触发
+知识检索。`rag/corpus.py` 是版本化的受控知识源/首次同步种子，不是运行时的本地检索后备。
+
+边界：这里的“全部检索知识”指当前规则条目、战术概念和指标口径。StatsBomb 比赛事件是有结构
+的事实数据，仍由 Provider/Workspace 获取与分析，不应伪装成 RAG 文档塞进向量库。当前语料
+13 条，后续新增案例或模板时应走同一 Redis 同步和来源元数据契约。
+
+数据链同时放宽为两场起：每场先单独算指标，FindingBuilder 对比第 1 场和第 2 场，并经过
+原来的 Evidence Gate 校验数值、比赛 ID、时间范围和来源。联合分析报告展示审核通过的变化，
+再附上检索到的战术概念作为看录像的参考；两场数据不支持单独断言战术角色改变或因果关系。
+
+实现入口：
+
+- `rag/redis_vector.py`、`rag/retrieval.py`、`config/settings.py`；
+- `agents/collaborative.py`、`runtime/multi_agent.py`、`harness/analysis.py`；
+- `services/finding_builder.py`、`services/data_catalog.py`、`services/workspace.py`；
+- `api/main.py`、`api/schemas.py`、`skills/player_role_analysis/SKILL.md`。
+
+验证：Redis `VADD`/`VSIM` 与知识 Hash 读写、检索路由测试、Ruff 和 Python 编译均通过；
+当前 Redis 索引版本为 `char-ngram-v2`。尚未添加授权比赛案例、战术模板、离线检索评测集
+或自动化的向量版本迁移工具。
+
 ## 14. 当前完整认识
 
-目前已经存在两条入口、一条确定性审核链和一个完整的 Phase 2A 工作区生命周期：
+目前已经存在自然语言 Agent 入口、计划入口、一条确定性审核链和完整工作区生命周期：
 
 ```text
 LLM 规划链：问题 -> Planner -> AnalysisPlan
+Agent 执行链：问题/历史 -> AgentScope ReAct -> Skill -> Tools -> Workspace/补问
 真实数据链：范围 -> Provider -> Snapshot -> MetricArtifact
 审核链：MetricArtifact -> FindingSet -> EvidenceSet -> EvidenceReview
 战术板链：受支持 Finding -> TacticsBoardArtifact
 工作区链：Request + 审核产物 + 战术板 -> AnalysisWorkspace -> SSE/Repository
 ```
 
-前者会调用模型但不取比赛数据；后者会读取真实比赛数据但不调用模型。真实 Metric
-Artifact 已经驱动图表、描述性 Finding、证据面板和可编辑战术板。Phase 2A 已完成；
-当前仍只有一个用于规划 Spike 的 `FootOpsPlanner`，目录中的 collaboration、tools、skills
-等包不代表多 Agent 已实现。Phase 2B 才会把只读数据与指标能力注册为 Agent Tools。
+规划链只制定计划；Agent 执行链会在受控工具边界内读取比赛数据。真实 MetricArtifact
+驱动图表、10 个描述性 Finding、证据面板和战术板。当前有 `FootOpsPlanner`、
+`ConversationAgent`、`FootOpsAnalysisAgent` 和 `FootOpsKnowledgeAgent` 等角色，并已实现
+Phase 3A 四角色事件驱动协作；前置 ScopeAgent 已接入自然语言多 Agent Harness。
+AgentScope App/Team 仍未接入默认业务链。Redis Vector RAG 支持规则、战术概念和指标定义；
+下一步是加入授权案例与模板，并用可复现评测验证检索收益，再继续 App/Team 事件投影。
 
 ## 15. 后续学习目录
 
 以下章节只列学习顺序，不代表已经实现。完成对应切片后，必须按第 2 节模板补写正文。
 
-1. 将数据与指标服务注册为 AgentScope 只读 Tools；
-2. 建立球员角色分析 Skill；
-3. 完成单 Agent 黄金任务；
-4. 建立直接 LLM 与单 Agent 评测基线；
-5. 仅在评测证明需要时提取 Coordinator、Data、Tactical、Evidence 角色；
-6. 实现 AnalysisBlackboard 和有限协作循环；
-7. 实现 Checkpoint、取消、局部重算、数据库持久化和队列；
-8. 建立完整 Engineering Harness；
-9. 根据实测结果决定是否保留多 Agent；
-10. 业务价值成立后再评估 Java 平台。
+1. [x] 实现 ScopeAgent 与自然语言范围解析；
+2. [x] 将入口升级为可组合的 ExecutionPlan；
+3. [部分完成] 建立规则、战术知识、案例和指标口径 Knowledge RAG；规则切片已完成；
+4. [部分完成] 增加 KnowledgeAgent、KnowledgeEvidenceArtifact 和
+   TacticalHypothesisArtifact；前两项已完成，TacticalHypothesis 待补；
+5. 增加 critique/revision 有限返工循环；
+6. 增加多 Agent SSE 和前端用户态进度；
+7. 安装 AgentScope `service`/Storage extras，完成 App/Team 集成 Spike；
+8. 用 `SubAgentTemplate`、任务工具、团队消息和 MessageBus 实现有限协作循环；
+9. 将框架 Session/Task/Event 映射为 Workspace/Artifact/SSE；
+10. 增加故障、恢复和单/多 Agent 对照评测；
+11. 实现 Checkpoint、取消、局部重算、数据库持久化和队列；
+12. 建立完整 Engineering Harness；
+13. 根据实测结果决定默认运行模式；
+14. 业务价值成立后再评估 Java 平台。
 
 ## 16. 维护规则
 

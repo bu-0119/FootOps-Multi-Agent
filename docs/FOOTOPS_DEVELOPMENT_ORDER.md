@@ -2,7 +2,7 @@
 
 > 文档类型：实施顺序与阶段闸门
 > 基线日期：2026-07-31
-> 当前阶段：Phase 2A 已完成，进入 Phase 2B 单 Agent MVP
+> 当前阶段：Redis Vector RAG 确定性首切片；两场及以上球员报告已打通，进入检索评测与案例语料阶段
 
 ## 1. 文档目的
 
@@ -22,37 +22,47 @@
 
 1. 先打通黄金任务的纵向链路，再扩展场景；
 2. 先实现真实数据和确定性工具，再接入模型；
-3. 先建立单 Agent 基线，再拆分多 Agent；
+3. 先建立单 Agent 基线，再用同一黄金任务学习和评测多 Agent；
 4. 先定义业务契约，再让前端依赖后端；
 5. 先建立评测基线，再宣称技术收益；
 6. 简单任务使用确定性服务，不强制 Agent；
 7. 每一阶段必须有可以独立运行和验证的产物；
 8. 每个可运行切片完成后，必须按开发顺序更新
    [FOOTOPS_DEVELOPMENT_LEARNING.md](./FOOTOPS_DEVELOPMENT_LEARNING.md)，记录作用、
-   MindBridge 对照、代码入口、验证方式、当前边界和后续连接。
+   MindBridge 对照、代码入口、验证方式、当前边界和后续连接；
+9. Phase 3A 允许实现一层最小领域协作协议，以代码级学习 MindBridge 的 Task Claim、
+   Artifact、Evidence Review 和 Final Accept；不得扩展成通用 MessageBus、Scheduler 或
+   Storage 框架。Phase 3B 再与 AgentScope App/Team 做映射和对照；
+10. 官网其他版本的类名不得替代本地 2.0.5 API，框架升级必须单独评测。
+11. 比赛事实进入 Data Provider，规则、战术案例和模板进入 Knowledge RAG；两类证据不得混存；
+12. TacticalAgent 必须形成可审核的战术假设，不能只把确定性指标改写成自然语言。
 
 ## 3. 当前进度
 
 | 模块 | 状态 | 说明 |
 | --- | --- | --- |
 | 产品需求 | 已完成 | 已形成独立需求基线 |
-| MindBridge 对照架构 | 已完成 | 已形成目标架构 |
+| MindBridge 对照架构 | 已修订 | 已形成 AgentScope-first 目标架构和版本能力边界 |
 | React 静态原型 | 已完成 | 页面和主要交互可用 |
 | 可折叠侧边栏 | 已完成 | 桌面和移动端已设计 |
 | 可编辑战术板 | Phase 2A 完成 | `TacticsBoardArtifact` 驱动审核后的位置、区域和移动箭头，支持本地编辑 |
-| 分析、证据和图表 | Phase 2A 完成 | 趋势图、描述性 Finding、Evidence Gate 和描述性战术板均消费真实历史数据；战术因果结论和报告未实现 |
+| 分析、证据和图表 | Phase 2B 扩展完成 | 10 个确定性 Finding（含基础射门次数/射门参与）、2 至 10 场同一球员对比报告、位置/推进趋势图、Evidence Gate 和描述性战术板消费真实历史数据；整场比赛分析、球队级分析和战术因果结论未实现 |
 | 前后端业务契约 | Phase 2A 完成 | Workspace 创建/查询、分析 SSE、OpenAPI、Artifact/Event JSON Schema 和 TypeScript 类型已生成 |
 | Python Agent Service | 部分完成 | LLM 规划切片和确定性数据/指标切片可独立运行 |
 | 真实足球数据 | 部分完成 | StatsBomb Open Data 覆盖审计、缓存、标准化和五场黄金样例已验证 |
-| 单 Agent | 基础 Spike 完成 | AgentScope 2.0.5 + DeepSeek 只用于结构化规划，尚未接 Tools |
+| 单 Agent | Phase 3A KnowledgeAgent 首切片完成 | AgentScope 2.0.5 + DeepSeek 已接 Conversation、Scope、Analysis、Knowledge 四类角色，ReAct、Toolkit、FunctionTool、Skill、结构化输出、澄清和短期上下文 |
 | Workspace | 进程内基线完成 | 状态机、Repository Protocol、创建/查询/SSE 已完成；数据库持久化和前端跨刷新恢复待补 |
-| 多 Agent 与完整 Harness | 规划中 | Phase 3 实现 |
+| 事件驱动多 Agent | Phase 3A Scope 完成 | ScopeAgent 前置解析，Coordinator/Data/Tactical/Evidence 执行 Task Claim、Artifact、独立审核和最终采纳；自然语言 API 与 9/9 评测通过 |
+| Knowledge RAG | Redis 外部知识库首切片完成 | 规则、战术概念和指标定义正文/来源元数据及确定性字符哈希向量进入 Redis 8；ExecutionPlan 路由至 KnowledgeAgent，经只读工具检索并带证据引用；Redis 故障时不使用本地语料或模型记忆兜底 |
+| AgentScope App/Team | Phase 3B Storage/App Spike 完成 | Redis/MySQL-backed App、四类 `SubAgentTemplate` 和服务路由已启动；待验证 Team 行为、Task Tools 和业务 Artifact 投影 |
 
-当前不能宣称已经完成战术因果分析、数据库持久化工作区或多 Agent 编排。
+当前不能宣称已经完成整场/球队级比赛分析、案例化战术因果分析、FootOps 业务数据库持久化或
+AgentScope Team 已接入默认主链；可以准确宣称 Phase 3A 事件驱动多 Agent 协作切片和 Phase 3B
+Redis-backed App 启动 Spike 已运行。
 
 ## 4. Phase 1：前端静态原型
 
-状态：**已完成**
+状态：**黄金样例已完成，通用化扩展进行中**
 
 已实现：
 
@@ -104,7 +114,7 @@
 - 向前传球；
 - 持球推进；
 - 关键传球；
-- 射门参与；
+- 射门次数和射门参与；
 - 跨比赛趋势。
 
 指标定义必须写明输入字段、公式、空值规则、单位和适用范围。
@@ -138,9 +148,31 @@
 - 不需要模型也能跑通数据到界面的完整链路；
 - 单元测试和集成测试通过。
 
+### 5.5 Phase 2A 通用球员数据扩展
+
+在进入 Phase 2B 前完成，且不通过 RAG 保存比赛事件：
+
+1. 赛事和赛季来自 Provider 目录，不在前端写死；
+2. 球员目录只保存姓名、规范 ID、球队和覆盖场次等轻量元数据；
+3. 触球、传球和接球事件只在提交分析后读取所选 3 至 10 场比赛事件文件，再按规范
+   球员 ID 过滤和计算；不预下载整个赛季事件；
+4. 请求和 Workspace 保存规范球员 ID，避免同名球员混淆；
+5. 数据源没有该球员时返回明确边界，不让模型补造；
+6. 至少使用黄金球员之外的一名真实球员完成端到端回归；
+7. 后续补充中文别名、跨赛事定位、日期范围和第二 Provider 评估。
+
+当前已完成 1 至 6；第 7 项继续作为进入 Phase 2B 前的数据产品完善主线。
+
 ## 6. Phase 2B：单 Agent MVP
 
-状态：**当前阶段**
+状态：**第二批黄金任务基线完成，作为 Phase 3 对照组继续保留**
+
+已完成：自然语言范围解析与补问、AgentScope ReAct、请求级 Toolkit、球员角色 Skill、
+三个受控工具、结构化 Decision、可信 Workspace 兜底、短期历史、显式 AgentState、
+ContextConfig、版本化 Agent SSE，以及确定性直调/直接 LLM/单 Agent 八任务评测。
+位置、传球、推进、关键传球和基础射门参与的描述性 Finding 已完成；当前仍是单球员多场
+指标链路，不是整场比赛或球队级分析。尚未完成受控案例化战术解释，因此暂不把模型输出
+描述为战术因果。
 
 ### 6.1 实施内容
 
@@ -149,8 +181,9 @@
 - 实现问题范围识别和澄清；
 - 注册球员角色分析 Skill；
 - 允许 Agent 选择只读数据和指标 Tools；
+- 使用 AgentScope `Toolkit`/`FunctionTool` 适配现有领域服务，不自建工具调用循环；
 - 生成结构化 FindingArtifact；
-- 加入基础上下文压缩；
+- 验证并使用 AgentScope `ContextConfig`/`AgentState` 的基础上下文压缩和运行状态；
 - 扩展现有 SSE，返回 Agent 工具选择、门禁和停止原因等业务事件；
 - 建立直接 LLM 与单 Agent 基线。
 
@@ -161,7 +194,7 @@
 - 理解问题；
 - 选择 Skill；
 - 选择只读工具；
-- 组织战术解释；
+- 组织受控的战术解释候选；完整案例化解释仍待战术案例 RAG 和联合 Evidence Gate；
 - 生成结构化 Finding。
 
 单 Agent 不可以：
@@ -181,36 +214,69 @@
 - 黄金任务可重复运行；
 - 直接 LLM 和单 Agent 评测结果已保存。
 
-## 7. Phase 3：多 Agent 与 Harness
+第二批结果已保存于 `data/evaluation/reports/phase2b-latest.json`：确定性直调 7/8、
+直接 LLM 2/8、单 Agent 8/8。任务覆盖自然语言范围解析、位置/触球、向前传球、推进带球、
+射门参与、缺失范围、越界指标和未知球员；单 Agent 工具序列与结论证据支持率均为 100%。
 
-状态：**单 Agent 基线完成后开始**
+## 7. Phase 3：MindBridge 协作学习、AgentScope 映射与 Harness
+
+状态：**Phase 3A 多 Agent 首切片与本机 Redis Vector RAG 已完成，进入案例语料和检索评测**
 
 ### 7.1 实施顺序
 
-1. 从单 Agent 中提取稳定职责；
-2. 实现 CoordinatorAgent；
-3. 实现 DataAgent；
-4. 实现 TacticalAgent；
-5. 实现 EvidenceAgent；
-6. 实现 AnalysisBlackboard；
-7. 实现 FootOpsAgentHarness；
-8. 实现 Evidence Gate；
-9. 实现 Checkpoint/Resume；
-10. 实现用户取消；
-11. 实现依赖分析和局部重算；
-12. 接入 Redis 和关系数据库；
-13. 实现异步报告和导出队列；
-14. 与单 Agent 运行消融实验。
+1. 代码级学习 MindBridge 的 Event、Task、Claim、Artifact、Coordinator 和测试；
+2. 建立最小领域协作层，实现 Coordinator、Data、Tactical、Evidence 四个角色；
+3. 将协作层接入 Workspace、API 和黄金任务评测，保留单 Agent 对照；
+4. [x] 在 Harness 前增加入口意图判断；普通聊天交给无工具 ConversationAgent，不启动
+   多 Agent 和数据检索；
+5. [x] 根据九任务多 Agent `8/9` 结果实现 `ScopeAgent`，使用目录限定工具补齐自然语言
+   范围解析；接入后多 Agent 九任务达到 `9/9`；
+6. [x] 将二分类入口扩展为结构化 `ExecutionPlan`，分别表达比赛数据、规则 RAG、战术
+   RAG、多 Agent 和范围完整性需求；RAG 未接入时阻断知识类请求；
+7. [已完成首个切片] 建立 Redis 外部知识库：规则、战术概念和指标定义的正文、向量、
+   版本来源元数据持久化到 Redis 8 Vector Sets；`ExecutionPlan -> KnowledgeAgent ->
+   search_knowledge -> KnowledgeEvidenceArtifact` 已贯通。当前用确定性字符哈希向量，不是
+   语义 Embedding；授权案例、模板和检索评测待补；Redis 故障不回退本地语料；
+8. [已完成首个切片] 新增 `KnowledgeAgent`：纯规则问答只走知识链，复杂战术问题已经能
+   在 Board 中合并数据证据与知识证据；
+9. [已完成首个切片] 新增 `TacticalHypothesisArtifact`，让 KnowledgeAgent 发布事实、知识引用和推断；
+10. [已完成首个切片] 实现 Evidence critique -> Tactical revision 一次有限循环，记录
+    critique、revision 和重新审核事件；
+11. [已完成首个切片] 为 claim、检索、审核、修订和 final accept 增加用户态 SSE；
+12. [已完成首个切片] 扩充并接通数据 + 知识联合分析黄金任务；继续补齐规则问答、战术概念和纯数据对照；
+13. [已完成首个切片] 为 AgentScope App 锁定 `service`、`storage-redis`、`storage-sql` 和
+   `aiomysql`，修复 `agentscope.app` 缺少 `apscheduler` 的导入条件，并完成 Redis/MySQL-backed
+   最小启动；
+14. [进行中] 建立 AgentScope 2.0.5 App/Team 能力 Spike，验证 `create_app` 挂载现有 FastAPI、
+   Session、Storage、WorkspaceManager、MessageBus、任务工具、团队通信、取消和错误传播；
+15. 将 Coordinator 定义为 Team Leader，将 Scope、Data、Knowledge、Tactical、Evidence 定义为
+   `SubAgentTemplate`，分别配置 Prompt、`ReActConfig`、权限和工具白名单；
+16. 通过 `extra_agent_tools` 向框架注入 FootOps 只读 Tools，不直接导入 App 私有工具类；
+17. 使用框架提供的 Agent 创建/邀请/团队通信和 Task Tools 完成有限协作循环；
+18. 将 AgentScope Session/Task/Event 映射为 FootOps `AnalysisWorkspace`、Artifact 和 SSE；
+19. 复用现有确定性 Evidence Gate，模型审核角色不能替代最终门禁；
+20. 实现 Checkpoint/Resume、用户取消、依赖分析和局部重算；
+21. 为 AgentScope 框架状态选择 Redis 或 SQL Storage，为实时传输选择 InMemory 或 Redis
+    MessageBus；FootOps Artifact 仍通过 Repository Protocol 持久化；
+22. 实现异步报告和导出队列；
+23. 与单 Agent 运行消融实验；
+24. 只有 Spike 证明 AgentScope 存在明确缺口时，才新增薄的领域状态投影或适配器，
+    并记录 ADR；Phase 3A 领域 Board 不得膨胀成自研通用 MessageBus、Storage 或 Scheduler。
 
 ### 7.2 Phase 3 完成标准
 
-- 复杂分析可在 Blackboard 上完成任务分发；
-- 每个 Agent 只通过 Artifact 协作；
+- 复杂分析可由 AgentScope Team Leader、SubAgent、Task Tools 和 MessageBus 完成任务分发；
+- AgentScope 负责通信和通用任务状态，业务结果只通过强类型 Artifact 引用交付；
 - Evidence Gate 能阻断无证据高置信结论；
+- 规则、战术知识和比赛数据能被正确路由，纯知识问题不下载比赛数据；
+- 联合分析同时生成数据证据、知识证据和可区分的战术推断；
+- Knowledge RAG 引用可回到版本化来源和原文位置；
+- TacticalAgent 能根据 Evidence critique 完成有限修订或明确拒绝；
 - 工具超时后可以重试或降级；
 - Run 可以取消和恢复；
 - 用户修改范围只重算受影响 Artifact；
-- 多 Agent 与单 Agent 的质量、延迟和费用对照完成。
+- 多 Agent 与单 Agent 的质量、延迟和费用对照完成；
+- 没有重复实现 AgentScope 已提供的通用编排能力；任何替代实现都有失败测试和 ADR。
 
 若多 Agent 没有带来可测质量收益，对应请求继续使用单 Agent。
 
@@ -265,8 +331,8 @@ Java 通过 HTTP/SSE 调用 Python Agent Service。Python 服务必须能够脱�
 | --- | --- |
 | Phase 1 -> 2A | 静态原型和需求基线完成 |
 | Phase 2A -> 2B | 真实数据、指标、API 和动态前端链路稳定 |
-| Phase 2B -> 3 | 单 Agent 黄金任务和评测基线稳定 |
-| Phase 3 -> 4 | 多 Agent、Harness、恢复和证据审核可测试 |
+| Phase 2B -> 3 | 单 Agent 黄金任务和评测基线稳定，并已冻结 AgentScope 2.0.5 能力清单 |
+| Phase 3 -> 4 | AgentScope Team、Harness 映射、恢复和证据审核可测试 |
 | Phase 4 -> 5 | 业务价值和技术收益已有实测结果 |
 
 不得为了展示技术栈跳过阶段闸门。
@@ -293,8 +359,12 @@ Java 通过 HTTP/SSE 调用 Python Agent Service。Python 服务必须能够脱�
 - [x] 固化并消费版本化分析 SSE 事件；
 - [x] 用 `TacticsBoardArtifact` 驱动战术板。
 
-Phase 2A 清单已经完成。现在进入 Phase 2B 单 Agent MVP；四 Agent 编排仍须等待单 Agent
-黄金任务和对照评测通过。
+Phase 2A、Phase 2B、Phase 3A 协作首切片和入口意图路由已完成。普通聊天由
+ConversationAgent 直接回复；ScopeAgent 通过目录工具解析自然语言范围并交给多 Agent。
+Redis Vector RAG 已把 IFAB 规则、战术概念和指标定义接入本机 Redis 8 的确定性字符向量索引；
+分析窗口现在支持同一球员 2 至 10 场，并能生成带审核数值、检索知识参照和限制说明的受限报告。
+下一步为向量检索建立黄金评测，补授权比赛案例和战术模板，再继续 AgentScope App/Team
+事件投影与行为验证。App/Team 目前仍是独立启动 Spike，未接入 FootOps 默认业务链。
 
 ## 12. 开发规范
 
@@ -320,6 +390,14 @@ Phase 2A 清单已经完成。现在进入 Phase 2B 单 Agent MVP；四 Agent �
 - 多 Agent 必须有单 Agent 基线；
 - RAG 只在知识解释需要时启用。
 
+### 12.4 框架优先
+
+- 本地锁定版本和集成测试是 AgentScope API 的事实来源；
+- `agentscope.pipeline`/`MsgHub` 不属于本地 2.0.5，不得写入实现计划；
+- 团队工具由 AgentScope App 注入，不直接依赖 `_tool` 等私有模块；
+- FootOps 只扩展领域 Prompt、Tools、Artifact、Evidence Gate、Workspace 和业务路由；
+- 发现框架缺口时先提交失败测试与 ADR，再决定适配、升级或最小自研。
+
 ### 12.4 状态诚实
 
 - README 和文档区分已完成、Mock、待实现和规划中；
@@ -339,4 +417,5 @@ Phase 2A 清单已经完成。现在进入 Phase 2B 单 Agent MVP；四 Agent �
 6. 文档已更新；
 7. 不含未标记的演示数据；
 8. 结果可以从来源或 Trace 追溯；
-9. 学习手册已新增或更新对应章节。
+9. 学习手册已新增或更新对应章节；
+10. 若涉及 Agent 编排，已证明复用 AgentScope 能力，或附有可复现缺口与 ADR。

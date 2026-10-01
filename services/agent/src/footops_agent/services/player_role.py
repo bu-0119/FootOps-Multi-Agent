@@ -25,16 +25,18 @@ class PlayerRoleAnalysisService:
         season_id: int,
         player_query: str,
         requested_window: int = 5,
+        player_id: int | None = None,
     ) -> tuple[CoverageAuditArtifact, PlayerRoleMetricArtifact]:
         audit = self.catalog.audit_player(
             competition_id,
             season_id,
             player_query,
             requested_window,
+            player_id,
         )
         if not audit.meets_minimum:
             raise InsufficientDataError(
-                "public event data does not contain the three-match minimum"
+                "public event data does not contain the two-match minimum"
             )
         selected_ids = set(audit.suggested_match_ids)
         selected = [

@@ -93,7 +93,22 @@ def _lineup() -> dict[str, Any]:
                         "to_period": 2,
                     }
                 ],
-            }
+            },
+            {
+                "player_id": 5503,
+                "player_name": "Pablo Martín Páez Gavira",
+                "player_nickname": "Gavi",
+                "positions": [
+                    {
+                        "position_id": 15,
+                        "position": "Left Center Midfield",
+                        "from": "00:00",
+                        "to": "90:00",
+                        "from_period": 1,
+                        "to_period": 2,
+                    }
+                ],
+            },
         ],
     }
 
@@ -169,6 +184,32 @@ def test_coverage_audit_resolves_nickname_and_suggests_window() -> None:
     assert audit.appearances[0].events_url.endswith("events/1001.json")
 
 
+def test_catalog_lists_resolvable_players_without_loading_event_files() -> None:
+    competition, players = DataCatalogService(provider()).list_players(11, 90)
+
+    assert competition.competition_name == "La Liga"
+    assert [item.player.player_nickname for item in players] == ["Gavi", "Pedri"]
+    assert all(item.appearance_count == 3 for item in players)
+
+
+def test_catalog_api_exposes_competitions_and_player_ids() -> None:
+    app = create_app(settings=settings(), data_provider=provider())
+    with TestClient(app) as client:
+        competitions = client.get("/api/v1/catalog/competitions")
+        players = client.get(
+            "/api/v1/catalog/players",
+            params={"competition_id": 11, "season_id": 90},
+        )
+
+    assert competitions.status_code == 200
+    assert competitions.json()["competitions"][0]["season_id"] == 90
+    assert players.status_code == 200
+    assert {item["player"]["player_id"] for item in players.json()["players"]} == {
+        5503,
+        30486,
+    }
+
+
 def test_metric_engine_uses_normalized_events_not_model_output() -> None:
     audit, metrics = PlayerRoleAnalysisService(provider()).calculate(
         11,
@@ -216,7 +257,7 @@ def test_deterministic_findings_pass_evidence_gate() -> None:
 
     review = EvidenceGate().review(findings, evidence, metrics)
 
-    assert len(findings.findings) == 3
+    assert len(findings.findings) == 10
     assert review.overall_status == "passed"
     assert review.support_rate == 1.0
     assert all(item.status == "supported" for item in review.reviews)
@@ -239,9 +280,7 @@ def test_evidence_gate_rejects_forged_metric_value() -> None:
     assert review.overall_status == "partial"
     assert any(item.status == "rejected" for item in review.reviews)
     assert any(
-        "数值不一致" in reason
-        for item in review.reviews
-        for reason in item.reasons
+        "数值不一致" in reason for item in review.reviews for reason in item.reasons
     )
 
 

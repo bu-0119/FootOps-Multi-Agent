@@ -9,7 +9,7 @@
 | 会话 | Thread ID | 负责范围 | 唯一写入边界 |
 | --- | --- | --- | --- |
 | FootOps · 需求文档 | `019fb79d-6c1c-79e2-b2dd-c9a9fc8e31de` | 产品范围、用户场景、V1 功能和验收标准 | `docs/FOOTOPS_REQUIREMENTS.md` |
-| FootOps · Agent架构 | `019fb79d-7358-7c81-af39-a5450c9bef50` | MindBridge 对照、AgentScope、Harness、Artifact 与 Evidence Gate | `docs/FOOTOPS_MINDBRIDGE_ARCHITECTURE.md` |
+| FootOps · Agent架构 | `019fb79d-7358-7c81-af39-a5450c9bef50` | MindBridge 对照、AgentScope 2.0.5 App/Team、Harness、Artifact 与 Evidence Gate | `docs/FOOTOPS_MINDBRIDGE_ARCHITECTURE.md` |
 | FootOps · 开发顺序 | `019fb79d-7ac7-7df3-8bec-77ce6f682141` | 阶段依赖、完成标准、测试门槛与变更纪律 | `docs/FOOTOPS_DEVELOPMENT_ORDER.md` |
 | FootOps · 实现检查 | `019fb79d-819b-7a81-847f-14710a6693a0` | 前后端实现、契约、测试和文档一致性检查 | `apps/`、`services/`、`contracts/`、`infra/` 和测试 |
 

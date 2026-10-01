@@ -1,0 +1,64 @@
+{
+  "additionalProperties": false,
+  "description": "A bounded inference that must cite both match and knowledge evidence.",
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "grounded",
+        "insufficient"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "hypothesis": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Hypothesis",
+      "type": "string"
+    },
+    "fact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 12,
+      "title": "Fact Refs",
+      "type": "array"
+    },
+    "metric_refs": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 12,
+      "title": "Metric Refs",
+      "type": "array"
+    },
+    "knowledge_refs": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 12,
+      "title": "Knowledge Refs",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 8,
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "status",
+    "hypothesis"
+  ],
+  "title": "TacticalHypothesisArtifact",
+  "type": "object"
+}

@@ -1,0 +1,262 @@
+{
+  "schema_version": "1.0",
+  "report_id": "4350fc49db92409e80474674927998b4",
+  "suite_id": "footops-player-role-v1",
+  "generated_at": "2026-08-01T13:08:23.323716Z",
+  "results": [
+    {
+      "task_id": "explicit-scope-role-change",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 126.142,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent",
+          "TacticalAgent"
+        ],
+        "workspace_id": "cf9013b3b7aa45b782a065c216a3859f",
+        "finding_count": 6,
+        "claim_support_rate": 1.0,
+        "usage": null,
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "natural-language-scope-resolution",
+      "mode": "multi_agent",
+      "passed": false,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "clarification_required",
+        "message": "多 Agent 执行切片当前需要显式赛事、赛季和球员范围。",
+        "duration_ms": 0.001,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": false,
+        "workspace_match": false,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "missing-competition-season",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "clarification_required",
+        "message": "多 Agent 执行切片当前需要显式赛事、赛季和球员范围。",
+        "duration_ms": 0.001,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-forward-passing",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 102.666,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent"
+        ],
+        "workspace_id": "d663caea13df4c4d9f62390044c7da95",
+        "finding_count": 2,
+        "claim_support_rate": 1.0,
+        "usage": null,
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-progressive-carry",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 98.2,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent"
+        ],
+        "workspace_id": "aaa551b941b1445e9b0d206cf1bb785e",
+        "finding_count": 1,
+        "claim_support_rate": 1.0,
+        "usage": null,
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-shot-involvement",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 99.918,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent"
+        ],
+        "workspace_id": "be4591aba9164309abc503eafb11a0e9",
+        "finding_count": 1,
+        "claim_support_rate": 1.0,
+        "usage": null,
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "unsupported-shot-analysis",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "unsupported",
+        "message": "当前数据链支持已选球员最近 3 至 10 场的位置与触球区域、向前传球、推进带球、关键传球和射门参与趋势。暂不支持 xG、射正、进球、助攻、防守和球员评分。",
+        "duration_ms": 103.237,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "unsupported",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "unknown-player",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "clarification_required",
+        "message": "Nobody Example",
+        "duration_ms": 21.803,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    }
+  ],
+  "summaries": [
+    {
+      "mode": "multi_agent",
+      "total_cases": 8,
+      "passed_cases": 7,
+      "pass_rate": 0.875,
+      "average_latency_ms": 68.996,
+      "total_input_tokens": 0,
+      "total_output_tokens": 0,
+      "estimated_cost_usd": null,
+      "tool_sequence_accuracy": null,
+      "average_claim_support_rate": 1.0,
+      "unsupported_completion_count": 0,
+      "error_count": 0
+    }
+  ],
+  "notes": [
+    "直接 LLM 基线不提供工具或比赛数据，完成型任务失败是有效对照结果。",
+    "费用仅在配置每百万 Token 单价后估算；未配置时保留为 null。",
+    "评测不保存模型思维过程或 API Key。"
+  ]
+}

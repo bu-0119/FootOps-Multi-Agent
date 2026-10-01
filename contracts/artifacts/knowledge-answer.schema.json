@@ -1,0 +1,48 @@
+{
+  "additionalProperties": false,
+  "description": "KnowledgeAgent answer whose citations must resolve to retrieved evidence.",
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "answered",
+        "insufficient"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "answer": {
+      "maxLength": 5000,
+      "minLength": 1,
+      "title": "Answer",
+      "type": "string"
+    },
+    "citation_ids": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 8,
+      "title": "Citation Ids",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 8,
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "status",
+    "answer"
+  ],
+  "title": "KnowledgeAnswerArtifact",
+  "type": "object"
+}

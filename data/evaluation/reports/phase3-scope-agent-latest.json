@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "report_id": "b6be04a6536e4f9685bc3575b0453634",
+  "suite_id": "footops-player-role-v1",
+  "generated_at": "2026-08-01T16:03:43.969452Z",
+  "results": [
+    {
+      "task_id": "ordinary-greeting-bypasses-analysis",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "chat",
+        "message": "普通对话由入口路由直接回复，不启动多 Agent。",
+        "duration_ms": 0.016,
+        "model_called": false,
+        "model_name": "none",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": null,
+        "stopping_reason": "chat_bypass",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-scope-role-change",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 3227.495,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent",
+          "TacticalAgent"
+        ],
+        "workspace_id": "dab326892179407e83c7da663b5a4f57",
+        "finding_count": 6,
+        "claim_support_rate": 1.0,
+        "usage": {
+          "input_tokens": 1572,
+          "output_tokens": 224,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "natural-language-scope-resolution",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 6414.841,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "search_competitions",
+          "search_players",
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent",
+          "TacticalAgent"
+        ],
+        "workspace_id": "5040a622935d4b38a9dd95381798d4c4",
+        "finding_count": 6,
+        "claim_support_rate": 1.0,
+        "usage": {
+          "input_tokens": 5411,
+          "output_tokens": 506,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "missing-competition-season",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "clarification_required",
+        "message": "需要确认分析所属的赛季。当前目录中 La Liga 覆盖多个赛季，但未明确给出最近赛季（当前时间为 2026-08-01）。请指定要分析的赛季（例如 2025/2026），以便定位佩德里最近三场的比赛窗口。",
+        "duration_ms": 8291.708,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "search_competitions",
+          "search_competitions",
+          "search_competitions",
+          "search_competitions"
+        ],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 6438,
+          "output_tokens": 769,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-forward-passing",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 2162.822,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent"
+        ],
+        "workspace_id": "c7c91de7fc0e4828bb9d2a6704999c40",
+        "finding_count": 2,
+        "claim_support_rate": 1.0,
+        "usage": {
+          "input_tokens": 1573,
+          "output_tokens": 229,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-progressive-carry",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 2417.801,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent"
+        ],
+        "workspace_id": "c309376627e54658a918096b4669f75f",
+        "finding_count": 1,
+        "claim_support_rate": 1.0,
+        "usage": {
+          "input_tokens": 1574,
+          "output_tokens": 237,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "explicit-shot-involvement",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "completed",
+        "message": "多 Agent 已完成协作并由 CoordinatorAgent 采纳。",
+        "duration_ms": 2113.707,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "DataAgent",
+          "TacticalAgent",
+          "EvidenceAgent"
+        ],
+        "workspace_id": "8faa1fe5e0e64492bcc6ce0fad8a62f0",
+        "finding_count": 1,
+        "claim_support_rate": 1.0,
+        "usage": {
+          "input_tokens": 1574,
+          "output_tokens": 179,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "final_accepted",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": true,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "unsupported-shot-analysis",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "unsupported",
+        "message": "当前数据链支持已选球员最近 3 至 10 场的位置与触球区域、向前传球、推进带球、关键传球和射门参与趋势。暂不支持 xG、射正、进球、助攻、防守和球员评分。",
+        "duration_ms": 1874.403,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 1576,
+          "output_tokens": 167,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "unsupported",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    },
+    {
+      "task_id": "unknown-player",
+      "mode": "multi_agent",
+      "passed": true,
+      "observation": {
+        "mode": "multi_agent",
+        "status": "clarification_required",
+        "message": "在 La Liga 2020/2021（competition_id=11, season_id=90）中未找到名为 \"Nobody Example\" 的球员。请提供该球员的规范名称或正确的球员 ID，以便继续分析。",
+        "duration_ms": 3753.272,
+        "model_called": true,
+        "model_name": "deepseek-v4-flash",
+        "tool_sequence": [
+          "search_players"
+        ],
+        "workspace_id": null,
+        "finding_count": 0,
+        "claim_support_rate": null,
+        "usage": {
+          "input_tokens": 3365,
+          "output_tokens": 322,
+          "estimated_cost_usd": null,
+          "pricing_basis": null
+        },
+        "stopping_reason": "clarification_required",
+        "error_type": null
+      },
+      "assertions": {
+        "status_match": true,
+        "workspace_match": true,
+        "tool_sequence_match": null,
+        "supported_claims": null,
+        "no_unsupported_completion": true
+      }
+    }
+  ],
+  "summaries": [
+    {
+      "mode": "multi_agent",
+      "total_cases": 9,
+      "passed_cases": 9,
+      "pass_rate": 1.0,
+      "average_latency_ms": 3361.785,
+      "total_input_tokens": 23083,
+      "total_output_tokens": 2633,
+      "estimated_cost_usd": null,
+      "tool_sequence_accuracy": null,
+      "average_claim_support_rate": 1.0,
+      "unsupported_completion_count": 0,
+      "error_count": 0
+    }
+  ],
+  "notes": [
+    "直接 LLM 基线不提供工具或比赛数据，完成型任务失败是有效对照结果。",
+    "费用仅在配置每百万 Token 单价后估算；未配置时保留为 null。",
+    "评测不保存模型思维过程或 API Key。"
+  ]
+}

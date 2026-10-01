@@ -3,6 +3,7 @@
 > 文档状态：有效
 > 基线日期：2026-07-31
 > 学习样本：`/Users/buxy/python/mindbridge-py` 本机代码
+> 框架依据：本地 `agentscope==2.0.5` 包源码与 FootOps 集成测试
 > 适用范围：FootOps Web、Python Agent Service、契约、测试与部署文件
 
 ## 1. 文档目的
@@ -106,11 +107,16 @@ app/main.py
   -> app/services/tool_queue.py 或 app/services/mcp_client.py
 ```
 
-这条链路体现了三个重要边界：
+这条链路体现了三个重要边界。FootOps Phase 3A 不逐文件照抄实现，但会用最小领域协议
+复现这些协作语义，再在 Phase 3B 映射到 AgentScope App/Team：
 
 1. HTTP 层不编排 Agent，只负责认证、参数和传输；
 2. Runtime 只负责 Agent 协作，外部业务副作用由 Harness 统一承接；
 3. Agent 之间不直接改写彼此状态，而是通过 Task、Artifact、Event 和共享黑板协作。
+
+Phase 3A 已把第 2、3 点映射为 `collaboration/` 中的 Task、Artifact、Event、Board 和
+Coordinator；足球领域产物继续使用 FootOps Artifact/Workspace。该层只用于学习和领域
+对照，不实现通用消息总线、存储或调度。Phase 3B 再映射到 AgentScope Task/App/MessageBus。
 
 MindBridge 中两个名称相近但用途不同的 Harness 必须区分：
 
@@ -152,14 +158,16 @@ FootOps 学习 MindBridge 的职责分离，不机械复制其文件数量和历
 
 ### 5.1 必须学习
 
-1. API、Harness、Runtime、Agent、工具和持久化分层；
+1. API、Harness、AgentScope Runtime 适配、Agent、工具和持久化分层；
 2. Runtime Harness 与 Engineering Harness 分开；
-3. Blackboard、Task、Artifact、Event 使用明确数据结构；
+3. Task、Message、Session 使用 AgentScope 明确结构，足球产物使用 FootOps Artifact；
 4. Agent Runtime 对上层返回稳定结果，不泄露框架内部对象；
 5. Skill 内容与 Skill 加载代码分开；
 6. MCP Server 只做协议暴露，实际业务实现由普通 Service/Tool 复用；
 7. 工具调用经过白名单、审计、队列和失败处理；
-8. Mock、临时数据库和内存依赖能够构造可重复验证环境。
+8. Mock、临时数据库和内存依赖能够构造可重复验证环境；
+9. 在框架已提供能力时复用 AgentScope，不复制通用 Registry、MessageBus、Task Board、
+   SubAgent 生命周期或调度循环。
 
 ### 5.2 不得照搬
 
@@ -170,7 +178,9 @@ FootOps 学习 MindBridge 的职责分离，不机械复制其文件数量和历
 5. 不让 Agent 直接操作 FastAPI Request、SQLAlchemy Session 或前端结构；
 6. 不让工具治理只停留在定义或测试中，正式执行链必须实际调用授权与审计；
 7. 不把 `Base.metadata.create_all` 当作长期数据库迁移方案；
-8. 不提交 Chroma 数据、Excel、数据库、模型权重或其他运行产物。
+8. 不提交 Chroma 数据、Excel、数据库、模型权重或其他运行产物；
+9. 不因 MindBridge 有某个文件，就在 FootOps 创建同名实现；先判断 AgentScope 2.0.5
+   是否已经承担该职责。
 
 ## 6. FootOps 标准目标结构
 
@@ -208,22 +218,19 @@ FootOps/
 │       │   ├── cli/
 │       │   │   └── data_audit.py       # 数据覆盖审计命令入口
 │       │   ├── agents/
-│       │   │   ├── factory.py         # Agent/Runtime 依赖组装
-│       │   │   ├── registry.py        # Profile/Capability/Claim
-│       │   │   ├── result.py          # Runtime 稳定返回类型
 │       │   │   ├── planner.py         # 当前规划 Agent
-│       │   │   ├── coordinator.py     # CoordinatorAgent 行为
-│       │   │   ├── data_agent.py      # DataAgent 行为
-│       │   │   ├── tactical_agent.py  # TacticalAgent 行为
-│       │   │   └── evidence_agent.py  # EvidenceAgent 行为
-│       │   ├── collaboration/
-│       │   │   ├── events.py          # Task/Claim/Event/Message 协议
-│       │   │   ├── blackboard.py      # AnalysisBlackboard 纯状态操作
-│       │   │   └── scheduler.py       # 有限循环、预算、调度和采纳
+│       │   │   ├── coordinator.py     # Team Leader 的领域 Prompt/策略
+│       │   │   ├── data_agent.py      # Data SubAgent 的领域 Prompt/策略
+│       │   │   ├── tactical_agent.py  # Tactical SubAgent 的领域 Prompt/策略
+│       │   │   └── evidence_agent.py  # Evidence SubAgent 的领域 Prompt/策略
 │       │   ├── runtime/
-│       │   │   ├── service.py         # 创建一次 Agent run
 │       │   │   ├── model_adapter.py   # AgentScope/模型供应商隔离层
-│       │   │   └── result_mapper.py   # Blackboard 到稳定结果转换
+│       │   │   ├── agent_factory.py   # Agent、ReActConfig、ContextConfig 组装
+│       │   │   ├── toolkit.py         # Toolkit 与 extra_agent_tools 组装
+│       │   │   ├── team_templates.py  # AgentScope SubAgentTemplate 定义
+│       │   │   ├── agent_app.py       # create_app、Storage、MessageBus 和挂载
+│       │   │   ├── service.py         # 单 Agent/Team 一次运行入口
+│       │   │   └── result_mapper.py   # Session/Task/Event 到业务结果转换
 │       │   ├── harness/
 │       │   │   ├── service.py         # 线上 FootOpsAgentHarness
 │       │   │   ├── outcomes.py        # Harness 输入/输出和工具计划
@@ -241,6 +248,7 @@ FootOps/
 │       │   │   ├── data_catalog.py    # 比赛范围和数据覆盖判断
 │       │   │   ├── metric_engine.py   # 确定性指标计算
 │       │   │   ├── evidence_gate.py   # 结论证据审核
+│       │   │   ├── question_scope.py  # 黄金任务范围与 Finding 选择
 │       │   │   ├── skill_library.py   # Skill 选择和渲染
 │       │   │   └── trace.py           # Run trace 组装
 │       │   ├── providers/
@@ -252,11 +260,7 @@ FootOps/
 │       │   │   ├── analysis.py        # 后续 SQL Analysis/Artifact Repository
 │       │   │   └── session.py         # DB Session 管理
 │       │   ├── memory/
-│       │   │   ├── store.py           # Redis/内存 Store
-│       │   │   └── compaction.py      # 上下文裁剪和摘要
-│       │   ├── skills/
-│       │   │   ├── registry.py        # SKILL.md 加载和校验
-│       │   │   └── selector.py        # Skill 触发规则
+│       │   │   └── preferences.py     # FootOps 长期业务偏好，不复制 AgentState/压缩
 │       │   ├── tools/
 │       │   │   ├── definitions.py     # AgentScope Tool Schema/FunctionTool
 │       │   │   ├── implementations.py # 普通 Python 业务实现
@@ -270,6 +274,10 @@ FootOps/
 │       │   ├── observability/
 │       │   │   ├── tracing.py         # Trace 事件与序列化
 │       │   │   └── metrics.py         # 延迟、Token、成本、成功率
+│       │   ├── evaluation/
+│       │   │   ├── models.py          # 黄金任务、观察与报告契约
+│       │   │   ├── runners.py         # 三种运行模式的对照适配
+│       │   │   └── service.py         # 断言与聚合统计
 │       │   └── prompts/
 │       │       ├── common.py           # FootOps 公共边界
 │       │       └── planner.py          # 角色 Prompt 与版本号
@@ -284,12 +292,15 @@ FootOps/
 │   ├── openapi/                         # 冻结或生成的 HTTP 契约
 │   ├── artifacts/                       # 跨服务 Artifact JSON Schema
 │   └── events/                          # SSE/队列事件 Schema
+├── data/
+│   └── evaluation/                      # 版本化黄金任务与评测报告
 ├── infra/
 │   ├── docker/
 │   ├── compose/
 │   └── migrations/                      # Alembic 迁移
 ├── scripts/                              # 仓库级开发/检查/打包命令
 ├── docs/
+│   └── adr/                             # 框架缺口与架构决策记录
 └── README.md
 ```
 
@@ -303,11 +314,16 @@ FootOps/
 | HTTP 路由 | `api/routes/` | Agent、Harness、Repository |
 | HTTP 请求/响应 DTO | `api/schemas/` | `artifacts/`、ORM models |
 | Agent 协作产物 | `artifacts/` | API DTO、数据库 Entity |
-| Agent 的 `decide/act/reply` 行为 | `agents/<role>.py` | routes、services、prompts |
-| 任务、Claim、事件协议 | `collaboration/events.py` | 某个具体 Agent 文件 |
-| Blackboard 状态操作 | `collaboration/blackboard.py` | Agent 或 Harness |
-| Loop、轮次、预算、最终采纳 | `collaboration/scheduler.py` | API、AgentScope adapter |
-| AgentScope 和模型 SDK 调用 | `runtime/model_adapter.py` | API、Artifact、Repository |
+| Agent 的领域 Prompt/策略 | `agents/<role>.py` 或 `prompts/` | routes、services |
+| AgentScope `Agent`/配置组装 | `runtime/agent_factory.py` | route、Artifact |
+| `SubAgentTemplate` 定义 | `runtime/team_templates.py` | 自研 Agent Registry |
+| AgentScope App/Team 集成 | `runtime/agent_app.py` | 通用 MessageBus、Scheduler 或框架 Storage 的自研替代 |
+| Phase 3A 领域协作协议 | `collaboration/` | Provider、HTTP 路由、数据库 Entity |
+| Toolkit 与动态领域工具注入 | `runtime/toolkit.py` | Agent 内手写工具分派 |
+| 通用团队消息、Session、持久化 | AgentScope Task/App/MessageBus/Storage | Phase 3A 领域 Board；除非有缺口 ADR |
+| 框架状态到业务状态转换 | `runtime/result_mapper.py` | API、前端 |
+| AgentScope 公开 Runtime API | `runtime/agent_factory.py`、`toolkit.py`、`agent_app.py` | API、Artifact、Repository |
+| 具体模型供应商 SDK/配置 | `runtime/model_adapter.py` | API、Artifact、Repository |
 | 单次 run 的 Runtime 组装 | `runtime/service.py` | HTTP route |
 | 输入限制、超时、trace、落库、工具计划 | `harness/service.py` | Agent 内部 |
 | 确定性指标算法 | `services/metric_engine.py` | Prompt、Agent、前端 |
@@ -315,7 +331,7 @@ FootOps/
 | 数据库 Entity/Repository | `repositories/` | API Schema、Artifact |
 | Prompt 文本和版本 | `prompts/` | `model_adapter.py`、route |
 | Skill 内容 | `services/agent/skills/<name>/SKILL.md` | Prompt 常量、数据库 |
-| Skill 加载和选择代码 | `src/footops_agent/skills/` | Skill Markdown |
+| Skill 加载和选择 | AgentScope `LocalSkillLoader` + `runtime/toolkit.py` | 自研通用 Skill Runtime |
 | Agent 可调用工具 Schema | `tools/definitions.py` | MCP Server 内重复定义 |
 | 工具业务实现 | `tools/implementations.py` 或领域 Service | Agent、MCP 协议层 |
 | 工具授权和副作用规则 | `tools/governance.py` | Prompt |
@@ -323,7 +339,12 @@ FootOps/
 | 异步 Job | `workers/` | 请求内直接执行的 SSE 链路 |
 | 线上 trace | `observability/` + Repository | Engineering Harness 报告 |
 | 一键工程验证 | `tests/engineering_harness/` | 线上 `harness/` |
+| AgentScope 缺口与替代决策 | `docs/adr/NNNN-*.md` + 失败测试 | 只写在代码注释或聊天记录 |
 | 实时比赛事实 | Provider 快照/数据库 | `knowledge/`、Skill、Prompt |
+
+AgentScope 的 Workspace Manager 是 Agent 文件工作目录/隔离能力，不等于 FootOps
+`AnalysisWorkspace` 业务对象；AgentScope Storage 保存 Agent/Session/Team 框架状态，
+FootOps Repository 保存比赛分析 Artifact。名称相近但职责不能合并。
 
 ## 8. 三类模型必须分开
 
@@ -345,8 +366,8 @@ FootOps 不允许一个 Pydantic 类同时承担所有层的职责。
 ```text
 api -> services/harness
 harness -> runtime + repositories + workers + observability
-runtime -> agents + collaboration + artifacts + tools
-agents -> artifacts + collaboration + service/tool Protocol
+runtime -> AgentScope + agents + artifacts + tools
+agents -> artifacts + service/tool Protocol
 services -> artifacts + providers + repositories
 tools -> services/providers + artifacts
 mcp -> tools/services
@@ -362,7 +383,9 @@ repositories -> core.database
 4. `repositories` 不得调用模型；
 5. `apps/web` 不得依赖 Python 内部包；
 6. `runtime/model_adapter.py` 之外的业务代码不得直接依赖具体模型供应商；
-7. `mcp/server.py` 不得复制工具业务逻辑。
+7. `mcp/server.py` 不得复制工具业务逻辑；
+8. AgentScope 私有 `_tool`、`_service` 模块不得成为 FootOps 业务依赖；通过公开 App、
+   Template、Toolkit、MessageBus 和 Storage 入口接入。
 
 ## 10. 新功能落位示例
 
@@ -372,14 +395,18 @@ repositories -> core.database
 api/routes/analyses.py              接收请求、返回 run_id/SSE
 api/schemas/analysis.py             AnalysisRequest/Response
 harness/service.py                  创建 run、限时、落 trace、安排后处理
-runtime/service.py                  启动本轮 Agent Runtime
-agents/planner.py                   理解问题并发布 AnalysisPlan
+runtime/agent_factory.py            组装单 Agent 或 Team Leader
+runtime/toolkit.py                  注入数据、指标和审核只读 Tools
+runtime/team_templates.py           定义 Data/Tactical/Evidence 角色模板
+runtime/agent_app.py                Phase 3 挂载 AgentScope App/Team Runtime
+runtime/service.py                  启动本轮单 Agent 或 AgentScope Team
+agents/planner.py                   单 Agent 阶段理解问题并发布 AnalysisPlan
 providers/<provider>.py             获取可追溯比赛数据
 services/metric_engine.py           计算位置、触球、推进等确定性指标
 artifacts/match_data.py             保存标准化比赛数据快照
 artifacts/metrics.py                保存指标结果和算法版本
-agents/tactical_agent.py            基于指标提出战术解释
-agents/evidence_agent.py            审核 Claim 与 Evidence
+agents/tactical_agent.py            Phase 3 领域 Prompt/策略，由 SubAgentTemplate 组装
+agents/evidence_agent.py            Phase 3 领域 Prompt/策略，由 SubAgentTemplate 组装
 services/evidence_gate.py           执行确定性证据门禁
 artifacts/tactics.py                生成战术板结构
 artifacts/report.py                 生成最终报告结构
@@ -403,7 +430,10 @@ observability/tracing.py            记录步骤、工具和采纳结果
 | Finding Builder 与 Evidence Gate 已位于 `services/` | 符合确定性业务服务边界 | Agent 后续只能提交 Finding，不得绕过 Gate 直接发布结论 |
 | Workspace Service 与进程内 Repository 已落地 | 符合 Service 依赖 Repository Protocol 的方向 | 接 SQLAlchemy 时替换 Repository 实现，不改 API 和业务服务 |
 | `artifacts/tactics.py` 与 `services/tactics_board.py` 已落地 | Artifact 与确定性映射职责分开 | 后续 Tactical Agent 只能提交 Finding，不得直接拼前端坐标 |
+| `services/question_scope.py` 已落地 | 当前可执行范围不再由 UI 或 Prompt 隐式决定 | Phase 2B Agent 负责澄清，但不能绕过能力范围复用固定答案 |
 | 基础分析 SSE 已落地 | API 只传输版本化业务事件 | Phase 2B 扩展工具、门禁和停止原因事件，不在路由中编排 Agent |
+| AgentScope App/Team 尚未接入 | 当前只完成包源码能力审计 | Phase 3 先补 `service`/Storage extras 和集成测试，再增加 `agent_app.py`/`team_templates.py` |
+| `collaboration/` Phase 3A 已运行 | Task/Artifact/Event/Board/Registry/Coordinator 的最小领域协议 | 不得扩展为通用 MessageBus、Scheduler 或 Storage；Phase 3B 与 AgentScope Team 对照 |
 | 尚无 Engineering Harness | 未完成 | 数据、指标、证据链出现后建立独立 runner/suites |
 
 当前已有代码不因本标准立即进行无收益搬迁。只有当下一项真实功能需要相应边界时，
@@ -417,11 +447,13 @@ observability/tracing.py            记录步骤、工具和采纳结果
 - HTTP DTO、Artifact 和 ORM Entity 是否分开；
 - 模型 SDK 是否仍被限制在 Runtime Adapter；
 - 数值是否由确定性 Service/Tool 计算，而不是 Prompt 生成；
-- Agent 是否只通过 Artifact/Task/Event 协作；
+- 通用任务、团队消息和 Session 是否复用 AgentScope，业务结果是否通过 Artifact 协作；
 - Harness 是否统一负责运行边界和副作用；
 - Tool 是否经过实际执行的治理与审计；
 - MCP 是否只是普通工具实现的协议适配；
 - Runtime Harness 和 Engineering Harness 是否没有混用；
+- 是否误用本地 2.0.5 不存在的 `Pipeline`/`MsgHub`，或依赖 AgentScope 私有模块；
+- 新增通用编排代码是否附有可复现的框架缺口和 ADR；
 - 新目录是否有真实代码、测试或明确的当前阶段任务；
 - 密钥和运行产物是否被排除在版本控制之外；
 - `FOOTOPS_CURRENT_PROGRESS.md` 是否同步更新。

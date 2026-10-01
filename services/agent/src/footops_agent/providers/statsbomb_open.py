@@ -16,6 +16,7 @@ from footops_agent.artifacts import (
     MatchDataSnapshot,
     MatchRef,
     PitchLocation,
+    PlayerCatalogEntry,
     PlayerEvent,
     PlayerMatchCoverage,
     PlayerRef,
@@ -160,31 +161,118 @@ class StatsBombOpenDataProvider:
         self,
         matches: list[MatchRef],
         player_query: str,
+        player_id: int | None = None,
     ) -> list[PlayerMatchCoverage]:
         query = _normalize_name(player_query)
         if not query:
             raise ValueError("player query must not be blank")
 
+        appearances = self._list_player_appearances(matches)
+        if player_id is not None:
+            return [item for item in appearances if item.player.player_id == player_id]
+
+        candidates: dict[int, tuple[int, PlayerRef]] = {}
+        for appearance in appearances:
+            player = appearance.player
+            score = _name_match_score(
+                query,
+                player.player_name,
+                player.player_nickname,
+            )
+            if score:
+                previous = candidates.get(player.player_id)
+                if previous is None or score > previous[0]:
+                    candidates[player.player_id] = (score, player)
+        if not candidates:
+            return []
+
+        ranked = sorted(
+            candidates.values(),
+            key=lambda item: (item[0], item[1].player_name),
+            reverse=True,
+        )
+        best_score, best_player = ranked[0]
+        if len(ranked) > 1 and ranked[1][0] == best_score:
+            raise DataProviderError("player query is ambiguous in lineup data")
+        return [
+            item
+            for item in appearances
+            if item.player.player_id == best_player.player_id
+        ]
+
+    def list_players(self, matches: list[MatchRef]) -> list[PlayerCatalogEntry]:
+        appearances = self._list_player_appearances(matches)
+        grouped: dict[int, list[PlayerMatchCoverage]] = {}
+        for appearance in appearances:
+            grouped.setdefault(appearance.player.player_id, []).append(appearance)
+
+        entries = []
+        for player_appearances in grouped.values():
+            ordered = sorted(
+                player_appearances,
+                key=lambda item: item.match.match_date,
+            )
+            teams = {item.team.team_id: item.team for item in ordered}
+            entries.append(
+                PlayerCatalogEntry(
+                    player=ordered[0].player,
+                    teams=sorted(teams.values(), key=lambda item: item.team_name),
+                    appearance_count=len(ordered),
+                    first_match_date=ordered[0].match.match_date,
+                    last_match_date=ordered[-1].match.match_date,
+                )
+            )
+        return sorted(
+            entries,
+            key=lambda item: (
+                (item.player.player_nickname or item.player.player_name).casefold(),
+                item.player.player_id,
+            ),
+        )
+
+    def _list_player_appearances(
+        self,
+        matches: list[MatchRef],
+    ) -> list[PlayerMatchCoverage]:
         appearances = []
         for match in sorted(matches, key=lambda item: item.match_date):
             lineups_path = f"lineups/{match.match_id}.json"
             lineups = _expect_list(self.client.fetch_json(lineups_path))
-            resolved = self._resolve_player(lineups, query)
-            if resolved is None:
-                continue
-            player, team, positions = resolved
-            if not positions:
-                continue
-            appearances.append(
-                PlayerMatchCoverage(
-                    match=match,
-                    player=player,
-                    team=team,
-                    positions=positions,
-                    lineups_url=self.client.url_for(lineups_path),
-                    events_url=self.client.url_for(f"events/{match.match_id}.json"),
+            for team_row in lineups:
+                team_data = _mapping(team_row)
+                team = TeamRef(
+                    team_id=_required_int(team_data, "team_id"),
+                    team_name=_required_str(team_data, "team_name"),
                 )
-            )
+                for player_row in _expect_list(team_data.get("lineup", [])):
+                    player_data = _mapping(player_row)
+                    positions = [
+                        self._position(_mapping(position))
+                        for position in _expect_list(player_data.get("positions", []))
+                    ]
+                    if not positions:
+                        continue
+                    appearances.append(
+                        PlayerMatchCoverage(
+                            match=match,
+                            player=PlayerRef(
+                                player_id=_required_int(player_data, "player_id"),
+                                player_name=_required_str(
+                                    player_data,
+                                    "player_name",
+                                ),
+                                player_nickname=_optional_str(
+                                    player_data.get("player_nickname")
+                                ),
+                            ),
+                            team=team,
+                            positions=positions,
+                            lineups_url=self.client.url_for(lineups_path),
+                            events_url=self.client.url_for(
+                                f"events/{match.match_id}.json"
+                            ),
+                        )
+                    )
         return appearances
 
     def load_player_snapshot(
@@ -243,50 +331,6 @@ class StatsBombOpenDataProvider:
             home_score=_optional_int(row.get("home_score")),
             away_score=_optional_int(row.get("away_score")),
         )
-
-    def _resolve_player(
-        self,
-        lineups: list[Any],
-        query: str,
-    ) -> tuple[PlayerRef, TeamRef, list[PositionInterval]] | None:
-        candidates = []
-        for team_row in lineups:
-            team_data = _mapping(team_row)
-            team = TeamRef(
-                team_id=_required_int(team_data, "team_id"),
-                team_name=_required_str(team_data, "team_name"),
-            )
-            for player_row in _expect_list(team_data.get("lineup", [])):
-                player_data = _mapping(player_row)
-                full_name = _required_str(player_data, "player_name")
-                nickname = _optional_str(player_data.get("player_nickname"))
-                score = _name_match_score(query, full_name, nickname)
-                if score == 0:
-                    continue
-                positions = [
-                    self._position(_mapping(position))
-                    for position in _expect_list(player_data.get("positions", []))
-                ]
-                candidates.append(
-                    (
-                        score,
-                        PlayerRef(
-                            player_id=_required_int(player_data, "player_id"),
-                            player_name=full_name,
-                            player_nickname=nickname,
-                        ),
-                        team,
-                        positions,
-                    )
-                )
-        if not candidates:
-            return None
-        candidates.sort(key=lambda item: item[0], reverse=True)
-        best = candidates[0]
-        if len(candidates) > 1 and candidates[1][0] == best[0]:
-            if candidates[1][1].player_id != best[1].player_id:
-                raise DataProviderError("player query is ambiguous in lineup data")
-        return best[1], best[2], best[3]
 
     def _position(self, row: Mapping[str, Any]) -> PositionInterval:
         return PositionInterval(

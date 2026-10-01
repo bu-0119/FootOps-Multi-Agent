@@ -411,15 +411,26 @@ button:disabled {
   white-space: nowrap;
 }
 
-.competition-select select,
+.competition-scope-label,
 .board-context-row select,
-.composer-controls select {
+.composer-controls select,
+.composer-controls input {
   height: 36px;
   padding: 0 30px 0 11px;
   border: 1px solid var(--line-strong);
   border-radius: 5px;
   background-color: #ffffff;
   font-size: 13px;
+}
+
+.competition-scope-label {
+  display: inline-flex;
+  max-width: 260px;
+  align-items: center;
+  overflow: hidden;
+  color: #526058;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topbar-actions {
@@ -492,6 +503,10 @@ button:disabled {
   overflow: hidden;
 }
 
+.workspace.right-workspace-is-collapsed {
+  grid-template-columns: minmax(0, 1fr) 43px;
+}
+
 .primary-workspace {
   min-width: 0;
   min-height: 0;
@@ -506,6 +521,41 @@ button:disabled {
   flex-direction: column;
   border-left: 1px solid var(--line);
   background: #ffffff;
+}
+
+.right-workspace.collapsed {
+  align-items: center;
+  justify-content: flex-start;
+  background: #fbfdfb;
+}
+
+.right-workspace-expand,
+.right-workspace-collapse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: #647169;
+}
+
+.right-workspace-expand {
+  width: 43px;
+  height: 49px;
+}
+
+.right-workspace-expand:hover,
+.right-workspace-collapse:hover {
+  color: var(--green-700);
+  background: var(--green-100);
+}
+
+.right-workspace-collapse {
+  width: 100%;
+  min-height: 34px;
+  gap: 5px;
+  border-top: 1px solid var(--line);
+  font-size: 10px;
 }
 
 .right-tabs {
@@ -674,6 +724,15 @@ button:disabled {
   text-align: left;
 }
 
+.chat-response-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 12px 0 18px;
+}
+
 .verification-status > span {
   display: flex;
   min-width: 0;
@@ -699,16 +758,66 @@ button:disabled {
 .answer-body h2 {
   margin: 0 0 8px;
   color: #18201b;
-  font-size: 20px;
-  font-weight: 720;
-  line-height: 1.45;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.answer-body h2.chat-answer-title {
+  color: #344039;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.78;
 }
 
 .answer-lead {
   margin: 0 0 17px;
   color: #5b6760;
   font-size: 13px;
+  font-weight: 400;
   line-height: 1.7;
+}
+
+.knowledge-answer {
+  color: #344039;
+  font-weight: 400;
+  white-space: pre-line;
+}
+
+.agent-stream-events {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.agent-stream-events li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  color: #59645e;
+}
+
+.agent-stream-events span {
+  display: grid;
+  height: 20px;
+  place-items: center;
+  border: 1px solid #d6e1da;
+  border-radius: 4px;
+  background: #f8faf8;
+  color: #65716a;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.agent-stream-events p {
+  margin: 0;
+  padding-top: 1px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
 }
 
 .evidence-points {
@@ -741,6 +850,7 @@ button:disabled {
   margin: 0;
   color: #445049;
   font-size: 13px;
+  font-weight: 400;
   line-height: 1.72;
 }
 
@@ -772,9 +882,14 @@ button:disabled {
 
 .trend-chart figcaption {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
+}
+
+.trend-chart figcaption > div:first-child {
+  display: grid;
+  gap: 2px;
 }
 
 .trend-chart figcaption strong {
@@ -784,6 +899,32 @@ button:disabled {
 .trend-chart figcaption span {
   color: var(--muted);
   font-size: 10px;
+}
+
+.chart-mode-switch {
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 2px;
+  border: 1px solid #d8e1db;
+  border-radius: 5px;
+  background: #f5f7f5;
+}
+
+.chart-mode-switch button {
+  min-width: 48px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 3px;
+  background: transparent;
+  color: #647069;
+  font-size: 10px;
+}
+
+.chart-mode-switch button.active {
+  background: #ffffff;
+  color: #183f28;
+  box-shadow: 0 1px 2px rgb(26 57 36 / 12%);
+  font-weight: 700;
 }
 
 .chart-legend {
@@ -818,6 +959,10 @@ button:disabled {
 
 .chart-legend .gray {
   color: #76817a;
+}
+
+.chart-legend .amber {
+  color: #b45d17;
 }
 
 .trend-chart svg {
@@ -873,6 +1018,12 @@ button:disabled {
   fill: #76817a;
 }
 
+.series.amber,
+.point.amber {
+  stroke: #b45d17;
+  fill: #b45d17;
+}
+
 .chart-value {
   font-size: 10px;
   font-weight: 700;
@@ -890,12 +1041,29 @@ button:disabled {
   fill: #69746d;
 }
 
+.chart-value.amber {
+  fill: #a45113;
+}
+
 .source-links {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 9px;
   color: #738079;
   font-size: 10px;
+}
+
+.source-links a {
+  color: var(--blue-600);
+  text-decoration: none;
+}
+
+.source-links a:hover {
+  text-decoration: underline;
+}
+
+.knowledge-sources {
+  margin-top: 15px;
 }
 
 .answer-actions {
@@ -1057,9 +1225,125 @@ button:disabled {
   gap: 6px;
 }
 
-.composer-controls select {
+.scope-toggle {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #ffffff;
+  color: #536158;
+  font-size: 11px;
+}
+
+.scope-toggle:hover,
+.scope-toggle.active {
+  border-color: #9ac7a8;
+  background: #f0f8f2;
+  color: var(--green-700);
+}
+
+.scope-toggle-hint {
+  color: #8a958e;
+  font-size: 10px;
+}
+
+.scope-popover {
+  margin: 0 9px 9px;
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #fbfdfb;
+}
+
+.scope-popover-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+
+.scope-popover-heading div {
+  display: grid;
+  gap: 2px;
+}
+
+.scope-popover-heading strong {
+  color: #26352c;
+  font-size: 12px;
+}
+
+.scope-popover-heading span {
+  color: #87928b;
+  font-size: 10px;
+}
+
+.scope-reset {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #65746b;
+  font-size: 10px;
+}
+
+.scope-reset:disabled {
+  color: #b4bdb7;
+}
+
+.scope-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) 100px;
+  gap: 7px;
+}
+
+.scope-fields label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.scope-fields label > span {
+  color: #6e7a72;
+  font-size: 10px;
+}
+
+.scope-fields select,
+.scope-fields input {
+  width: 100%;
+  height: 32px;
+  min-width: 0;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #ffffff;
+  color: #354139;
+  font-size: 11px;
+}
+
+.scope-error {
+  display: block;
+  margin-top: 7px;
+  color: #a04c42;
+  font-size: 10px;
+}
+
+.composer-controls select,
+.composer-controls input {
   height: 32px;
   font-size: 11px;
+}
+
+.composer-controls input {
+  width: 150px;
+  padding-right: 11px;
+  cursor: text;
+}
+
+.composer-controls label:first-of-type select {
+  max-width: 210px;
 }
 
 .send-button {
@@ -1081,6 +1365,16 @@ button:disabled {
   border-top: 1px solid var(--line);
   color: #7a857f;
   font-size: 10px;
+}
+
+@media (max-width: 1180px) {
+  .scope-fields {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .scope-fields label:last-child {
+    grid-column: span 2;
+  }
 }
 
 /* Tactics board */
@@ -2356,6 +2650,11 @@ button:disabled {
     border-left: 0;
   }
 
+  .right-workspace.collapsed {
+    min-height: 49px;
+    height: 49px;
+  }
+
   .right-panel-body {
     overflow: visible;
   }
@@ -2386,7 +2685,7 @@ button:disabled {
     font-size: 13px;
   }
 
-  .competition-select {
+  .competition-scope-label {
     display: none;
   }
 
@@ -2445,12 +2744,45 @@ button:disabled {
     margin-bottom: 8px;
   }
 
-  .composer-controls select {
-    max-width: 108px;
+  .composer-controls {
+    align-items: flex-end;
+  }
+
+  .composer-controls > div {
+    max-width: calc(100% - 44px);
+    flex-wrap: wrap;
+  }
+
+  .composer-controls select,
+  .composer-controls input {
+    max-width: 132px;
+  }
+
+  .scope-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .scope-fields label:last-child {
+    grid-column: auto;
+  }
+
+  .scope-toggle {
+    max-width: calc(100vw - 92px);
+  }
+
+  .scope-toggle span:first-of-type {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .right-workspace {
     min-height: 650px;
+  }
+
+  .right-workspace.collapsed {
+    min-height: 49px;
+    height: 49px;
   }
 
   .tactics-panel-content {

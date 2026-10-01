@@ -18,8 +18,9 @@ class AnalysisScope(StrictModel):
     competition_id: int = Field(gt=0)
     season_id: int = Field(gt=0)
     player: str = Field(min_length=1)
+    player_id: int = Field(gt=0)
     team: str | None = None
-    match_ids: list[int] = Field(min_length=3, max_length=10)
+    match_ids: list[int] = Field(min_length=2, max_length=10)
 
 
 class AnalysisRequestArtifact(StrictModel):

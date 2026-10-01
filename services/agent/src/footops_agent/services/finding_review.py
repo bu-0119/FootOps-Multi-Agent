@@ -31,6 +31,7 @@ class PlayerRoleFindingReviewService:
         season_id: int,
         player_query: str,
         requested_window: int = 5,
+        player_id: int | None = None,
     ) -> tuple[
         CoverageAuditArtifact,
         PlayerRoleMetricArtifact,
@@ -43,6 +44,7 @@ class PlayerRoleFindingReviewService:
             season_id,
             player_query,
             requested_window,
+            player_id,
         )
         findings, evidence = self.finding_builder.build(metrics)
         review = self.evidence_gate.review(findings, evidence, metrics)
