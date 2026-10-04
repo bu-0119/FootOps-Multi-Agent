@@ -258,6 +258,34 @@ def test_agent_executes_workspace_when_optional_scope_is_complete() -> None:
     assert body["workspace"]["metrics"]["player"]["player_id"] == 30486
 
 
+def test_agent_answers_per_match_xg_comparison_with_source_facts() -> None:
+    app = create_app(
+        settings=Settings(_env_file=None, llm_mode="mock"),
+        data_provider=provider(),
+    )
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/agent/runs",
+            json={
+                "question": "哪场 xG 最高",
+                "competition_id": 11,
+                "season_id": 90,
+                "player": "Pedri",
+                "player_id": 30486,
+                "requested_window": 3,
+            },
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "completed"
+    assert body["message"].startswith("### 单场xG比较")
+    assert "2021-01-08" in body["message"]
+    assert "Opponent" in body["message"]
+    assert "0.45" in body["message"]
+    assert "source:1002" in body["message"]
+
+
 def test_agent_stream_emits_started_before_completed() -> None:
     app = create_app(
         settings=Settings(_env_file=None, llm_mode="mock"),

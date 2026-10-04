@@ -159,7 +159,16 @@ def _events(match_id: int) -> list[dict[str, Any]]:
             [70, 35],
             {"end_location": [82, 36]},
         ),
-        _event(match_id, 4, "Shot", [108, 40], {"outcome": {"name": "Saved"}}),
+        _event(
+            match_id,
+            4,
+            "Shot",
+            [108, 40],
+            {
+                "outcome": {"name": "Saved"},
+                "statsbomb_xg": {1001: 0.23, 1002: 0.45, 1003: 0.12}[match_id],
+            },
+        ),
         _event(
             match_id,
             5,
@@ -257,7 +266,15 @@ def test_deterministic_findings_pass_evidence_gate() -> None:
 
     review = EvidenceGate().review(findings, evidence, metrics)
 
-    assert len(findings.findings) == 10
+    assert [row.expected_goals for row in metrics.matches] == [0.23, 0.45, 0.12]
+    assert len(findings.findings) == 11
+    assert any(
+        any(
+            reference.startswith("metric:expected_goals:")
+            for reference in item.metric_refs
+        )
+        for item in findings.findings
+    )
     assert review.overall_status == "passed"
     assert review.support_rate == 1.0
     assert all(item.status == "supported" for item in review.reviews)

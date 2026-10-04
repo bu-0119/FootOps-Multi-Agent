@@ -101,6 +101,7 @@ class PlayerEvent(StrictModel):
     pass_assisted_shot_id: str | None = None
     pass_shot_assist: bool = False
     pass_goal_assist: bool = False
+    shot_xg: float | None = Field(default=None, ge=0, le=1)
 
 
 class MatchDataSnapshot(StrictModel):

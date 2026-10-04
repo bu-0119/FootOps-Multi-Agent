@@ -42,12 +42,22 @@ class RequestIntentRouter:
         "最近五场",
         "角色变化",
         "比赛数据",
+        "哪场",
+        "哪一场",
+        "发挥最好",
+        "表现最好",
+        "最好的一场",
+        "射门最多",
+        "xg",
         "触球",
         "接球",
         "传球",
         "推进带球",
         "关键传球",
         "射门参与",
+        "射门",
+        "预期进球",
+        "进攻参与",
         "战术板",
         "趋势",
         "近3场",
@@ -145,6 +155,22 @@ class RequestIntentRouter:
             term in normalized for term in self._knowledge_question_terms
         )
         asks_for_analysis = any(term in normalized for term in self._analysis_terms)
+        has_recent_analysis = any(
+            turn.role == "user"
+            and any(
+                term in turn.content.casefold()
+                for term in ("分析", "最近几场", "近3场", "近5场", "比赛数据")
+            )
+            for turn in request.history
+        )
+        contextual_comparison = (
+            any(
+                term in normalized
+                for term in ("这名球员", "这球员", "哪场", "哪一场", "这几场", "其中")
+            )
+            and has_recent_analysis
+        )
+        asks_for_analysis = asks_for_analysis or contextual_comparison
         asks_for_hybrid = any(term in normalized for term in self._hybrid_terms)
         asks_for_metric_knowledge = any(
             term in normalized for term in self._metric_terms

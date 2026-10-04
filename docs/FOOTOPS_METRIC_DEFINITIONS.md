@@ -7,8 +7,8 @@
 ## 1. 输入约束
 
 本版本是**单球员、多场事件指标**，不是整场比赛或球队级分析。Provider 原始事件中
-可以包含 `Shot`，但当前指标层只把它用于基础射门次数和射门参与，不代表已经支持完整
-射门质量分析。
+可以包含 `Shot`，当前指标层支持基础射门次数、射门参与和 StatsBomb 提供时的球员 xG
+（不代表已经支持完整射门质量分析）。
 
 指标输入只能是经过 Provider 标准化的 `MatchDataSnapshot`：
 
@@ -56,6 +56,7 @@ Shot
 | `progressive_carry_count` | Carry 起终点 | `end_x - start_x >= 10` | 次 | 缺任一坐标则排除 |
 | `key_pass_count` | Pass 属性 | 有 `assisted_shot_id`、`shot_assist` 或 `goal_assist` | 次 | 无为 0 |
 | `shot_count` | Shot | Shot 事件条数 | 次 | 无为 0 |
+| `expected_goals` | Shot 的 `statsbomb_xg` | 该球员单场射门 xG 求和 | xG | 无射门为 0；任一射门缺 xG 时该场为 `null` |
 | `shot_involvement_count` | key pass + shot | 两者之和 | 次 | 无为 0 |
 
 平均值保留三位小数，比率保留四位小数。图表显示可以格式化，但不得覆盖 Artifact
@@ -63,17 +64,19 @@ Shot
 
 ### 3.1 Finding 覆盖
 
-当前 `DeterministicFindingBuilder` 已为以下 10 个指标生成可审核的跨比赛描述性 Finding：
+当前 `DeterministicFindingBuilder` 最多为以下 11 个指标生成可审核的跨比赛描述性 Finding；
+仅当所有样本比赛都有 xG 值时才生成 xG Finding：
 
 `average_touch_x`、`attacking_third_touch_ratio`、`penalty_area_touch_ratio`、
 `average_receipt_x`、`forward_pass_count`、`completed_forward_pass_count`、
-`progressive_carry_count`、`key_pass_count`、`shot_count`、`shot_involvement_count`。
+`progressive_carry_count`、`key_pass_count`、`shot_count`、`expected_goals`、
+`shot_involvement_count`。
 
 宽泛的角色/近期表现问题不会一次堆满全部指标，而是选择触球位置、进攻三区、接球位置、
 成功向前传球、推进带球和射门参与 6 个代表性 Finding；明确问题只选择相关指标。
 次数类 Finding 当前是所选比赛的场均次数，尚未按出场分钟或球队控球时间归一化，必须在
-limitations 中披露。`shot_involvement_count` 只是射门与关键传球之和，不代表进球、xG
-或完整进攻贡献。
+limitations 中披露。`shot_involvement_count` 只是射门与关键传球之和，不代表进球或完整进攻贡献。
+公开数据不保证每场每次射门都有 xG；缺值时不得补零或由模型估算。
 
 ## 4. 适用范围
 
@@ -92,7 +95,7 @@ v1 指标不能单独支持：
 - 跨数据源直接对比；
 - 因果判断；
 - 整场比赛的两队战术结构和比赛阶段复盘；
-- xG、射正、进球质量、射门方式等高级射门分析；
+- 射正、射门方式、整队机会质量等高级射门分析；球员 xG 只在来源数据提供时支持；
 - 职业训练、临场决策或博彩判断。
 
 ## 5. 变更规则

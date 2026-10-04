@@ -114,6 +114,7 @@ export interface MatchRoleMetrics {
   progressive_carry_count: number;
   key_pass_count: number;
   shot_count: number;
+  expected_goals: number | null;
   shot_involvement_count: number;
 }
 

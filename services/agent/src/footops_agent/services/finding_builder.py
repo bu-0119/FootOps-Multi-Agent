@@ -84,6 +84,15 @@ METRIC_FINDING_SPECS = (
         limitations=("射门次数不代表射门质量，也不等同于 xG 或射正次数。",),
     ),
     MetricFindingSpec(
+        field="expected_goals",
+        label="单场预期进球（xG）",
+        stable_threshold=0.05,
+        formatter=lambda value: f"{value:.2f}",
+        limitations=(
+            "xG 为球员本人射门事件所带的 StatsBomb xG 之和，不代表实际进球。",
+        ),
+    ),
+    MetricFindingSpec(
         field="shot_involvement_count",
         label="场均射门参与次数",
         stable_threshold=0.5,

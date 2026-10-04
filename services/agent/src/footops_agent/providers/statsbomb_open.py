@@ -348,6 +348,7 @@ class StatsBombOpenDataProvider:
         detail_key = event_name.lower().replace("*", "").replace(" ", "_")
         detail = _mapping(row.get(detail_key))
         pass_detail = _mapping(row.get("pass"))
+        shot_detail = _mapping(row.get("shot"))
         end_location = detail.get("end_location")
         outcome = _mapping(detail.get("outcome"))
         play_pattern = _mapping(row.get("play_pattern"))
@@ -367,6 +368,7 @@ class StatsBombOpenDataProvider:
             pass_assisted_shot_id=_optional_str(pass_detail.get("assisted_shot_id")),
             pass_shot_assist=bool(pass_detail.get("shot_assist", False)),
             pass_goal_assist=bool(pass_detail.get("goal_assist", False)),
+            shot_xg=_optional_float(shot_detail.get("statsbomb_xg")),
         )
 
 
@@ -389,6 +391,12 @@ def _required_int(row: Mapping[str, Any], key: str) -> int:
 
 def _optional_int(value: Any) -> int | None:
     return value if isinstance(value, int) and not isinstance(value, bool) else None
+
+
+def _optional_float(value: Any) -> float | None:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return None
+    return float(value)
 
 
 def _required_str(row: Mapping[str, Any], key: str) -> str:

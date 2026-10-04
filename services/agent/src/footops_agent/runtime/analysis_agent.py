@@ -64,6 +64,94 @@ def _decision_from_workspace(workspace: AnalysisWorkspace) -> AgentDecision:
     )
 
 
+def _mock_analysis_message(
+    question: str,
+    workspace: AnalysisWorkspace,
+) -> str:
+    """Produce a conservative, reproducible answer for credential-free runs."""
+    normalized = question.casefold()
+    metric = None
+    label = ""
+    if "xg" in normalized or "预期进球" in normalized:
+        metric, label = "expected_goals", "xG"
+    elif "射门参与" in normalized or "进攻参与" in normalized:
+        metric, label = "shot_involvement_count", "射门参与"
+    elif "射门" in normalized:
+        metric, label = "shot_count", "射门"
+
+    rows = workspace.metrics.matches if workspace.metrics else []
+    if metric and any(
+        word in normalized for word in ("哪场", "哪一场", "最多", "最高")
+    ):
+        ranked = [
+            (row, getattr(row, metric))
+            for row in rows
+            if getattr(row, metric) is not None
+        ]
+        if ranked:
+            best_value = max(value for _, value in ranked)
+            winners = [row for row, value in ranked if value == best_value]
+            appearances = {
+                item.match.match_id: item
+                for item in (
+                    workspace.coverage.appearances if workspace.coverage else []
+                )
+            }
+            descriptions = []
+            for row in winners:
+                appearance = appearances.get(row.match_id)
+                opponent = "对手未提供"
+                if appearance:
+                    match = appearance.match
+                    opponent = (
+                        match.away_team.team_name
+                        if appearance.team.team_id == match.home_team.team_id
+                        else match.home_team.team_name
+                    )
+                formatted = (
+                    f"{best_value:.2f}"
+                    if metric == "expected_goals"
+                    else str(best_value)
+                )
+                descriptions.append(
+                    f"{row.match_date.isoformat()} 对阵 {opponent}"
+                    f"（{label} {formatted}）"
+                )
+            tie_note = "并列最高" if len(winners) > 1 else "最高"
+            source_ids = "、".join(f"source:{row.match_id}" for row in winners)
+            return (
+                f"### 单场{label}比较\n\n"
+                f"所选样本中，{'；'.join(descriptions)}为{tie_note}。\n\n"
+                f"数据来源：{source_ids}。"
+            )
+
+    if any(word in normalized for word in ("发挥最好", "表现最好", "最好的一场")):
+        return (
+            "“发挥最好”没有单一客观口径。当前事件数据可以从多个维度比较：\n\n"
+            "- 射门与 xG\n- 射门参与和关键传球\n- 向前传球与推进带球\n\n"
+            "仅凭这些统计无法形成完整球员评分。你想优先按哪个指标判断？"
+        )
+
+    supported = [
+        item.statement
+        for item in workspace.findings
+        if workspace.evidence_review
+        and next(
+            (
+                review.status == "supported"
+                for review in workspace.evidence_review.reviews
+                if review.finding_id == item.finding_id
+            ),
+            False,
+        )
+    ]
+    if supported:
+        return "### 样本内观察\n\n" + "\n".join(
+            f"- {statement}" for statement in supported[:3]
+        )
+    return "数据已取回，但没有足够的已审核指标支持进一步评价。"
+
+
 def _safe_clarification(
     decision: AgentDecision,
     trace: list[AgentToolTrace],
@@ -74,9 +162,7 @@ def _safe_clarification(
         message = "请补充要分析的赛事和赛季；我只会使用公开目录中核验到的范围。"
     elif scope.player_id is None:
         label = " ".join(
-            item
-            for item in [scope.competition_name, scope.season_name]
-            if item
+            item for item in [scope.competition_name, scope.season_name] if item
         )
         player_not_found = any(
             item.tool_name == "search_players" and item.status == "not_found"
@@ -175,7 +261,7 @@ class MockAnalysisAgentRuntime:
         )
         decision = AgentDecision(
             action="completed",
-            message="mock Agent 已使用明确范围执行确定性分析。",
+            message=_mock_analysis_message(request.question, workspace),
             resolved_scope=ResolvedAgentScope(
                 competition_id=hint.competition_id,
                 season_id=hint.season_id,
@@ -270,14 +356,13 @@ class DeepSeekAnalysisAgentRuntime:
                 structured_output_grace_iters=2,
             ),
         )
+
     async def run(self, request: AgentAnalysisInput) -> AgentRuntimeResult:
         context = AgentToolContext(on_trace=self.trace_callback)
         agent = self._build_agent(context)
         content = {
             "question": request.question,
-            "conversation_history": [
-                turn.model_dump() for turn in request.history
-            ],
+            "conversation_history": [turn.model_dump() for turn in request.history],
             "scope_hint": request.scope_hint.model_dump(exclude_none=True),
             "instruction": (
                 "先读取 footops-player-role-analysis Skill，再按 Skill 使用工具。"

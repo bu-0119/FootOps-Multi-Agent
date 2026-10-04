@@ -267,6 +267,69 @@ def build_analysis_tools(
             f"工作区 {workspace.workspace_id} 已通过证据门禁，"
             f"包含 {len(workspace.findings)} 条观察。",
         )
+        appearances = {
+            item.match.match_id: item
+            for item in (workspace.coverage.appearances if workspace.coverage else [])
+        }
+        reviewed_findings = {
+            item.finding_id: item
+            for item in (
+                workspace.evidence_review.reviews if workspace.evidence_review else []
+            )
+        }
+        match_facts = []
+        if workspace.metrics is not None:
+            for row in workspace.metrics.matches:
+                appearance = appearances.get(row.match_id)
+                match = appearance.match if appearance else None
+                team_id = appearance.team.team_id if appearance else None
+                opponent = None
+                score = None
+                if match and team_id == match.home_team.team_id:
+                    opponent = match.away_team.team_name
+                    if match.home_score is not None and match.away_score is not None:
+                        score = f"{match.home_score}-{match.away_score}"
+                elif match:
+                    opponent = match.home_team.team_name
+                    if match.home_score is not None and match.away_score is not None:
+                        score = f"{match.away_score}-{match.home_score}"
+                match_facts.append(
+                    {
+                        "match_id": row.match_id,
+                        "date": row.match_date.isoformat(),
+                        "opponent": opponent,
+                        "score_from_player_team_perspective": score,
+                        "metrics": {
+                            "shots": row.shot_count,
+                            "xg": row.expected_goals,
+                            "shot_involvements": row.shot_involvement_count,
+                            "key_passes": row.key_pass_count,
+                            "forward_passes": row.forward_pass_count,
+                            "progressive_carries": row.progressive_carry_count,
+                            "average_touch_x": row.average_touch_x,
+                        },
+                        "source_ref": f"source:{row.match_id}",
+                        "metric_refs": {
+                            "shots": f"metric:shot_count:{row.match_id}",
+                            "xg": f"metric:expected_goals:{row.match_id}",
+                            "shot_involvements": (
+                                f"metric:shot_involvement_count:{row.match_id}"
+                            ),
+                        },
+                    }
+                )
+        findings_for_model = [
+            {
+                "finding_id": finding.finding_id,
+                "statement": finding.statement,
+                "claim_type": finding.claim_type,
+                "review_status": reviewed_findings.get(finding.finding_id).status
+                if finding.finding_id in reviewed_findings
+                else "unreviewed",
+                "limitations": finding.limitations,
+            }
+            for finding in workspace.findings
+        ]
         return {
             "status": "completed",
             "workspace_id": workspace.workspace_id,
@@ -276,7 +339,24 @@ def build_analysis_tools(
                 if workspace.evidence_review
                 else "missing"
             ),
-            "instruction": "分析已完成。结束工具调用并返回 completed。",
+            "player": workspace.metrics.player.model_dump(mode="json")
+            if workspace.metrics
+            else None,
+            "competition": workspace.coverage.competition.model_dump(mode="json")
+            if workspace.coverage
+            else None,
+            "match_facts": match_facts,
+            "reviewed_findings": findings_for_model,
+            "limitations": workspace.metrics.limitations if workspace.metrics else [],
+            "instruction": (
+                "match_facts 是逐场事实依据；用户问哪场最高时，只指出胜出场次、"
+                "该指标值和来源，不要逐场抄写所有数据（界面会展示完整数据表）。"
+                "射门次数、xG、射门参与是不同指标，不能互相替代。用户问‘整体发挥最好’"
+                "但未给标准时，不得私自合成总分；分别概括可用维度或询问评判口径。"
+                "只可称‘样本内上升/下降’，不可在没有统计检验时写‘统计显著’。"
+                "只根据 review_status=‘supported’ 的 Finding 下结论。"
+                "结束工具调用并返回 completed。"
+            ),
         }
 
     return [

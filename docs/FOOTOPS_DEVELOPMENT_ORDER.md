@@ -46,7 +46,7 @@
 | React 静态原型 | 已完成 | 页面和主要交互可用 |
 | 可折叠侧边栏 | 已完成 | 桌面和移动端已设计 |
 | 可编辑战术板 | Phase 2A 完成 | `TacticsBoardArtifact` 驱动审核后的位置、区域和移动箭头，支持本地编辑 |
-| 分析、证据和图表 | Phase 2B 扩展完成 | 10 个确定性 Finding（含基础射门次数/射门参与）、2 至 10 场同一球员对比报告、位置/推进趋势图、Evidence Gate 和描述性战术板消费真实历史数据；整场比赛分析、球队级分析和战术因果结论未实现 |
+| 分析、证据和图表 | Phase 2B 扩展中 | 最多 11 个确定性 Finding（含射门次数、来源可用时的球员 xG、射门参与）；逐场事实驱动 Agent 回答与 xG 趋势图已接入；2 至 10 场同一球员报告、Evidence Gate 和描述性战术板消费真实历史数据；整场比赛分析、球队级分析和战术因果结论未实现 |
 | 前后端业务契约 | Phase 2A 完成 | Workspace 创建/查询、分析 SSE、OpenAPI、Artifact/Event JSON Schema 和 TypeScript 类型已生成 |
 | Python Agent Service | 部分完成 | LLM 规划切片和确定性数据/指标切片可独立运行 |
 | 真实足球数据 | 部分完成 | StatsBomb Open Data 覆盖审计、缓存、标准化和五场黄金样例已验证 |

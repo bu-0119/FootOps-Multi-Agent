@@ -157,6 +157,22 @@ export default function App() {
     analysisController.current?.abort();
     const controller = new AbortController();
     analysisController.current = controller;
+    const normalizedQuestion = question.toLocaleLowerCase();
+    const isContextualFollowUp = [
+      "这名球员",
+      "这球员",
+      "哪场",
+      "哪一场",
+      "这几场",
+      "其中",
+      "射门最多",
+      "xg",
+      "预期进球",
+    ].some((term) => normalizedQuestion.includes(term));
+    const previousScope = isContextualFollowUp ? workspace?.request.scope : null;
+    const previousCompetition = isContextualFollowUp
+      ? workspace?.coverage?.competition
+      : null;
     setPendingQuestion(question);
     setWorkspace(null);
     setAgentOutcome(null);
@@ -173,10 +189,27 @@ export default function App() {
                 competition_id: selectedCompetition.competition_id,
                 season_id: selectedCompetition.season_id,
               }
-            : {}),
-          ...(playerQuery.trim() ? { player: playerQuery.trim() } : {}),
-          ...(selectedPlayerId ? { player_id: selectedPlayerId } : {}),
-          ...(requestedWindow ? { requested_window: requestedWindow } : {}),
+            : previousCompetition
+              ? {
+                  competition_id: previousCompetition.competition_id,
+                  season_id: previousCompetition.season_id,
+                }
+              : {}),
+          ...(playerQuery.trim()
+            ? { player: playerQuery.trim() }
+            : previousScope
+              ? { player: previousScope.player, player_id: previousScope.player_id }
+              : {}),
+          ...(selectedPlayerId
+            ? { player_id: selectedPlayerId }
+            : previousScope
+              ? { player_id: previousScope.player_id }
+              : {}),
+          ...(requestedWindow
+            ? { requested_window: requestedWindow }
+            : previousScope
+              ? { requested_window: previousScope.match_ids.length }
+              : {}),
         },
         agentHistory,
         controller.signal,

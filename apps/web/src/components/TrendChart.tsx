@@ -9,7 +9,7 @@ interface TrendChartProps {
 }
 
 type ChartMode = "position" | "actions";
-type SeriesColor = "green" | "blue" | "gray" | "amber";
+type SeriesColor = "green" | "blue" | "gray" | "amber" | "red";
 
 interface ChartSeries {
   findingId: string;
@@ -146,6 +146,14 @@ export function TrendChart({ metrics, findingIds, loading, error }: TrendChartPr
       format: count,
     },
     {
+      findingId: "finding:expected_goals",
+      label: "预期进球 xG",
+      values: rows.map((row) => row.expected_goals),
+      maximum: Math.max(0.1, ...rows.map((row) => row.expected_goals ?? 0)),
+      color: "red",
+      format: (value) => (value === null ? "—" : `${value.toFixed(2)} xG`),
+    },
+    {
       findingId: "finding:shot_involvement_count",
       label: "射门参与",
       values: rows.map((row) => row.shot_involvement_count),
@@ -154,13 +162,17 @@ export function TrendChart({ metrics, findingIds, loading, error }: TrendChartPr
       format: count,
     },
   ] satisfies ChartSeries[]).filter((series) => findingIds.includes(series.findingId));
+  const xgSeries = actionSeries.find(
+    (series) => series.findingId === "finding:expected_goals",
+  );
+  const displayedActionSeries = xgSeries ? [xgSeries] : actionSeries;
   const mode =
     requestedMode === "position" && positionSeries.length === 0
       ? "actions"
-      : requestedMode === "actions" && actionSeries.length === 0
+      : requestedMode === "actions" && displayedActionSeries.length === 0
         ? "position"
         : requestedMode;
-  const series = mode === "position" ? positionSeries : actionSeries;
+  const series = mode === "position" ? positionSeries : displayedActionSeries;
   const chartWidth = compact ? 360 : 620;
   const gridRight = compact ? 320 : 582;
   const valueX = compact ? 284 : 548;
@@ -174,10 +186,13 @@ export function TrendChart({ metrics, findingIds, loading, error }: TrendChartPr
   const lastX = xPositions.at(-1) ?? plotEnd;
   const playerLabel =
     metrics?.player.player_nickname ?? metrics?.player.player_name ?? "所选球员";
+  const xgMaximum = xgSeries?.maximum ?? 0;
   const axisLabels =
     mode === "position"
       ? ["100%", "67%", "33%", "0"]
-      : [
+      : xgSeries
+        ? [xgMaximum.toFixed(2), (xgMaximum * 2 / 3).toFixed(2), (xgMaximum / 3).toFixed(2), "0 xG"]
+        : [
           String(actionMaximum),
           String(Math.round((actionMaximum * 2) / 3)),
           String(Math.round(actionMaximum / 3)),

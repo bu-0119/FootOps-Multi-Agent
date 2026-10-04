@@ -62,9 +62,7 @@ class PlayerRoleMetricEngine:
         touch_locations = [event.location for event in touch_events if event.location]
         attacking_third = [point for point in touch_locations if point.x >= 80]
         penalty_area = [
-            point
-            for point in touch_locations
-            if point.x >= 102 and 18 <= point.y <= 62
+            point for point in touch_locations if point.x >= 102 and 18 <= point.y <= 62
         ]
         receipts = [
             event
@@ -92,6 +90,12 @@ class PlayerRoleMetricEngine:
             )
         ]
         shots = [event for event in snapshot.events if event.event_type == "Shot"]
+        shot_xg_values = [event.shot_xg for event in shots]
+        expected_goals = (
+            sum(value for value in shot_xg_values if value is not None)
+            if all(value is not None for value in shot_xg_values)
+            else None
+        )
         return MatchRoleMetrics(
             match_id=snapshot.match.match_id,
             match_date=snapshot.match.match_date,
@@ -116,6 +120,7 @@ class PlayerRoleMetricEngine:
             progressive_carry_count=len(progressive_carries),
             key_pass_count=len(key_passes),
             shot_count=len(shots),
+            expected_goals=expected_goals,
             shot_involvement_count=len(key_passes) + len(shots),
         )
 

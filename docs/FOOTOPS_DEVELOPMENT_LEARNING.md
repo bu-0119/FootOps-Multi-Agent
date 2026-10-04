@@ -994,6 +994,38 @@ KnowledgeAgent 返回证据不足，不回退进程内语料，也禁止模型�
 当前 Redis 索引版本为 `char-ngram-v2`。尚未添加授权比赛案例、战术模板、离线检索评测集
 或自动化的向量版本迁移工具。
 
+### 13.24 逐场表现问答、xG 与追问范围
+
+此前用户问“哪场发挥最好”时，普通分析链虽然运行 `FootOpsAnalysisAgent` 并生成 Workspace，
+但 `run_player_role_analysis` 只把完成状态回给模型，没有提供每场日期、对手和可比较指标。
+模型因此只能复述汇总 Finding，无法回答哪一场射门或参与最高。
+
+现在分析工具把已解析 Workspace 的逐场事实作为结构化 `match_facts` 返回给 ReAct Agent，
+包括日期、对手、球员视角比分、射门、xG、射门参与、关键传球、推进带球、来源 ID 和指标引用。
+System Prompt 要求模型基于这些事实逐场比较，区分射门数、xG 和射门参与；“发挥最好”没有
+唯一口径时不得编造综合评分。Mock Runtime 也提供确定性逐场比较回答，便于无密钥环境验证。
+前端使用 `react-markdown` 和 GFM 插件渲染回答，不再把 Markdown 源文本塞进普通段落；标题、
+列表、行内强调和表格分别排版。System Prompt 鼓励用小标题与列表，避免宽表格及长段落。
+逐场事实另由前端从 Workspace 指标生成表格，包含日期、对手比分、射门、xG、射门参与、关键
+传球、向前传球、推进带球和平均触球位置；现有趋势图接在表格之后，Agent 评论排在数据可视化之后。
+
+StatsBomb Provider 从 Shot detail 解析 `statsbomb_xg`，MetricEngine 对球员每场射门 xG 求和，
+FindingBuilder 和图表按需展示 xG。若一场比赛任一射门缺少 xG，该场 xG 为 `null`，而不是估算
+或补零；只有完整样本可形成跨场 xG Finding。前端 xG 图单独使用 xG 轴，不与射门次数混用刻度。
+宽泛问题仍只挑六项代表指标，xG 需用户明确询问。
+
+前端对“哪场”“这几场”“xG”等省略追问复用上一个分析 Workspace 的赛事、赛季、球员和窗口；
+界面当前显式选择仍优先。后端 Intent Router 结合近期对话识别追问为分析，而不是误判成普通聊天。
+该记忆只在当前前端会话中传递最近对话和工作区范围，不是跨设备长期记忆。
+
+实现入口：`providers/statsbomb_open.py`、`services/metric_engine.py`、
+`services/finding_builder.py`、`tools/analysis.py`、`runtime/analysis_agent.py`、
+`services/intent_routing.py`、`apps/web/src/App.tsx` 和 `TrendChart.tsx`。
+
+验证：全套 Python 测试、Ruff 和 Web 生产构建通过；回归测试断言 xG 逐场最大值回答包含日期、
+对手、数值和来源引用。当前仍是单球员、多场事件分析，不代表整场 xG、射正、进球、射门质量
+或无球战术分析；真实 StatsBomb 样本的 xG 覆盖率仍需进一步抽样核验。
+
 ## 14. 当前完整认识
 
 目前已经存在自然语言 Agent 入口、计划入口、一条确定性审核链和完整工作区生命周期：
@@ -1008,7 +1040,7 @@ Agent 执行链：问题/历史 -> AgentScope ReAct -> Skill -> Tools -> Workspa
 ```
 
 规划链只制定计划；Agent 执行链会在受控工具边界内读取比赛数据。真实 MetricArtifact
-驱动图表、10 个描述性 Finding、证据面板和战术板。当前有 `FootOpsPlanner`、
+驱动图表、最多 11 个描述性 Finding、逐场问答、证据面板和战术板。当前有 `FootOpsPlanner`、
 `ConversationAgent`、`FootOpsAnalysisAgent` 和 `FootOpsKnowledgeAgent` 等角色，并已实现
 Phase 3A 四角色事件驱动协作；前置 ScopeAgent 已接入自然语言多 Agent Harness。
 AgentScope App/Team 仍未接入默认业务链。Redis Vector RAG 支持规则、战术概念和指标定义；

@@ -27,6 +27,7 @@ class MatchRoleMetrics(StrictModel):
     progressive_carry_count: int = Field(ge=0)
     key_pass_count: int = Field(ge=0)
     shot_count: int = Field(ge=0)
+    expected_goals: float | None = Field(default=None, ge=0)
     shot_involvement_count: int = Field(ge=0)
 
 

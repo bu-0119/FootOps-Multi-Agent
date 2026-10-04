@@ -11,6 +11,8 @@ import {
   SlidersHorizontal,
   Swords,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   type AnalysisWorkspace,
   type CompetitionSeason,
@@ -50,6 +52,93 @@ interface ChatViewProps {
   onRequestedWindowChange: (value: number | undefined) => void;
   catalogLoading: boolean;
   catalogError: string;
+}
+
+function MatchFactsTable({ workspace }: { workspace: AnalysisWorkspace }) {
+  const metrics = workspace.metrics;
+  if (!metrics || metrics.matches.length === 0) {
+    return null;
+  }
+
+  const appearances = new Map(
+    (workspace.coverage?.appearances ?? []).map((item) => [
+      item.match.match_id,
+      item,
+    ]),
+  );
+
+  return (
+    <section className="match-facts" aria-labelledby="match-facts-title">
+      <header className="match-facts-header">
+        <div>
+          <h3 id="match-facts-title">逐场数据</h3>
+          <p>
+            {metrics.player.player_nickname ?? metrics.player.player_name} ·{" "}
+            {metrics.matches.length} 场 · StatsBomb Open Data
+          </p>
+        </div>
+        <span>球员事件统计</span>
+      </header>
+      <div className="match-facts-scroll" role="region" aria-label="逐场比赛指标">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">日期 / 对手</th>
+              <th scope="col">比分</th>
+              <th scope="col">射门</th>
+              <th scope="col">xG</th>
+              <th scope="col">射门参与</th>
+              <th scope="col">关键传球</th>
+              <th scope="col">向前传球</th>
+              <th scope="col">推进带球</th>
+              <th scope="col">平均触球 x</th>
+            </tr>
+          </thead>
+          <tbody>
+            {metrics.matches.map((row) => {
+              const appearance = appearances.get(row.match_id);
+              const match = appearance?.match;
+              const isHome =
+                appearance?.team.team_id === match?.home_team.team_id;
+              const opponent = !match
+                ? "对手未知"
+                : isHome
+                  ? match.away_team.team_name
+                  : match.home_team.team_name;
+              const score =
+                match?.home_score === null ||
+                match?.home_score === undefined ||
+                match.away_score === null
+                  ? "—"
+                  : isHome
+                    ? `${match.home_score}-${match.away_score}`
+                    : `${match.away_score}-${match.home_score}`;
+
+              return (
+                <tr key={row.match_id}>
+                  <th scope="row">
+                    <time dateTime={row.match_date}>{row.match_date}</time>
+                    <span>vs {opponent}</span>
+                  </th>
+                  <td>{score}</td>
+                  <td>{row.shot_count}</td>
+                  <td>{row.expected_goals?.toFixed(2) ?? "—"}</td>
+                  <td>{row.shot_involvement_count}</td>
+                  <td>{row.key_pass_count}</td>
+                  <td>{row.forward_pass_count}</td>
+                  <td>{row.progressive_carry_count}</td>
+                  <td>{row.average_touch_x?.toFixed(1) ?? "—"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="match-facts-note">
+        xG 缺失以“—”显示；向前传球、推进带球和触球位置按 FootOps 指标口径计算。
+      </p>
+    </section>
+  );
 }
 
 export function ChatView({
@@ -260,18 +349,30 @@ export function ChatView({
                           ? "这个问题超出当前已验证能力。"
                       : `${findings.length} 条描述性观察已通过确定性证据门禁。`}
                 </h2>
-                {agentStatus !== "chat" && (!workspace || isHybridAnalysis) && (
-                  <p
+                {workspace && <MatchFactsTable workspace={workspace} />}
+                {workspace?.metrics && (
+                  <TrendChart
+                    metrics={workspace.metrics}
+                    findingIds={findings.map((finding) => finding.finding_id)}
+                    loading={false}
+                    error={metricError}
+                  />
+                )}
+                {agentStatus !== "chat" &&
+                  (!workspace || isHybridAnalysis || Boolean(agentMessage)) && (
+                  <div
                     className={`answer-lead ${
                       isKnowledgeAnswer ? "knowledge-answer" : ""
                     }`}
                   >
-                    {metricError
-                      ? metricError
-                      : isKnowledgeAnswer
-                        ? typedAgentMessage
-                      : typedAgentMessage}
-                  </p>
+                    {metricError ? (
+                      metricError
+                    ) : (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {typedAgentMessage}
+                      </ReactMarkdown>
+                    )}
+                  </div>
                 )}
 
                 <div className="evidence-points">
@@ -282,15 +383,6 @@ export function ChatView({
                     </div>
                   ))}
                 </div>
-
-                {workspace?.metrics && (
-                  <TrendChart
-                    metrics={workspace?.metrics ?? null}
-                    findingIds={findings.map((finding) => finding.finding_id)}
-                    loading={false}
-                    error={metricError}
-                  />
-                )}
 
                 {workspace && (
                   <div className="source-links">
